@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="description" content="Control helps you keep useful social spaces while removing distracting feeds and infinite scrolling." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Control - Digital Wellbeing</title>
+    <link rel="icon" type="image/png" href="assets/Icon32.png" />
+    <link rel="apple-touch-icon" href="assets/ControlUnifiedIcon512.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="styles/App.css?v=0.47.2" />
+    <link rel="stylesheet" href="styles/Home.css?v=0.57.6" />
+    <link rel="stylesheet" href="styles/HomeV2.css?v=0.70.0" />
+    <link rel="stylesheet" href="styles/ZipControlHome.css?v=1.2.0" />
+    <link rel="stylesheet" href="styles/ZipControlApp.css?v=1.2.1" />
+  </head>
+  <body class="AppShell Booting">
+    <div class="AmbientCanvas" aria-hidden="true">
+      <span class="AmbientOrb AmbientOrbBlue"></span>
+      <span class="AmbientOrb AmbientOrbRose"></span>
+      <span class="AmbientOrb AmbientOrbAmber"></span>
+      <span class="AmbientCurve AmbientCurveOne"></span>
+      <span class="AmbientCurve AmbientCurveTwo"></span>
+    </div>
+    <section class="BootScreen" id="BootScreen" aria-label="Control is loading">
+      <div class="BootSeraph" aria-hidden="true">
+        <span class="BootOrbit BootOrbitOuter"></span>
+        <span class="BootOrbit BootOrbitInner"></span>
+        <div class="BootSeraphMark ControlLogoGlyph">
+          <img class="BootBaseLogo" src="assets/ControlSelectedBlack.png" alt="" />
+          <i class="SiteEyePupil" aria-hidden="true"></i>
+          <b class="SiteEyeBlink" aria-hidden="true"></b>
+        </div>
+      </div>
+      <div class="BootMessage" role="status" aria-live="polite">
+        <strong>Control</strong>
+        <span class="BootStatusText" id="BootStatusText">Preparing your space</span>
+        <span class="BootDots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+    </section>
+    <section class="Onboarding" id="Onboarding" hidden aria-label="Create your Control account">
+      <div class="OnboardingShell">
+        <header class="OnboardingHeader"><span class="OnboardingBrand"><span class="OnboardingLogoMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><strong>Control</strong></span><span class="OnboardingProgress"><i class="IsActive"></i><i></i><i></i><i></i></span><small id="OnboardingStepLabel">01 / 04</small></header>
+        <div class="OnboardingBody">
+          <article class="OnboardingStep IsActive" data-onboarding-step="0"><p class="PageEyebrow">Private access</p><h1>Enter Control<br /><em>with your own space.</em></h1><p class="OnboardingLead">Every protection control is available locally without an account. Sign in only if you want a personal profile, or continue directly.</p><div class="OnboardingAuthProviders"><button type="button" data-onboarding-provider="Apple"><span></span> Continue with Apple</button><button type="button" data-onboarding-provider="Google"><span>G</span> Continue with Google</button></div><div class="OnboardingDivider"><span>sign in with a local Control account</span></div><form class="OnboardingForm CompactAuthForm" id="OnboardingSigninForm"><label>Email<input id="OnboardingSigninEmail" type="email" autocomplete="email" required /></label><label>Password<input id="OnboardingSigninPassword" type="password" autocomplete="current-password" required /></label><label>Two-step code<input id="OnboardingSigninTwoFactor" inputmode="numeric" maxlength="6" placeholder="If enabled" /></label><button class="OnboardingPrimary" type="submit">Sign in <span>&rarr;</span></button></form><div class="OnboardingDivider"><span>or create a local Control account</span></div><form class="OnboardingForm" id="OnboardingAccountForm"><label>Full name<input id="OnboardingName" maxlength="40" autocomplete="name" required /></label><label>Email<input id="OnboardingEmail" type="email" autocomplete="email" required /></label><div class="OnboardingFieldPair"><label>Password<input id="OnboardingPassword" type="password" minlength="12" autocomplete="new-password" required /></label><label>Confirm password<input id="OnboardingPasswordConfirm" type="password" minlength="12" autocomplete="new-password" required /></label></div><label>Two-step code <input id="OnboardingTwoFactor" inputmode="numeric" maxlength="6" placeholder="Optional for now" /></label><small id="OnboardingAccountError" class="OnboardingError" aria-live="polite"></small><div class="OnboardingEntryActions"><button class="OnboardingPrimary" type="submit">Create account <span>&rarr;</span></button><button class="OnboardingGhost" id="EnterGuestButton" type="button">Continue without account</button></div></form></article>
+          <article class="OnboardingStep" data-onboarding-step="1"><p class="PageEyebrow">Your intention</p><h1>What should your time<br /><em>make room for?</em></h1><p class="OnboardingLead">This gives your workspace a clear purpose. You can refine filters later; the protected applications themselves are chosen once.</p><div class="OnboardingChoices" id="OnboardingIntentChoices"><button class="IsSelected" type="button" data-intent="Focus"><span>01</span><strong>Deep focus</strong><small>Protect uninterrupted work.</small></button><button type="button" data-intent="Learning"><span>02</span><strong>Learning</strong><small>Turn scrolling time into skills.</small></button><button type="button" data-intent="Connection"><span>03</span><strong>Connection</strong><small>Keep people, remove feeds.</small></button><button type="button" data-intent="Wellbeing"><span>04</span><strong>Wellbeing</strong><small>Create a quieter daily rhythm.</small></button></div><button class="OnboardingPrimary" id="OnboardingIntentNext" type="button">Continue <span>&rarr;</span></button></article>
+          <article class="OnboardingStep" data-onboarding-step="2"><p class="PageEyebrow">Choose protection</p><h1>Choose the applications<br /><em>you want to protect.</em></h1><p class="OnboardingLead">Select at least one to start. Every application and rule remains editable later from Apps.</p><div class="OnboardingApps" id="OnboardingAppChoices"></div><small id="OnboardingAppsError" class="OnboardingError" aria-live="polite"></small><button class="OnboardingPrimary" id="OnboardingAppsNext" type="button">Review my protection <span>&rarr;</span></button></article>
+          <article class="OnboardingStep" data-onboarding-step="3"><p class="PageEyebrow">Final confirmation</p><h1>Your useful spaces.<br /><em>No infinite entrances.</em></h1><p class="OnboardingLead">Control starts with these choices and lets you adjust every filter whenever you need.</p><div class="OnboardingSummary" id="OnboardingSummary"></div><label class="OnboardingConsent"><input id="OnboardingConsent" type="checkbox" /><span>Apply these settings locally on this device.</span></label><button class="OnboardingPrimary" id="CompleteOnboardingButton" type="button" disabled>Apply protection and enter Control <span>&rarr;</span></button></article>
+        </div>
+      </div>
+    </section>    <aside class="Sidebar" id="MainNavigation" aria-label="Main navigation">
+      <div class="SidebarBrand">
+        <span class="BrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span>
+        <span><strong>Control</strong><small>Digital wellbeing</small></span>
+      </div>
+
+      <div class="DeviceStatus">
+        <span class="StatusDot"></span>
+        <div><strong id="ProtectionStatusTitle">Protection active</strong><small>This device</small></div>
+      </div>
+
+      <nav class="SidebarNavigation">
+        <p>Workspace</p>
+        <a class="NavigationLink IsActive" href="#Home" data-section="Home"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 12 4l9 7.2v8.3a.5.5 0 0 1-.5.5H15v-6H9v6H3.5a.5.5 0 0 1-.5-.5z" /></svg></span><span>Home</span></a>
+        <a class="NavigationLink" href="#Apps" data-section="Apps"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z" /></svg></span><span>Apps</span><b id="SidebarRuleCount">0</b></a>
+        <a class="NavigationLink" href="#Activity" data-section="Activity"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m5 10V5m6 14v-7m5 7V3" /></svg></span><span>Activity</span></a>
+        <a class="NavigationLink" href="#Settings" data-section="Settings"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm8.1 5.3.1-1.5-.1-1.5-2.1-.8a7 7 0 0 0-.7-1.2l.3-2.3-2.6-1.5-1.8 1.4h-1.4L10 4.7 7.4 6.2l.3 2.3A7 7 0 0 0 7 9.7l-2.1.8-.1 1.5.1 1.5 2.1.8c.2.4.4.8.7 1.2l-.3 2.3 2.6 1.5 1.8-1.4h1.4l1.8 1.4 2.6-1.5-.3-2.3c.3-.4.5-.8.7-1.2z" /></svg></span><span>Settings</span></a>
+        <a class="NavigationLink" href="#Profile" data-section="Profile"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c.5-4 3-6 7-6s6.5 2 7 6z" /></svg></span><span>Profiles</span></a>
+      </nav>
+
+      <div class="SidebarFooter">
+        <div class="PrivacyMini"><span>&#9679;</span><div><strong>Private by design</strong><small>All data stays on this device</small></div></div>
+        <span>Version 0.47.1</span>
+      </div>
+    </aside>
+
+    <header class="MobileTopbar">
+      <button class="MobileMenuButton" id="MobileMenuButton" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+      <a class="MobileBrand" href="#Home" data-section="Home"><span class="MobileBrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><strong>Control</strong></a>
+      <span class="MobileStatus"><i></i> On</span>
+    </header>
+
+    <main class="Workspace">
+      <section class="PageSection IsVisible" id="Home">
+        <div class="ZipControlHome">
+          <section class="ZipHero" aria-labelledby="ZipHeroTitle">
+            <nav class="ZipTopbar" aria-label="Primary navigation">
+              <a class="ZipBrand" href="#Home" data-section="Home" aria-label="Control home">
+                <span class="ZipBrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span>
+                <strong>Control</strong>
+              </a>
+              <div class="ZipTopLinks">
+                <a href="#ZipBenefits">Features</a>
+                <a href="#ZipComparison">How it works</a>
+                <a href="#Profile" data-section="Profile">Community</a>
+                <a href="#ZipBenefits">FAQ</a>
+                <a class="ZipExtensionLink" href="#Apps" data-section="Apps"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.7A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14.1a6 6 0 0 1 0-3.9V7.5H3.2a10 10 0 0 0 0 9.3l3.3-2.7Z"/><path fill="#ea4335" d="M12 6.1c1.6 0 3 .5 4.1 1.6l3.1-3A10 10 0 0 0 3.2 7.5l3.3 2.7a5.8 5.8 0 0 1 5.5-4.1Z"/></svg>Use extension</a>
+              </div>
+              <div class="ZipTopActions">
+                <a class="ZipButton ZipButtonSmall" href="INSTALLATION.txt" target="_blank" rel="noopener">Download Control</a>
+                <button class="ZipTopProfile" type="button" data-section="Profile" aria-label="Open profile"><span id="ZipTopProfileAvatar">C</span></button>
+              </div>
+            </nav>
+
+            <div class="ZipHeroInner">
+              <div class="ZipHeroCopy">
+                <p class="ZipKicker"><span aria-hidden="true">✦</span> Take back your attention</p>
+                <h1 id="ZipHeroTitle">Reclaim your time.<br />Live on <em>purpose.</em></h1>
+                <p class="ZipHeroLead">Control removes the endless scroll, distractions<br class="ZipDesktopBreak" /> and manipulative features from your favorite<br class="ZipDesktopBreak" /> apps — so you can focus on what matters.</p>
+                <div class="ZipHeroPromises" aria-label="Control promises">
+                  <span><i>✦</i> No more endless scroll</span>
+                  <span><i>◉</i> Block reels &amp; shorts</span>
+                  <span><i>♢</i> Privacy first</span>
+                </div>
+                <div class="ZipHeroActions">
+                  <a class="ZipButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Download for free <span aria-hidden="true">↓</span></a>
+                  <a class="ZipWatch" href="#ZipComparison">See how it works <span aria-hidden="true">▶</span></a>
+                </div>
+                <div class="ZipAvailable" aria-label="Available on Windows, Apple and Android">
+                  <span>Available on</span>
+                  <b aria-label="Windows"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.2 10.3 4v7.2H2V5.2Zm9.4-1.35L22 2.3v8.9H11.4V3.85ZM2 12.3h8.3v7.3L2 18.45V12.3Zm9.4 0H22v8.9l-10.6-1.5v-7.4Z" /></svg></b>
+                  <b aria-label="Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg></b>
+                  <b aria-label="Android"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7.1 8.1-1.5-2.6M16.9 8.1l1.5-2.6" /><path d="M5.2 10.2h13.6v8.1a1.7 1.7 0 0 1-1.7 1.7H6.9a1.7 1.7 0 0 1-1.7-1.7v-8.1Z" /><path d="M7 10.2A5 5 0 0 1 12 6a5 5 0 0 1 5 4.2M8.2 14h.01M15.8 14h.01M3 11.5v5.2M21 11.5v5.2M8.3 20v2M15.7 20v2" /></svg></b>
+                </div>
+              </div>
+
+              <div class="ZipHeroVisual" aria-label="Control application preview">
+                <div class="ZipStatsCard" aria-label="Weekly protection summary">
+                  <span>Time saved</span><strong>12h 47m</strong><small>this week</small>
+                  <span>Scrolls blocked</span><strong>1,842</strong><small>this week</small>
+                  <span>Sessions protected</span><strong>23</strong><small>this week</small>
+                </div>
+                <img class="ZipHeroPhone" src="assets/landing/ZipControlHeroPhone.png" alt="Control mobile app with Focus Mode active and distracting feeds blocked" />
+              </div>
+            </div>
+          </section>
+
+          <main class="ZipMain">
+            <section class="ZipBenefits" id="ZipBenefits" aria-labelledby="ZipBenefitsTitle">
+              <h2 id="ZipBenefitsTitle">Designed to give you back control</h2>
+              <div class="ZipBenefitGrid">
+                <article>
+                  <span class="ZipBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m6.5 17.5 11-11"/></svg></span>
+                  <strong>Remove distractions</strong>
+                  <p>Hide reels, shorts, and infinite<br />scrolling from your apps.</p>
+                </article>
+                <article>
+                  <span class="ZipBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.2A3 3 0 0 0 5.4 9 3 3 0 0 0 5 14a3.2 3.2 0 0 0 4 4.8M15 5.2A3 3 0 0 1 18.6 9a3 3 0 0 1 .4 5 3.2 3.2 0 0 1-4 4.8M9 4v16M15 4v16M9 9h2M13 14h2"/></svg></span>
+                  <strong>Protect your focus</strong>
+                  <p>Stay in the flow with smart<br />sessions and deep focus modes.</p>
+                </article>
+                <article>
+                  <span class="ZipBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V13h3v6M11 19V8h3v11M17 19V4h3v15"/></svg></span>
+                  <strong>Track your progress</strong>
+                  <p>See how much time you save<br />and how you're improving.</p>
+                </article>
+                <article>
+                  <span class="ZipBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M9 10V7a3 3 0 0 1 6 0v3M12 14v2"/></svg></span>
+                  <strong>Privacy first</strong>
+                  <p>No data selling. No tracking.<br />Your focus is yours.</p>
+                </article>
+              </div>
+
+              <section class="ZipComparison" id="ZipComparison" aria-labelledby="ZipComparisonTitle">
+                <div class="ZipComparisonCopy">
+                  <small id="ZipOverviewEyebrow">POWERFUL FILTERS</small>
+                  <h2 id="ZipComparisonTitle">Cut the noise.<br />Keep what matters.</h2>
+                  <p id="ZipOverviewCopy">Control filters out addictive content<br />so you can use your apps without<br />getting sucked in.</p>
+                  <ul id="ZipOverviewRules">
+                    <li>Remove Reels &amp; Shorts</li>
+                    <li>Hide Explore &amp; Trending</li>
+                    <li>Disable Infinite Scroll</li>
+                    <li>Customize per app</li>
+                  </ul>
+                  <button class="ZipExplore" id="ZipExploreFeatures" type="button">Explore all features <span aria-hidden="true">→</span></button>
+                </div>
+                <div class="ZipBeforeAfter">
+                  <figure><figcaption>Without Control</figcaption><img src="assets/landing/ZipControlBefore.png" alt="Instagram Reels feed without Control" /></figure>
+                  <span class="ZipComparisonMark"><span class="ControlLogoGlyph"><img src="assets/ControlSelectedBlack.png" alt="Control" /><i class="SiteEyePupil" aria-hidden="true"></i><b class="SiteEyeBlink" aria-hidden="true"></b></span></span>
+                  <figure><figcaption>With Control</figcaption><img src="assets/landing/ZipControlAfter.png" alt="Instagram caught-up screen with Control" /></figure>
+                </div>
+                <div class="ZipQuickScene" id="ZipQuickScene" aria-hidden="true">
+                  <header>
+                    <button type="button" id="ZipCloseQuickControls" aria-label="Return to Powerful Filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/><path d="M8 12h10"/></svg><span>Back to overview</span></button>
+                    <div><small>QUICK CONTROLS</small><h2>Choose an app.<br />Change what stays.</h2><p>Your settings are applied instantly and remain editable at any time.</p></div>
+                  </header>
+                  <div class="ZipQuickSceneBody">
+                    <div class="ZipAppPicker" id="ZipAppPicker" aria-label="Choose an application"></div>
+                    <div class="ZipActiveApp"><span class="ZipActiveAppIcon" id="ZipActiveAppIcon"></span><div><strong id="ZipActiveAppName">Instagram</strong><small id="ZipActiveAppCopy">Choose exactly what stays available.</small></div><em id="ZipActiveAppState">Protected</em></div>
+                    <div class="ZipQuickRules" id="ZipQuickRules"></div>
+                    <button class="ZipOpenAllSettings" type="button" id="ZipOpenAppSettings">Open every setting <span aria-hidden="true">→</span></button>
+                  </div>
+                </div>
+              </section>
+
+              <footer class="ZipBottomBar">
+                <div class="ZipCommunityProof">
+                  <span class="ZipPeople" aria-hidden="true"><i>J</i><i>M</i><i>A</i></span>
+                  <p>Join 50,000+ people<br />who chose focus over distraction.</p>
+                </div>
+                <div class="ZipBottomCta">
+                  <strong>Ready to take back control?</strong>
+                  <a class="ZipButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Download Control for free <span aria-hidden="true">↓</span></a>
+                </div>
+              </footer>
+              <footer class="ZipLegalBar" aria-label="Mentions légales">
+                <span>© 2026 Control. Tous droits réservés.</span>
+                <span>Mentions légales</span>
+              </footer>
+            </section>
+          </main>
+        </div>
+        <section class="ControlLanding" aria-labelledby="LandingTitle">
+          <div class="ControlLandingV2">
+            <nav class="V2Topbar" aria-label="Primary navigation">
+              <a class="V2Brand" href="#Home" data-section="Home"><span class="V2BrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i aria-hidden="true"></i></span><strong>Control</strong></a>
+              <div class="V2TopLinks">
+                <a class="IsActive" href="#Home">Home</a>
+                <a href="#V2Platforms">Features</a>
+                <a href="#V2SampleBridge">How it works</a>
+                <a href="#V2Legal">Privacy</a>
+                <a href="#V2Legal">About</a>
+              </div>
+              <div class="V2TopActions">
+                <button class="V2ThemeButton" type="button" id="V2ThemeButton" aria-label="Switch to dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" /></svg></button>
+                <button class="V2AdminButton" type="button" data-go-to="Profile" data-v2-admin-link aria-label="Open admin panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /><path d="M9.5 12h5M12 9.5v5" /></svg><span>Admin Panel</span></button>
+                <a class="V2InstallButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Get Started</a>
+                <div class="V2AccountMenu">
+                  <button class="V2AccountButton" type="button" aria-label="Open account" aria-expanded="false" aria-controls="V2AccountPopover"><span class="V2AccountAvatar" data-v2-account-avatar><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5.5 20c.5-4 2.7-6 6.5-6s6 2 6.5 6" /></svg></span></button>
+                  <section class="V2AccountPopover" id="V2AccountPopover" hidden>
+                    <header><span class="V2AccountAvatar V2AccountAvatarLarge" data-v2-account-avatar><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5.5 20c.5-4 2.7-6 6.5-6s6 2 6.5 6" /></svg></span><div><strong>Your Control account</strong><small>Local, private and optional.</small></div></header>
+                    <div class="V2AccountProviders"><button type="button" data-v2-account-provider="Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg> Apple</button><button type="button" data-v2-account-provider="Google"><b>G</b> Google</button></div>
+                    <div class="V2AccountDivider"><span>or sign in locally</span></div>
+                    <form id="V2AccountSigninForm"><label>Email<input id="V2AccountEmail" type="email" autocomplete="email" required /></label><label>Password<input id="V2AccountPassword" type="password" autocomplete="current-password" required /></label><button type="submit">Sign in</button></form>
+                    <button class="V2AccountFullAccess" type="button" data-v2-open-profile>Create account or manage profile <span>&#8599;</span></button>
+                  </section>
+                </div>
+              </div>
+            </nav>
+
+            <nav class="V2HeroRail" aria-label="Homepage sections">
+              <button class="IsActive" type="button" aria-label="Hero" data-v2-hero-target="Home"></button>
+              <button type="button" aria-label="Every platform" data-v2-hero-target="V2Platforms"></button>
+              <button type="button" aria-label="How it works" data-v2-hero-target="V2SampleBridge"></button>
+              <button type="button" aria-label="Product sample" data-v2-hero-target="V2ProductSample"></button>
+              <button type="button" aria-label="Download" data-v2-hero-target="V2StoreBand"></button>
+            </nav>
+
+            <main>
+              <section class="V2Hero" aria-labelledby="LandingTitle">
+                <div class="V2HeroCopy">
+                  <p class="V2HeroKicker">Digital wellbeing, without the noise.</p>
+                  <h1 id="LandingTitle">Scroll less.<br /><em>Live more.</em></h1>
+                  <p class="V2HeroLead">If platforms can take our time for free,<br />we should never have to pay to take it back.</p>
+                  <div class="V2HeroActions">
+                    <a class="V2InstallButton V2HeroInstall" href="INSTALLATION.txt" target="_blank" rel="noopener">Get Started <span aria-hidden="true">&#8599;</span></a>
+                    <a class="V2LearnButton" href="#V2ProductSample"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m10 8 6 4-6 4Z" /></svg>Learn how it works</a>
+                  </div>
+                </div>
+                <p class="V2HeroProof"><span></span>100% private. Free forever.</p>
+              </section>
+
+              <section class="V2Platforms" id="V2Platforms" aria-labelledby="V2PlatformsTitle">
+                <header>
+                  <p class="V2PlatformsEyebrow"><span></span> One protection. Every screen.</p>
+                  <h2 id="V2PlatformsTitle">Control across<br /><em>every platform.</em></h2>
+                  <p>Your settings follow the way you use the internet, from a quick browser session to focused work on Mac and everyday protection on iPhone.</p>
+                </header>
+
+                <div class="V2PlatformProtection">
+                  <span class="V2ProtectionMark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-5" /></svg></span>
+                  <span><small>Safety</small><strong id="V2SensitiveStatus">Protected everywhere</strong></span>
+                  <button class="V2Switch IsOn" type="button" role="switch" aria-label="Sensitive content safety" aria-checked="true" data-v2-switch data-setting="sensitive"><i></i></button>
+                </div>
+
+                <div class="V2PlatformGrid">
+                  <article class="V2PlatformCard V2BrowserCard">
+                    <div class="V2PlatformCardTop"><span class="V2PlatformIcon V2ChromeLogo" aria-hidden="true"><i></i></span><span><small>Google Extension</small><strong>Protected browsing</strong></span><b>LIVE</b></div>
+                    <img class="V2PlatformArtwork V2BrowserArtwork" src="assets/landing/ControlBrowserExtension-v1.png" alt="Control Google browser extension showing focus score and safety controls" />
+                    <footer><span><i></i> Blocks sensitive pages</span><strong>Chrome · Edge · Firefox</strong></footer>
+                  </article>
+
+                  <article class="V2PlatformCard V2MacCard">
+                    <div class="V2PlatformCardTop"><span class="V2PlatformIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg></span><span><small>Desktop App</small><strong>Focus without noise</strong></span><b>MAC</b></div>
+                    <img class="V2PlatformArtwork V2DesktopArtwork" src="assets/landing/ControlAuraDesktop.png" alt="Control desktop app with time saved and hidden content settings" />
+                    <footer><span><i></i> Daily limits synced</span><strong>macOS · Windows</strong></footer>
+                  </article>
+
+                  <article class="V2PlatformCard V2MobileCard">
+                    <div class="V2PlatformCardTop"><span class="V2PlatformIcon V2AppleLogo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg></span><span><small>Mobile App</small><strong>Protection on the go</strong></span><b>IOS</b></div>
+                    <img class="V2PlatformArtwork V2PhoneArtwork" src="assets/landing/ControlAuraPhone.png" alt="Control mobile app showing time saved and top applications" />
+                    <footer><span><i></i> Safety stays active</span><strong>iPhone · Android</strong></footer>
+                  </article>
+                </div>
+
+                <p class="V2PlatformsFree"><span>100%</span><strong>Free forever.</strong>No subscription. No paywall. Every protection included.</p>
+              </section>
+
+              <section class="V2Highlights V2Principles" id="V2Highlights" aria-labelledby="V2PrinciplesTitle">
+                <header><p>Designed around your attention</p><h2 id="V2PrinciplesTitle">Protection should feel quiet.</h2></header>
+                <article><span>01</span><div><strong>End the loop</strong><p>Remove the feed patterns engineered to keep you scrolling.</p></div></article>
+                <article><span>02</span><div><strong>Protect every surface</strong><p>Apply the same choices across social networks, search and browsers.</p></div></article>
+                <article><span>03</span><div><strong>Keep data local</strong><p>Your rules and activity remain on your device by default.</p></div></article>
+                <article><span>04</span><div><strong>Free, without compromise</strong><p>No subscription, no ads and no sale of personal data.</p></div></article>
+              </section>
+
+              <header class="V2SampleBridge" id="V2SampleBridge">
+                <p class="V2Eyebrow"><span></span> Your controls</p>
+                <h2>Customize<br /><em>your experience.</em></h2>
+                <p>Start with a calm preview. Open it when you are ready, then choose what appears, what stops, and what stays protected.</p>
+                <a href="#V2ProductSample">Open the interactive sample <span aria-hidden="true">&#8595;</span></a>
+              </header>
+
+              <section class="V2ProductSample" id="V2ProductSample" aria-labelledby="V2CustomizeTitle">
+                <div class="V2SampleIntro">
+                  <p class="V2Eyebrow"><span></span> Product sample</p>
+                  <h2 id="V2CustomizeTitle">Customize<br /><em>your experience</em></h2>
+                  <p>Choose what to hide, limit, and protect. Test the controls here before installing.</p>
+                  <button class="V2SamplePreview" type="button" aria-expanded="false" aria-controls="V2ControlPanel" data-v2-reveal-sample>
+                    <img src="assets/landing/ControlSlidersGlass.png" alt="Open the Control customization sample" />
+                    <span><small>Interactive sample</small><strong>View</strong><b aria-hidden="true">&#8599;</b></span>
+                  </button>
+                </div>
+
+                <div class="V2ControlPanel" id="V2ControlPanel" hidden>
+                  <div class="V2ControlTabs" role="tablist" aria-label="Control settings">
+                    <button class="IsActive" type="button" role="tab" aria-selected="true" data-v2-tab="blocked"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /></svg>Blocked apps</button>
+                    <button type="button" role="tab" aria-selected="false" data-v2-tab="focus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M12 7v5l3 2" /></svg>Focus mode</button>
+                    <button type="button" role="tab" aria-selected="false" data-v2-tab="sensitive"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /></svg>Sensitive content</button>
+                    <button type="button" role="tab" aria-selected="false" data-v2-tab="limits"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Daily limits</button>
+                  </div>
+
+                  <div class="V2ControlWorkspace">
+                    <div class="V2ControlMain">
+                      <section class="V2SettingsPanel IsActive" data-v2-panel="blocked">
+                        <header><div><strong>Manage apps &amp; features</strong><small>Choose what to hide, limit, or protect.</small></div><button type="button" data-v2-collapse>Collapse all⌃</button></header>
+                        <div class="V2AppSettings">
+                          <article><div class="V2AppIdentity"><img src="assets/Instagram.svg" alt="" /><strong>Instagram</strong></div><label>Hide feed &amp; stories<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="Instagram.ForYou"><i></i></button></label><label>Block explore<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="Instagram.Explore"><i></i></button></label><label>Mute suggested<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="Instagram.AdsAndSuggested"><i></i></button></label></article>
+                          <article><div class="V2AppIdentity"><img src="assets/YouTube.svg" alt="" /><strong>YouTube</strong></div><label>Hide shorts<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="YouTube.Shorts"><i></i></button></label><label>Limit recommendations<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="YouTube.Recommendations"><i></i></button></label><label>Hide home feed<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="YouTube.HomeFeed"><i></i></button></label></article>
+                          <article class="IsExpanded"><div class="V2AppIdentity"><img src="assets/TikTok.svg" alt="" /><strong>TikTok</strong></div><label>Hide feed<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="TikTok.FollowingFeed"><i></i></button></label><label>Block For You<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="TikTok.ForYou"><i></i></button></label><label>Mute suggested<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="TikTok.Suggested"><i></i></button></label><div class="V2Advanced" data-v2-advanced><span><strong>Advanced settings</strong><small id="V2AdvancedSummary">Strict preset · 30 minute limit</small></span><button type="button" data-v2-advanced-toggle aria-expanded="false">Edit preset <b aria-hidden="true">→</b></button><div class="V2AdvancedEditor" id="V2AdvancedEditor" hidden><label>Preset<select id="V2AdvancedPreset"><option>Light</option><option>Balanced</option><option selected>Strict</option><option>Custom</option></select></label><label>Daily limit<input id="V2AdvancedLimit" type="range" min="15" max="120" step="15" value="30" /><output id="V2AdvancedLimitOutput">30 min</output></label><label>Block LIVE<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="TikTok.Live"><i></i></button></label><div><button type="button" data-v2-advanced-reset>Reset</button><button type="button" data-v2-advanced-save>Save preset</button></div></div></div></article>
+                          <article><div class="V2AppIdentity"><span class="V2WhatsAppIcon">W</span><strong>WhatsApp</strong></div><label>Hide status<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-state-key="whatsappStatus"><i></i></button></label><label>Limit messages<button class="V2Switch" type="button" role="switch" aria-checked="false" data-v2-switch data-v2-state-key="whatsappMessages"><i></i></button></label><label>Mute groups<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-state-key="whatsappGroups"><i></i></button></label></article>
+                          <article><div class="V2AppIdentity"><img src="assets/X.svg" alt="" /><strong>X</strong></div><label>Hide timeline<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="X.ForYou"><i></i></button></label><label>Profiles-only search<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="X.SearchProfilesOnly"><i></i></button></label><label>Block videos<button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-rule-path="X.Videos"><i></i></button></label></article>
+                        </div>
+                      </section>
+
+                      <section class="V2SettingsPanel" data-v2-panel="focus" hidden>
+                        <header><div><strong>Focus mode</strong><small>Choose a session and remove distractions temporarily.</small></div><span class="V2StatusPill">Ready</span></header>
+                        <div class="V2FocusSetup"><div class="V2Timer"><strong id="V2FocusDuration">45</strong><small>minutes</small></div><input id="V2FocusRange" type="range" min="15" max="120" step="15" value="45" /><div class="V2PresetGrid"><button class="IsActive" type="button" data-duration="45">Balanced<strong>45 min</strong></button><button type="button" data-duration="25">Quick focus<strong>25 min</strong></button><button type="button" data-duration="90">Deep work<strong>90 min</strong></button></div><button class="V2PanelPrimary" type="button" id="V2StartFocus">Start focus session</button></div>
+                      </section>
+
+                      <section class="V2SettingsPanel" data-v2-panel="sensitive" hidden>
+                        <header><div><strong>Sensitive content protection</strong><small>Hide adult, explicit, and unsafe content across supported networks.</small></div><button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-setting="sensitive"><i></i></button></header>
+                        <div class="V2ProtectionGrid"><article><strong>Adult creator accounts</strong><p>Hide profiles, posts, stories, and search suggestions.</p><button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-config-path="HideDetectedAccounts"><i></i></button></article><article><strong>Explicit media</strong><p>Remove detected nudity and sexual content.</p><button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-state-key="explicitMedia"><i></i></button></article><article><strong>Unsafe external links</strong><p>Block known adult destinations before they open.</p><button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-config-path="BlockAdultSites"><i></i></button></article><article><strong>Blur uncertain content</strong><p>Keep ambiguous media hidden until you choose to reveal it.</p><button class="V2Switch IsOn" type="button" role="switch" aria-checked="true" data-v2-switch data-v2-state-key="blurUncertain"><i></i></button></article></div>
+                      </section>
+
+                      <section class="V2SettingsPanel" data-v2-panel="limits" hidden>
+                        <header><div><strong>Daily limits</strong><small>Set a maximum amount of time for each app.</small></div><span class="V2StatusPill">4 active</span></header>
+                        <div class="V2LimitList"><label><span><img src="assets/Instagram.svg" alt="" /><strong>Instagram</strong></span><input type="range" min="15" max="180" step="15" value="60" data-limit-output="V2LimitInstagram" data-limit-app="Instagram" /><output id="V2LimitInstagram">60 min</output></label><label><span><img src="assets/YouTube.svg" alt="" /><strong>YouTube</strong></span><input type="range" min="15" max="180" step="15" value="90" data-limit-output="V2LimitYouTube" data-limit-app="YouTube" /><output id="V2LimitYouTube">90 min</output></label><label><span><img src="assets/TikTok.svg" alt="" /><strong>TikTok</strong></span><input type="range" min="15" max="180" step="15" value="30" data-limit-output="V2LimitTikTok" data-limit-app="TikTok" /><output id="V2LimitTikTok">30 min</output></label><label><span><img src="assets/X.svg" alt="" /><strong>X</strong></span><input type="range" min="15" max="180" step="15" value="45" data-limit-output="V2LimitX" data-limit-app="X" /><output id="V2LimitX">45 min</output></label></div>
+                      </section>
+                    </div>
+
+                    <aside class="V2ControlSide">
+                      <section class="V2QuickActions"><strong>Quick actions</strong><button class="IsActive" type="button" data-v2-tab-jump="blocked">Blocked apps <span>›</span></button><button type="button" data-v2-tab-jump="focus">Focus mode <span>›</span></button><button type="button" data-v2-tab-jump="limits">Daily limits <span>›</span></button><button type="button" data-v2-tab-jump="sensitive">Sensitive content <span>›</span></button></section>
+                      <section class="V2ScoreCard"><span><small>Focus score</small><strong id="V2FocusScore">87</strong><em id="V2FocusLabel">Great focus!</em></span><div class="V2ScoreRing"><i id="V2ScoreRing"></i></div></section>
+                      <a class="V2ExtensionCard" href="INSTALLATION.txt" target="_blank" rel="noopener"><img src="assets/landing/ControlExtensionGlass.png" alt="" /><span><strong>Get the extension</strong><small>Block everywhere.</small></span></a>
+                    </aside>
+                  </div>
+                  <footer class="V2ControlFooter"><span class="V2SaveStatus" id="V2SaveStatus"><i></i><strong>Saved automatically</strong><small>Your settings stay on this device.</small></span><div><button type="button" data-v2-reset-tools>Reset sample</button><button type="button" data-go-to="Settings" data-v2-open-settings>Open all settings <span>→</span></button></div></footer>
+                </div>
+              </section>
+
+              <section class="V2StoreBand" id="V2StoreBand" aria-label="Install Control">
+                <div class="V2StoreBrand"><span class="V2BrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i aria-hidden="true"></i></span><strong>Control</strong></div>
+                <div><strong>Take back your time.</strong><span>It’s free. Forever.</span></div>
+                <a class="V2StoreButton" href="#V2Legal"><svg class="StoreIconApple" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg><span><small>Download on the</small><strong>App Store</strong></span></a>
+                <a class="V2StoreButton" href="#V2Legal"><svg class="StoreIconPlay" viewBox="0 0 32 32" aria-hidden="true"><path fill="#00d39a" d="M3 4.6v22.8c0 .7.4 1.3 1 1.6l13-13L4 3c-.6.3-1 .9-1 1.6z" /><path fill="#00a8ff" d="m20.2 12.8-12.7-7.3L18.3 16l1.9-3.2z" /><path fill="#ffcc00" d="m7.5 26.5 12.7-7.3-1.9-3.2L7.5 26.5z" /><path fill="#ff4b55" d="m27.8 14.3-7.6-4.4-3.2 3.2 2.9 2.9-2.9 2.9 3.2 3.2 7.6-4.4c1.4-.8 1.4-2.6 0-3.4z" /></svg><span><small>GET IT ON</small><strong>Google Play</strong></span></a>
+                <a class="V2InstallButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Install Extension Free</a>
+                <img class="V2BandHourglass" src="assets/landing/ControlHourglassGlass.png" alt="" />
+              </section>
+            </main>
+
+            <footer class="V2Legal" id="V2Legal">
+              <a class="V2Brand" href="#Home" data-section="Home"><span class="V2BrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i aria-hidden="true"></i></span><strong>Control</strong></a>
+              <nav aria-label="Legal links"><a href="#V2Legal">Privacy policy</a><a href="#V2Legal">Terms of use</a><a href="mailto:help@control.app?subject=Control%20support">Support</a><a href="#V2Legal">Accessibility</a></nav>
+              <p>Control stores settings locally on your device. No subscriptions, advertising, or personal-data sales.</p>
+              <small>&copy; 2026 Control. All rights reserved.</small>
+            </footer>
+          </div>
+          <nav class="LandingNav" aria-label="Control landing navigation">
+            <a class="LandingBrand" href="#Home" data-section="Home"><span><img src="assets/ControlSelectedBlack.png" alt="" /></span><strong>Control</strong></a>
+            <div class="LandingNavLinks">
+              <a class="IsActive" href="#Home" data-section="Home">Home</a>
+              <a href="#LandingFeatures">Features</a>
+              <a href="#Activity" data-section="Activity">Activity</a>
+              <a href="#LandingPrivacy">Settings</a>
+              <a href="#LandingCTA">Pricing</a>
+            </div>
+            <div class="LandingNavActions">
+              <button class="LandingThemeButton" type="button" id="LandingThemeButton" aria-label="Switch theme">☼</button>
+              <button class="LandingSignInButton" type="button" data-go-to="Profile">Sign in</button>
+              <a class="LandingDownloadButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Install Extension Free</a>
+            </div>
+          </nav>
+
+          <section class="LandingHero">
+            <div class="LandingHeroCopy">
+              <h1 id="LegacyLandingTitle">Take back<br />your <span>time.</span></h1>
+              <p class="LandingHeroMission">Without the noise.</p>
+              <p class="LandingHeroSupport">End addictive scrolling. Reclaim your time.<br />Focus on what matters.</p>
+              <div class="LandingHeroActions">
+                <a class="LandingPrimaryButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Install Extension Free <span>&#10022;</span></a>
+              </div>
+              <div class="LandingStoreRow" aria-label="Mobile availability">
+                <button class="LandingStoreBadge" data-store="App Store" type="button"><svg class="StoreIconApple" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg><span><small>Download on the</small><strong>App Store</strong></span></button>
+                <button class="LandingStoreBadge" data-store="Google Play" type="button"><svg class="StoreIconPlay" viewBox="0 0 32 32" aria-hidden="true"><path fill="#00d39a" d="M3 4.6v22.8c0 .7.4 1.3 1 1.6l13-13L4 3c-.6.3-1 .9-1 1.6z" /><path fill="#00a8ff" d="m20.2 12.8-12.7-7.3L18.3 16l1.9-3.2z" /><path fill="#ffcc00" d="m7.5 26.5 12.7-7.3-1.9-3.2L7.5 26.5z" /><path fill="#ff4b55" d="m27.8 14.3-7.6-4.4-3.2 3.2 2.9 2.9-2.9 2.9 3.2 3.2 7.6-4.4c1.4-.8 1.4-2.6 0-3.4z" /></svg><span><small>GET IT ON</small><strong>Google Play</strong></span></button>
+              </div>
+            </div>
+
+            <div class="LandingDeviceStage" aria-label="Control interface preview">
+              <img class="LandingHeroMockupImage" src="assets/landing/ControlAuraPhone.png" alt="Control mobile dashboard" />
+              <img class="LandingReferenceHeroImage" src="assets/landing/ControlAuraHero.png" alt="Control app shown on phone and desktop with focus and protection controls" />
+              <div class="LandingGlassStack" aria-hidden="true">
+                <div class="LandingGhostWindow">
+                  <span class="GhostDot"></span><span class="GhostMoon"></span>
+                  <div class="GhostLogo"><img src="assets/ControlSelectedBlack.png" alt="" /></div>
+                  <i></i><i></i><i></i>
+                </div>
+                <article class="LandingFeatureCard">
+                  <div><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="m8.5 15.5 7-7" /></svg></span><b>End scrolling</b><small>Reclaim your time.</small></div>
+                  <div><span><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 4v6M16 14v6" /></svg></span><b>Parental controls</b><small>Guide healthy habits.</small></div>
+                  <div><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg></span><b>Sensitive content protection</b><small>Block. Protect. Peace of mind.</small></div>
+                  <div><span><svg viewBox="0 0 24 24"><path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3ZM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" /></svg></span><b>Hide stories, reels & more</b><small>Focus on what matters.</small></div>
+                </article>
+                <div class="LandingLogoTile"><img src="assets/ControlSelectedBlack.png" alt="" /></div>
+              </div>
+              <div class="LandingMacWindow">
+                <aside class="LandingDesktopRail">
+                  <span class="LandingMiniBrand"><img src="assets/ControlSelectedBlack.png" alt="" />Control</span>
+                  <a class="IsActive">Overview</a><a>Apps</a><a>Activity</a><a>Customise</a><a>Protection</a><a>Family</a><a>Settings</a>
+                </aside>
+                <main class="LandingDesktopMain">
+                  <article class="LandingDesktopStat"><small>Time saved</small><strong>2h 31m</strong><span>+ 41%</span><div class="LandingRefBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+                  <article class="LandingDesktopHidden"><strong>Hidden content</strong><div><span class="Instagram"><img src="assets/Instagram.svg" alt="" />Stories</span><i class="IsOn"></i></div><div><span class="YouTube"><img src="assets/YouTube.svg" alt="" />Reels</span><i class="IsOn"></i></div><div><span>Suggested posts</span><i class="IsOn"></i></div></article>
+                  <article class="LandingDesktopProtection"><b></b><span><small>Protection</small><strong>Sensitive content protection</strong><em>Active</em></span></article>
+                </main>
+              </div>
+              <div class="LandingPhoneMock">
+                <span class="PhoneIsland"></span>
+                <header><b>9:41</b><small>Control</small></header>
+                <div class="LandingPhoneBrand"><img src="assets/ControlSelectedBlack.png" alt="" /><strong>Control</strong><button type="button" aria-label="Notifications">&#9711;</button></div>
+                <section class="LandingPhoneSaved"><small>Time saved</small><strong>2h 31m</strong><span>+ 41%</span><div class="LandingPhoneChart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></section>
+                <section class="LandingPhoneApps"><b>Top apps</b><article><i class="Instagram"><img src="assets/Instagram.svg" alt="" /></i><span>Instagram</span><em style="--w:86%"></em><small>2h 35m</small></article><article><i class="YouTube"><img src="assets/YouTube.svg" alt="" /></i><span>YouTube</span><em style="--w:62%"></em><small>1h 40m</small></article><article><i class="TikTok"><img src="assets/TikTok.svg" alt="" /></i><span>TikTok</span><em style="--w:48%"></em><small>1h 18m</small></article><article><i><img src="assets/Instagram.svg" alt="" /></i><span>WhatsApp</span><em style="--w:28%"></em><small>47m</small></article></section>
+                <footer><span>Home</span><span>Apps</span><span>Protect</span><span>Family</span><span>Settings</span></footer>
+              </div>
+            </div>
+          </section>
+
+          <section class="LandingShowcaseDeck" id="LandingProduct" aria-labelledby="LandingShowcaseTitle">
+            <header class="LandingSectionHeading LandingShowcaseHeading">
+              <p class="PageEyebrow">One calm workspace</p>
+              <h2 id="LandingShowcaseTitle">See what takes your time.</h2>
+              <p>Keep the people and tools you came for. Remove the loops that make leaving harder.</p>
+            </header>
+            <aside class="LandingAttentionMap" aria-label="What Control keeps and removes">
+              <header><span class="LandingAttentionIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-6 4 12 2-6h5" /></svg></span><div><small>ATTENTION MAP</small><strong>A quieter Instagram</strong></div><b>Live</b></header>
+              <div class="LandingAttentionSummary"><span><small>Useful surfaces</small><strong>4 stay</strong></span><span><small>Infinite entrances</small><strong>5 removed</strong></span></div>
+              <div class="LandingAttentionRows">
+                <article><span><i class="Instagram"><img src="assets/Instagram.svg" alt="" /></i><b>Messages</b></span><em>Stays</em></article>
+                <article><span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20a7 7 0 0 1 14 0M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /></svg></i><b>Profiles</b></span><em>Stays</em></article>
+                <article class="IsRemoved"><span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 8 6 4-6 4V8ZM4 4l16 16" /></svg></i><b>Reels &amp; Explore</b></span><em>Removed</em></article>
+                <article class="IsRemoved"><span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg></i><b>Suggested feed</b></span><em>Removed</em></article>
+              </div>
+              <footer><span><i></i> Protection active</span><small>Rules stay on this device</small></footer>
+            </aside>
+
+            <article class="LandingDashboardPreview" aria-label="Control desktop app preview">
+              <aside>
+                <span class="LandingMiniBrand"><img src="assets/ControlSelectedWhite.png" alt="" />Control</span>
+                <a>Home</a>
+                <a class="IsActive">Apps</a>
+                <a>Activity</a>
+                <a>Settings</a>
+                <a>Profile</a>
+                <a>Admin Panel</a>
+                <div><b>Control is free.</b><small>Forever. No subscription.</small><i>♡</i></div>
+              </aside>
+              <main>
+                <header>
+                  <div><h2>Apps</h2><p>Insights and time usage across your applications.</p></div>
+                  <button type="button">This Week</button>
+                  <button type="button">☷</button>
+                  <button type="button">▦</button>
+                </header>
+                <section class="LandingUsageRows">
+                  <article><img src="assets/Instagram.svg" alt="" /><span><b>Instagram</b><small>2h 37m</small></span><i><em style="width:76%"></em></i><strong>35%</strong></article>
+                  <article><img src="assets/YouTube.svg" alt="" /><span><b>YouTube</b><small>1h 52m</small></span><i><em style="width:58%"></em></i><strong>24%</strong></article>
+                  <article><img src="assets/TikTok.svg" alt="" /><span><b>TikTok</b><small>1h 16m</small></span><i><em style="width:38%"></em></i><strong>16%</strong></article>
+                  <article><img src="assets/X.svg" alt="" /><span><b>X (Twitter)</b><small>46m</small></span><i><em style="width:28%"></em></i><strong>9%</strong></article>
+                  <article><img src="assets/Snapchat.svg" alt="" /><span><b>Snapchat</b><small>32m</small></span><i><em style="width:20%"></em></i><strong>6%</strong></article>
+                  <article><img src="assets/Instagram.svg" alt="" /><span><b>Threads</b><small>21m</small></span><i><em style="width:12%"></em></i><strong>4%</strong></article>
+                </section>
+              </main>
+              <section class="LandingStatsPanel">
+                <article><small>Total Time</small><strong>7h 24m</strong><p>+12% vs last week</p><div class="LandingMiniBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+                <article><small>Top Category</small><strong>Social</strong><p>4h 35m</p><button type="button">⚙</button></article>
+                <article><small>Daily Average</small><strong>1h 3m</strong><p>8% vs last week</p></article>
+              </section>
+            </article>
+
+            <article class="LandingMobilePreview" aria-label="Control mobile preview">
+              <span class="PhoneIsland"></span>
+              <header><b>9:41</b><small>Apps</small><button type="button">This Week</button></header>
+              <section>
+                <img src="assets/Instagram.svg" alt="" />
+                <span><b>Instagram</b><strong>2h 24m</strong><small>35% of your time</small></span>
+                <div class="LandingPhoneBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </section>
+              <div class="LandingPhoneToggles">
+                <article><span>Daily limit</span><b>2h 30m</b></article>
+                <article><span>Block Stories</span><i class="IsOn"></i></article>
+                <article><span>Block Reels</span><i class="IsOn"></i></article>
+                <article><span>Block Explore</span><i></i></article>
+                <article><span>Block Suggested</span><i class="IsOn"></i></article>
+              </div>
+              <footer><span>⌂<small>Home</small></span><span>▦<small>Apps</small></span><button type="button">+</button><span>▥<small>Activity</small></span><span>⚙<small>Settings</small></span></footer>
+            </article>
+          </section>
+
+          <section class="LandingBenefits" id="LandingFeatures" aria-label="Control highlights">
+            <article><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5c2 3 2 7 0 10m8-10c-2 3-2 7 0 10M5 19c3-3 11-3 14 0" /></svg></span><strong>End scrolling</strong><p>Break the loop and reclaim your attention.</p></article>
+            <article><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1 2 2 3-4" /></svg></span><strong>Parental controls</strong><p>Set limits. Build better digital habits.</p></article>
+            <article><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.8 8 7 10 4.2-2 7-5.3 7-10V6l-7-3Z" /></svg></span><strong>Sensitive content protection</strong><p>Block what harms. Protect what matters.</p></article>
+            <article><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M8 8a8.7 8.7 0 0 0-5 4s3.5 6 9 6c1.7 0 3.2-.5 4.4-1.2M10.7 5.2c.4-.1.8-.2 1.3-.2 5.5 0 9 7 9 7a15 15 0 0 1-2.1 2.8" /></svg></span><strong>100% Free</strong><p>Powerful features. Always free.</p></article>
+          </section>
+
+          <section class="LandingMission" id="LandingMission" aria-labelledby="LandingMissionTitle">
+            <div class="LandingMissionLead">
+              <p class="PageEyebrow">The public-good model</p>
+              <h2 id="LandingMissionTitle">If platforms can take our time for free, we should never have to pay to take it back.</h2>
+            </div>
+            <div class="LandingMissionCopy">
+              <p>Control will never sell a premium version of your attention back to you. The product stays free for everyone and its development is sustained only by people who choose to donate.</p>
+              <a href="mailto:help@control.app?subject=I%20want%20to%20support%20Control">Support the mission <span>&rarr;</span></a>
+            </div>
+            <div class="LandingMissionPrinciples" aria-label="Control funding principles">
+              <article><span>01</span><strong>No subscriptions</strong><small>Every protection remains available to everyone.</small></article>
+              <article><span>02</span><strong>No attention business</strong><small>No ads, sponsored placement or data sales.</small></article>
+              <article><span>03</span><strong>Donations only</strong><small>Support is voluntary, never a condition of access.</small></article>
+            </div>
+          </section>
+
+          <section class="LandingCustomize" id="LandingPrivacy" aria-labelledby="LandingCustomizeTitle">
+            <article class="LandingTimeCard">
+              <header><strong>Reclaim your time</strong></header>
+              <p><b>2h 31m</b><span>Time saved today</span></p>
+              <div class="LandingWeekChart" aria-label="Weekly saved time"><span>Mon</span><i></i><span>Tue</span><i></i><span>Wed</span><i></i><span>Thu</span><i></i><span>Fri</span><i></i><span>Sat</span><i></i><span>Sun</span><i></i></div>
+              <footer><span><b>This week</b><strong>12h 45m</strong></span><span><b>This month</b><strong>27h 18m</strong></span><span><b>Blocked</b><strong>1,243</strong></span></footer>
+            </article>
+            <article class="LandingExperienceCard">
+              <header><strong id="LandingCustomizeTitle">Customise your experience</strong></header>
+              <div class="LandingExperienceRows">
+                <div><span class="Instagram"><img src="assets/Instagram.svg" alt="" />Instagram</span><small>Hide stories &amp; reels</small><i class="IsOn"></i></div>
+                <div><span class="YouTube"><img src="assets/YouTube.svg" alt="" />YouTube</span><small>Hide shorts</small><i class="IsOn"></i></div>
+                <div><span class="TikTok"><img src="assets/TikTok.svg" alt="" />TikTok</span><small>Hide for feed</small><i class="IsOn"></i></div>
+                <div><span><img src="assets/X.svg" alt="" />X</span><small>Hide For You</small><i class="IsOn"></i></div>
+                <div><span><img src="assets/Instagram.svg" alt="" />Facebook</span><small>Hide suggested posts</small><i class="IsOn"></i></div>
+              </div>
+              <a class="LandingExtensionButton" href="INSTALLATION.txt" target="_blank" rel="noopener"><span>+</span> Get the extension</a>
+            </article>
+          </section>
+
+          <section class="LandingWebControl" id="LandingWebControl" aria-labelledby="LandingWebControlTitle">
+            <header class="LandingSectionHeading">
+              <p class="PageEyebrow">Configure before you install</p>
+              <h2 id="LandingWebControlTitle">Set every app your way.</h2>
+              <p>Prepare your rules directly on the website. Control keeps the draft on this device and hands it to the extension when it becomes available.</p>
+            </header>
+            <div class="LandingWebControlShell">
+              <aside>
+                <div class="LandingWebControlBrand"><img src="assets/ControlSelectedWhite.png" alt="" /><span><strong>Control</strong><small>Web settings</small></span></div>
+                <nav id="LandingWebAppList" aria-label="Applications to configure"></nav>
+                <div class="LandingExtensionState"><i></i><span><strong id="LandingExtensionStateTitle">Web draft ready</strong><small id="LandingExtensionStateCopy">Install the extension to apply these rules.</small></span></div>
+              </aside>
+              <main>
+                <header><div class="LandingWebIdentity" id="LandingWebIdentity"></div><button type="button" id="LandingWebOpenAppButton">Open app</button></header>
+                <div class="LandingWebRuleList" id="LandingWebRuleList"></div>
+                <footer><span><i></i> Changes saved on this device</span><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install the extension <b>&rarr;</b></a></footer>
+              </main>
+            </div>
+          </section>
+
+          <section class="LandingWorkflow" aria-labelledby="LandingWorkflowTitle">
+            <header class="LandingSectionHeading">
+              <p class="PageEyebrow">A deliberate launch</p>
+              <h2 id="LandingWorkflowTitle">Less friction. More intention.</h2>
+              <p>Control stays out of the way once your boundaries are set.</p>
+            </header>
+            <div class="LandingWorkflowSteps">
+              <article><span>01</span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h5" /></svg></i><h3>Choose the entrance</h3><p>Open messages, a profile or another useful destination directly.</p></article>
+              <article><span>02</span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 5v14M3 9h6M15 15h6" /></svg></i><h3>Set the boundary</h3><p>Remove the surfaces that pull you away from your original intent.</p></article>
+              <article><span>03</span><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></i><h3>Leave when you are done</h3><p>No new loop appears when the useful part of your visit is over.</p></article>
+            </div>
+          </section>
+
+          <header class="LandingSectionHeading LandingAppsHeading">
+            <p class="PageEyebrow">One switchboard</p>
+            <h2>Different networks. The same boundaries.</h2>
+            <p>Configure each platform from one consistent place.</p>
+          </header>
+
+          <section class="LandingAppGrid" id="LandingApps" aria-label="Supported apps">
+            <article><i class="Instagram"><img src="assets/Instagram.svg" alt="" /></i><strong>Instagram</strong><small>Stories, Reels, Explore</small></article>
+            <article><i class="X"><img src="assets/X.svg" alt="" /></i><strong>X</strong><small>For You, trends, videos</small></article>
+            <article><i class="Snapchat"><img src="assets/Snapchat.svg" alt="" /></i><strong>Snapchat</strong><small>Spotlight and Discover</small></article>
+            <article><i class="YouTube"><img src="assets/YouTube.svg" alt="" /></i><strong>YouTube</strong><small>Shorts and suggestions</small></article>
+            <article><i class="TikTok"><img src="assets/TikTok.svg" alt="" /></i><strong>TikTok</strong><small>Infinite feed control</small></article>
+          </section>
+
+          <section class="LandingTrustBand" aria-labelledby="LandingTrustTitle">
+            <div><p class="PageEyebrow">Built to answer to you</p><h2 id="LandingTrustTitle">Control never needs more of your attention to make money.</h2></div>
+            <p>There is no advertising model behind the product, no paid tier holding back stronger protection, and no personal-data market. The incentive stays simple: help people leave when they intended to.</p>
+            <dl><div><dt>Zero ads</dt><dd>No sponsored influence</dd></div><div><dt>Zero paywalls</dt><dd>No locked protection</dd></div><div><dt>Optional support</dt><dd>Donations fund development</dd></div></dl>
+          </section>
+
+          <section class="LandingFAQ" id="LandingFAQ" aria-labelledby="LandingFAQTitle">
+            <div><p class="PageEyebrow">FAQ</p><h2 id="LandingFAQTitle">Simple answers.</h2><p>Everything important, without the fine-print maze.</p></div>
+            <div>
+              <details><summary>Is Control free?</summary><p>Yes. Every core protection is free, with no subscription or premium tier.</p></details>
+              <details><summary>How is Control funded?</summary><p>Only through voluntary donations. Donating never unlocks extra access or changes how the product works.</p></details>
+              <details><summary>Where is my data stored?</summary><p>Your settings and activity stay locally on your device.</p></details>
+              <details><summary>Which platforms are supported?</summary><p>Control is designed for Windows, macOS, iOS and Android.</p></details>
+            </div>
+          </section>
+
+          <section class="LandingCTA" id="LandingCTA">
+            <div><h2>Take back your <span>time.</span></h2><p>Control the scroll. Reclaim your life.</p></div>
+            <div class="LandingCTAActions">
+              <a class="LandingPrimaryButton" href="INSTALLATION.txt" target="_blank" rel="noopener">Install Extension Free <span>&#10022;</span></a>
+              <div class="LandingCTAStoreRow">
+                <button class="LandingStoreBadge" data-store="App Store" type="button"><svg class="StoreIconApple" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 12.4c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.6.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-3.2-1.2-3.2-4.4zM14.5 5.5c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.3.7-3.1 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg><span><small>Download on the</small><strong>App Store</strong></span></button>
+                <button class="LandingStoreBadge" data-store="Google Play" type="button"><svg class="StoreIconPlay" viewBox="0 0 32 32" aria-hidden="true"><path fill="#00d39a" d="M3 4.6v22.8c0 .7.4 1.3 1 1.6l13-13L4 3c-.6.3-1 .9-1 1.6z" /><path fill="#00a8ff" d="m20.2 12.8-12.7-7.3L18.3 16l1.9-3.2z" /><path fill="#ffcc00" d="m7.5 26.5 12.7-7.3-1.9-3.2L7.5 26.5z" /><path fill="#ff4b55" d="m27.8 14.3-7.6-4.4-3.2 3.2 2.9 2.9-2.9 2.9 3.2 3.2 7.6-4.4c1.4-.8 1.4-2.6 0-3.4z" /></svg><span><small>GET IT ON</small><strong>Google Play</strong></span></button>
+              </div>
+            </div>
+          </section>
+          
+          <footer class="LandingFooter">
+            <a class="LandingFooterBrand" href="#Home" data-section="Home"><img src="assets/ControlSelectedBlack.png" alt="" /><span><strong>Control</strong><small>Digital wellbeing, without the noise.</small></span></a>
+            <div class="LandingFooterLinks">
+              <nav aria-label="Product links"><strong>Product</strong><a href="#LandingFeatures">Features</a><a href="#LandingPrivacy">Customize</a><a href="INSTALLATION.txt" target="_blank" rel="noopener">Extension</a></nav>
+              <nav aria-label="Company links"><strong>Company</strong><a href="#LandingFeatures">Privacy</a><a href="mailto:help@control.app?subject=I%20want%20to%20support%20Control">Support Control</a></nav>
+              <nav aria-label="Support links"><strong>Support</strong><a href="mailto:help@control.app?subject=Control%20support">Contact</a><a href="INSTALLATION.txt" target="_blank" rel="noopener">Installation</a></nav>
+            </div>
+            <small>&copy; 2026 Control. All rights reserved.</small>
+          </footer>
+        </section>
+        <header class="PageHeader">
+          <div><p class="PageEyebrow">Overview</p><h1>Your attention,<br /><em>under control.</em></h1></div>
+          <div class="HeaderDate"><span id="CurrentDate">Today</span><small>Local device time</small></div>
+        </header>
+
+        <section class="OverviewHero">
+          <section class="CompanionPanel HeroCompanion" aria-labelledby="CompanionTitle">
+          <div class="CompanionCopy">
+            <span class="CompanionLabel"><i></i> Mobile companion</span>
+            <h2 id="CompanionTitle">Your protected space,<br /><em>always within reach.</em></h2>
+            <p>Carry the same locked rules, intentional sessions and local activity view from desktop to mobile.</p>
+            <div class="HeroProofSummary" aria-label="Control protection summary">
+              <span><b data-stream-protected-apps>5</b><small>apps protected</small></span>
+              <span><b data-stream-active-rules>27</b><small>distractions removed</small></span>
+              <span><b>45.6 days</b><small>annual attention at 3h/day</small></span>
+            </div>
+            <div class="OfficialStoreButtons">
+              <button class="OfficialStoreBadge" data-store="App Store" type="button"><svg class="AppleStoreIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.1 12.5c0-2.5 2-3.7 2.1-3.8a4.6 4.6 0 0 0-3.6-2c-1.5-.2-3 .9-3.8.9-.8 0-2-1-3.3-.9a4.9 4.9 0 0 0-4.1 2.5c-1.8 3-.5 7.5 1.2 9.9.8 1.2 1.8 2.5 3.1 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.4-3.8ZM14.6 5.1A4.3 4.3 0 0 0 15.6 2a4.4 4.4 0 0 0-2.9 1.5 4.1 4.1 0 0 0-1.1 3c1.1.1 2.2-.5 3-1.4Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span><em>SOON</em></button>
+              <button class="OfficialStoreBadge" data-store="Google Play" type="button"><svg class="PlayStoreIcon" viewBox="0 0 32 36" aria-hidden="true"><path class="PlayBlue" d="M2 2.4 18.7 18 2 33.6c-.6-.5-1-1.4-1-2.5V4.9c0-1.1.4-2 1-2.5Z"/><path class="PlayGreen" d="m2.8 1.5 20.8 11.9-4.9 4.6L2 2.4c.2-.3.5-.6.8-.9Z"/><path class="PlayRed" d="m2.8 34.5 20.8-11.9-4.9-4.6L2 33.6c.2.3.5.6.8.9Z"/><path class="PlayYellow" d="m23.6 13.4 5.2 3c1.6.9 1.6 2.3 0 3.2l-5.2 3-4.9-4.6 4.9-4.6Z"/></svg><span><small>GET IT ON</small><strong>Google Play</strong></span><em>SOON</em></button>
+            </div>
+            <div class="CompanionTrust"><span>Private by design</span><span>No advertising profile</span><span>One local account</span></div>
+          </div>
+          <div class="CompanionDevice" aria-hidden="true">
+            <div class="PhoneShell">
+              <span class="PhoneIsland"></span>
+              <div class="PhoneHeader"><span>9:41</span><span class="PhoneLogoMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><i></i></div>
+              <div class="PhoneGreeting"><small>TODAY</small><strong>Attention,<br />made intentional.</strong></div>
+              <div class="PhoneUsageRing"><span><b>42</b><small>MIN</small></span></div>
+              <div class="PhoneFocusCard"><span><small>PROTECTION</small><b>5 apps stay quiet</b></span><em><i></i> ACTIVE</em></div>
+              <div class="PhoneApps"><i class="Instagram"><img src="assets/Instagram.svg" alt="" /></i><i class="Snapchat"><img src="assets/Snapchat.svg" alt="" /></i><i class="YouTube"><img src="assets/YouTube.svg" alt="" /></i></div>
+              <div class="PhoneNav"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <span class="CompanionOrbit OrbitOne"></span><span class="CompanionOrbit OrbitTwo"></span>
+          </div>
+          </section>
+          <div class="OverviewHeroCopy">
+            <span class="HeroStatus"><i></i> Protection active on this device</span>
+            <h2>Free protection.<br />Finish what matters.</h2>
+            <p>Control's core protection is free: addictive entrances stay closed while messages, people and the tools you chose remain available.</p>
+            <div class="FreeProtectionBanner"><b>Free, by design.</b><span>No trial. No attention tax. Core blocking stays free.</span></div>
+            <div class="HeroPromisePills"><span><b>Free</b> core protection</span><span><b data-stream-protected-apps>5</b> apps blocked</span><span><b data-stream-active-rules>27</b> addictive surfaces removed</span></div>
+            <div class="QuickLaunch">
+              <button id="OpenInstagramButton" type="button"><span class="PlatformIcon Instagram"><img src="assets/Instagram.svg" alt="" /></span>Instagram <b>&#8599;</b></button>
+              <button id="OpenXButton" type="button"><span class="PlatformIcon X"><img src="assets/X.svg" alt="" /></span>X Messages <b>&#8599;</b></button>
+              <button id="OpenSnapchatButton" type="button"><span class="PlatformIcon Snapchat"><img src="assets/Snapchat.svg" alt="" /></span>Snapchat <b>&#8599;</b></button>
+              <button id="OpenYouTubeButton" type="button"><span class="PlatformIcon YouTube"><img src="assets/YouTube.svg" alt="" /></span>YouTube <b>&#8599;</b></button>
+              <button id="OpenTikTokButton" type="button"><span class="PlatformIcon TikTok"><img src="assets/TikTok.svg" alt="" /></span>TikTok <b>&#8599;</b></button>
+            </div>
+          </div>
+          <aside class="ProjectCompletionCard" aria-label="Project completion enabled by Control">
+            <header><span><i></i> Focus recovered</span><b>FREE</b></header>
+            <div class="ProjectCompletionCopy"><small>Your main project</small><strong>Finish the work<br />you keep postponing.</strong><p>Five protected entrances turn distracted sessions into deliberate progress.</p></div>
+            <div class="ProjectProgressVisual">
+              <svg viewBox="0 0 320 150" role="img" aria-label="Focused project progress increasing to 82 percent"><defs><linearGradient id="ProjectAreaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#718fc7" stop-opacity=".36"/><stop offset="1" stop-color="#718fc7" stop-opacity="0"/></linearGradient></defs><path class="ProjectArea" d="M10 127 C46 124 56 111 86 109 S126 92 151 89 S196 68 218 70 S264 39 310 24 L310 142 L10 142Z"/><path class="ProjectLine" d="M10 127 C46 124 56 111 86 109 S126 92 151 89 S196 68 218 70 S264 39 310 24"/><circle cx="310" cy="24" r="6"/></svg>
+              <span class="ProjectProgressValue"><b>82%</b><small>focused progress</small></span>
+            </div>
+            <footer><span><i></i> Social feeds blocked</span><span>Projects stay open</span></footer>
+          </aside>
+          <nav class="HeroPager" aria-label="Overview pages">
+            <button class="IsActive" type="button" data-hero-page="0" aria-label="Mobile companion"><span></span></button>
+            <button type="button" data-hero-page="1" aria-label="Protection overview"><span></span></button>
+            <small id="HeroPageLabel">Mobile companion</small>
+          </nav>
+        </section>
+        <section class="ProductDemoShowcase RevealOnScroll" aria-labelledby="ProductDemoTitle">
+          <header class="ProductDemoHeader">
+            <div><p class="PageEyebrow">Control in action</p><h2 id="ProductDemoTitle">Scroll interrupted.<br />Intention restored.</h2></div>
+            <p>A live product preview: the feed starts moving, Control recognizes the infinite surface and closes the entrance without removing messages or profiles.</p>
+          </header>
+          <div class="ProductDemoStage" aria-label="Animated demonstration of Control blocking an infinite social feed">
+            <div class="ProductDemoWindow">
+              <header class="DemoWindowBar"><span><i></i><i></i><i></i></span><strong>instagram.com</strong><em>CONTROL ACTIVE</em></header>
+              <div class="DemoWindowBody">
+                <aside class="DemoSideRail"><span class="DemoMiniLogo"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><i></i><i></i><i></i><i></i></aside>
+                <div class="DemoFeedViewport">
+                  <div class="DemoFeedTrack">
+                    <article><span class="DemoAvatar"></span><div><b>Following</b><small>A useful update from a person you chose</small></div><figure class="DemoMedia DemoMediaOne"></figure></article>
+                    <article><span class="DemoAvatar"></span><div><b>Suggested reel</b><small>Recommended because you watched another video</small></div><figure class="DemoMedia DemoMediaTwo"></figure></article>
+                    <article><span class="DemoAvatar"></span><div><b>For you</b><small>Another infinite recommendation</small></div><figure class="DemoMedia DemoMediaThree"></figure></article>
+                  </div>
+                </div>
+                <div class="DemoBlockLayer">
+                  <span class="DemoControlMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span>
+                  <small>CONTROL ACTIVE</small><strong>Endless scrolling stops here.</strong><p>Messages, search and intentional profiles remain available.</p>
+                  <button type="button" data-go-to="Apps">Review protection <b>&rarr;</b></button>
+                </div>
+              </div>
+            </div>
+            <footer class="ProductDemoTimeline"><span class="IsActive"><i></i>Feed detected</span><span><i></i>Infinite surface blocked</span><span><i></i>Useful tools remain</span></footer>
+          </div>
+        </section>
+
+        <section class="MetricsGrid">
+          <article><span>Today</span><strong id="TodayUsageTotal">0 min</strong><small>active social time</small></article>
+          <article><span>Active filters</span><strong id="ActiveRuleCount">0</strong><small>distractions removed</small></article>
+          <article><span>Protected apps</span><strong id="ProtectedApplicationCount">5</strong><small>connected locally</small></article>
+        </section>
+        <section class="HomeShortcuts RevealOnScroll" aria-labelledby="HomeShortcutsTitle">
+          <header class="HomeShortcutsHeader"><div><p class="PageEyebrow">Your protected space</p><h2 id="HomeShortcutsTitle">Everything important,<br />one tap away.</h2></div><p>Open the two parts of Control you use most. Rules on the left. Time and limits on the right.</p></header>
+          <div class="HomeShortcutGrid">
+            <button class="HomeShortcutCard AppsShortcut" type="button" data-go-to="Apps">
+              <header><span>Apps</span><b>5 protected</b></header>
+              <h3>Choose what stays.</h3><p>Messages and intentional profiles remain. Reels, Shorts and Spotlight stay closed.</p>
+              <div class="ShortcutAppIcons"><i class="Instagram"><img src="assets/Instagram.svg" alt="Instagram" /></i><i class="X"><img src="assets/X.svg" alt="X" /></i><i class="Snapchat"><img src="assets/Snapchat.svg" alt="Snapchat" /></i><i class="YouTube"><img src="assets/YouTube.svg" alt="YouTube" /></i><i class="TikTok"><img src="assets/TikTok.svg" alt="TikTok" /></i></div>
+              <footer><span>Manage protection</span><b>&rarr;</b></footer>
+            </button>
+            <button class="HomeShortcutCard ActivityShortcut" type="button" data-go-to="Activity">
+              <header><span>Activity</span><b data-stream-today-total>0 min today</b></header>
+              <h3>See where your time went.</h3><p>Read exact foreground time and set a daily boundary before opening a protected app.</p>
+              <div class="ShortcutBars" aria-hidden="true"><i style="--h:34%"></i><i style="--h:58%"></i><i style="--h:42%"></i><i style="--h:78%"></i><i style="--h:49%"></i><i style="--h:66%"></i><i style="--h:86%"></i></div>
+              <footer><span>Open activity</span><b>&rarr;</b></footer>
+            </button>
+          </div>
+          <div class="OverviewApplicationGrid" id="OverviewApplicationGrid" hidden></div>
+        </section>
+      </section>
+      <section class="PageSection" id="Apps">
+        <header class="PageHeader CompactHeader"><div><p class="PageEyebrow">Apps</p><h1>Your apps.<br />Your exact rules.</h1><p>Choose a network and control every available surface from one place.</p></div><span class="SavedState" id="SavedState" aria-live="polite">All changes saved</span></header>
+        <section class="ExtensionConnectBanner" aria-label="Control extension status"><span class="ExtensionConnectIcon"><img src="assets/ControlSelectedBlack.png" alt="" /></span><div><small>Browser connection</small><strong data-extension-status-title>Website configuration</strong><p data-extension-status-copy>Your settings work here now. Install the extension to apply them inside social networks.</p></div><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install extension <span>&rarr;</span></a></section>
+        <section class="AppStudio" aria-labelledby="AppStudioTitle">
+          <header class="AppStudioHeader"><div><p class="PageEyebrow">Control center</p><h2 id="AppStudioTitle">Choose an app</h2><p>Every switch is available. Changes are saved instantly on this device.</p></div><div class="AppCarouselControls"><button id="PreviousApplicationButton" type="button" aria-label="Previous application">&larr;</button><span id="ApplicationPosition">01 / 05</span><button id="NextApplicationButton" type="button" aria-label="Next application">&rarr;</button></div></header>
+          <div class="AppCarouselViewport" id="AppCarouselViewport"><div class="AppCarouselTrack" id="ApplicationGrid"></div></div>
+          <article class="AppSettingsPanel" id="AppSettingsPanel" hidden aria-live="polite">
+            <header class="AppSettingsHeader"><div class="AppSettingsIdentity" id="AppSettingsIdentity"></div><div class="AppSettingsUsage"><span>Today</span><strong id="AppSettingsUsageValue">0 min</strong></div><button class="AppSettingsClose" id="CloseAppSettingsButton" type="button" aria-label="Close application settings">&times;</button></header>
+            <div class="AppSettingsRuleList" id="AppSettingsRuleList"></div>
+            <footer class="AppSettingsFooter"><p>Every change is saved locally and synchronized when the extension is connected.</p><button class="PrimaryActionButton" id="LaunchSelectedApplicationButton" type="button">Open application <span>&nearr;</span></button></footer>
+          </article>
+        </section>
+        <div class="PageActions"><button class="SecondaryButton" id="ResetButton" type="button">Restore defaults</button></div>
+      </section>
+
+      <section class="PageSection" id="Settings">
+        <header class="PageHeader CompactHeader"><div><p class="PageEyebrow">Settings</p><h1>Settings</h1><p>Private controls. Stored on this device.</p></div></header>
+        <section class="ExtensionConnectBanner SettingsExtensionBanner" aria-label="Control extension status"><span class="ExtensionConnectIcon"><img src="assets/ControlSelectedBlack.png" alt="" /></span><div><small>Control connection</small><strong data-extension-status-title>Website configuration</strong><p data-extension-status-copy>Global options are saved locally and will be applied when the extension is installed.</p></div><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install extension <span>&rarr;</span></a></section>
+        <div class="SettingsSummaryGrid">
+          <article class="SettingsCard"><span class="SettingsCardIcon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.7 2.8 8.5 7 10 4.2-1.5 7-5.3 7-10V6z"/></svg></span><div><strong>Strict blocking</strong><p>Intercept direct links to hidden feeds before they open.</p></div><label class="CompactSwitch"><input type="checkbox" data-rule-path="StrictMode" /><span class="SwitchTrack"></span></label></article>
+          <article class="SettingsCard"><span class="SettingsCardIcon"><svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3m-11 0h12v11H6z"/></svg></span><div><strong>Local-only data</strong><p>Usage and preferences remain on this device.</p></div><span class="SettingsState">ACTIVE</span></article>
+        </div>
+        <div class="SettingsSubheading"><p class="PageEyebrow">Protection</p><h2>Focus controls</h2></div>
+        <div class="FocusFeatureGrid">
+          <article class="FocusFeature ThemeFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c-5 2-10-3-9-9Z"/></svg></div><div><strong>Interface theme</strong><p>Use the calm daylight palette, the nocturnal palette, or follow this device.</p></div><select id="ThemeSelect" aria-label="Interface theme"><option value="System">Device</option><option value="Light">Daylight</option><option value="Dark">Nocturnal</option></select></article>
+          <article class="FocusFeature"><div class="FocusFeatureIcon"><b>10</b></div><div><strong>Post Mode</strong><p>Temporarily unlock protected surfaces to publish, then restore every filter automatically.</p><small id="PostModeStatus">Ready for a focused 10-minute session</small></div><button id="PostModeButton" type="button">Start 10 min</button></article>
+          <article class="FocusFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.7 2.8 8.5 7 10 4.2-1.5 7-5.3 7-10V6z"/></svg></div><div><strong>Shield every social app</strong><p>Block all configured networks immediately with a calm interruption screen.</p></div><label class="CompactSwitch"><input type="checkbox" data-rule-path="ShieldAll" /><span class="SwitchTrack"></span></label></article>
+          <article class="FocusFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></svg></div><div><strong>Grayscale browsing</strong><p>Remove visual stimulation while keeping useful areas readable.</p></div><label class="CompactSwitch"><input type="checkbox" data-rule-path="GrayscaleMode" /><span class="SwitchTrack"></span></label></article>
+          <article class="FocusFeature SensitiveProtectionFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.7 2.8 8.5 7 10 4.2-1.5 7-5.3 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg></div><div><strong>Sensitive content protection</strong><p>Block known explicit domains and remove content marked or described as sexual across protected networks.</p><small>Local detection &middot; no browsing data leaves this device</small></div><label class="CompactSwitch"><input type="checkbox" data-rule-path="SensitiveContentProtection" /><span class="SwitchTrack"></span></label></article>
+          <article class="FocusFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></div><div><strong>In-app session timer</strong><p>Show a minimal adaptive timer inside the social page. It can still be dismissed there with x.</p></div><label class="CompactSwitch"><input type="checkbox" data-rule-path="ShowUsageTimer" /><span class="SwitchTrack"></span></label></article>
+          <article class="FocusFeature"><div class="FocusFeatureIcon"><svg viewBox="0 0 24 24"><path d="M5 12h13m-5-5 5 5-5 5"/></svg></div><div><strong>Open automatically</strong><p>Choose the useful network opened when the extension shortcut is pressed.</p></div><select id="AutoLaunchSelect" aria-label="Automatically open application"><option value="None">Show launcher</option><option value="Instagram">Instagram</option><option value="X">X Messages</option><option value="Snapchat">Snapchat</option><option value="YouTube">YouTube</option><option value="TikTok">TikTok</option></select></article>
+          <article class="FocusFeature LockReviewFeature"><div class="FocusFeatureIcon ControlFeatureLogo"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></div><div><strong>Review optional locks</strong><p>Choose an optional protection to release only after a calm one-minute reflection.</p><small>You can cancel at any moment.</small></div><button id="OpenUnlockReviewButton" type="button">Review locks</button></article>        </div>
+        <section class="SensitiveControlPanel" aria-labelledby="SensitiveControlTitle">
+          <header><div><p class="PageEyebrow">Sensitive protection</p><h2 id="SensitiveControlTitle">Your private blacklist</h2><p>Control blocks known adult domains and hides accounts or content that match strong local signals. Add your own rules below.</p></div><span id="SensitiveProtectionCount">0 custom rules</span></header>
+          <div class="SensitiveControlOptions">
+            <label><span><strong>Block adult websites</strong><small>Redirect known and custom adult domains before they load.</small></span><input type="checkbox" data-sensitive-option="BlockAdultSites" /><i></i></label>
+            <label><span><strong>Hide detected creator accounts</strong><small>Hide profiles, posts and story entries linked to adult platforms.</small></span><input type="checkbox" data-sensitive-option="HideDetectedAccounts" /><i></i></label>
+          </div>
+          <div class="SensitiveListGrid">
+            <article data-sensitive-list="BlockedDomains"><header><span>Domains</span><small>example.com</small></header><form><input type="text" placeholder="domain.com" autocomplete="off" /><button type="submit" aria-label="Add blocked domain">+</button></form><div class="SensitiveTokens"></div></article>
+            <article data-sensitive-list="BlockedAccounts"><header><span>Accounts</span><small>@handle</small></header><form><input type="text" placeholder="@account" autocomplete="off" /><button type="submit" aria-label="Add blocked account">+</button></form><div class="SensitiveTokens"></div></article>
+            <article data-sensitive-list="BlockedKeywords"><header><span>Keywords</span><small>exact signal</small></header><form><input type="text" placeholder="custom keyword" autocomplete="off" /><button type="submit" aria-label="Add blocked keyword">+</button></form><div class="SensitiveTokens"></div></article>
+          </div>
+          <footer><div><span>Local analysis only</span><p>No page text, profile or browsing history is sent to a server.</p></div><a href="https://github.com/StevenBlack/hosts/tree/master/alternates/porn-only" target="_blank" rel="noopener">76,743 maintained domains</a><button id="ClearDetectedSensitiveAccounts" type="button"><b id="DetectedSensitiveAccountCount">0 learned accounts</b><small>Clear local memory</small></button></footer>
+        </section>
+        <details class="FeatureFAQ"><summary>What stays available on desktop?</summary><p>Direct messages, intentional profiles, standard YouTube videos, permitted search, shared links, local usage tracking, limits and temporary posting access.</p></details>
+      </section>
+      <section class="PageSection" id="Activity">
+        <header class="PageHeader CompactHeader"><div><p class="PageEyebrow">Activity</p><h1>Activity</h1><p>Your time, clearly.</p></div><div class="HeaderMetric"><span>Last 7 days</span><strong id="WeekUsageTotal">0 min</strong></div></header>
+        <section class="ActivitySummaryGrid" aria-label="Usage summary"><article><span class="ActivitySummaryIcon ActivitySummaryLabel">Today</span><div><small>Focused time</small><strong data-stream-today-total>0 min</strong></div></article><article><span class="ActivitySummaryIcon ActivitySummaryLabel">7 days</span><div><small>This week</small><strong data-stream-week-total>0 min</strong></div></article><article><span class="ActivitySummaryIcon ActivitySummaryAppIcon"><img data-stream-most-used-icon alt="" hidden /><b data-stream-most-used-placeholder>&mdash;</b></span><div><small>Most used</small><strong data-stream-most-used-name>No activity</strong><p data-stream-most-used-duration>No foreground time yet</p></div></article></section>
+        <section class="ActivityLayout ActivityDashboard">
+          <article class="ChartCard ActivityChartCard"><header><div><p class="PageEyebrow">Last seven days</p><strong>Usage overview</strong><small>Hover or tap a day for its exact foreground time.</small></div><div class="ChartLegend" aria-label="Application colors">
+  <span><i class="ChartLegendIcon Instagram"><img src="assets/Instagram.svg" alt="" /></i>Instagram</span>
+  <span><i class="ChartLegendIcon X"><img src="assets/X.svg" alt="" /></i>X</span>
+  <span><i class="ChartLegendIcon Snapchat"><img src="assets/Snapchat.svg" alt="" /></i>Snapchat</span>
+  <span><i class="ChartLegendIcon YouTube"><img src="assets/YouTube.svg" alt="" /></i>YouTube</span>
+  <span><i class="ChartLegendIcon TikTok"><img src="assets/TikTok.svg" alt="" /></i>TikTok</span>
+</div></header><div class="UsageChart" id="UsageChart" aria-label="Activity during the last seven days"></div></article>
+          <article class="ProtectionCard ActivityProtectionCard"><div class="ProtectionIcon"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></div><p class="PageEyebrow">Protection engine</p><h2>Strict mode</h2><p>Direct links to blocked feeds are intercepted before the content can take your attention.</p><label class="LargeSwitch"><span><strong>Reinforced blocking</strong><small>Recommended</small></span><input type="checkbox" data-rule-path="StrictMode" /><span class="SwitchTrack"></span></label></article>
+        </section>
+        <div class="SettingsSubheading ActivityLimitsHeading"><p class="PageEyebrow">Daily limits</p><h2>Set a boundary</h2><p>Choose the maximum focused time for each app.</p></div>
+        <div class="LimitsGrid ActivityLimitsGrid" id="LimitsGrid"></div>
+        <article class="LimitInformation"><span>i</span><div><strong>Only focused time counts</strong><p>A social tab is counted only while its browser window is active and your device is not idle.</p></div></article>
+        <article class="DataNotice"><span class="DataIcon">&#9678;</span><div><strong>Private by design</strong><p>No remote server and no exported history. Usage remains inside Control on this device.</p></div><button class="TextButton Danger" id="ResetUsageButton" type="button">Erase activity</button></article>
+      </section>
+
+      <section class="PageSection" id="Profile">
+        <header class="PageHeader CompactHeader"><div><p class="PageEyebrow">Profile</p><h1>Profile</h1><p>Local, private and yours.</p></div><div class="HeaderMetric"><span>Today</span><strong id="ProfileTodayUsage">0 min</strong></div></header>
+        <section class="ProfileLayout">
+          <article class="ProfileIdentityCard">
+            <div id="ProfileGuestView">
+              <span class="ProfileAvatar ProfileAvatarPreview" id="ProfileAvatarPreview">C</span><h2>Optional local profile</h2><p>All controls already work without sign-in. Create a profile only for your identity and future synchronization.</p>
+              <div class="ProviderButtons"><button type="button" data-profile-provider="Apple">Continue with Apple</button><button type="button" data-profile-provider="Google">Continue with Google</button></div>
+              <div class="AuthModeTabs"><button class="IsActive" type="button" data-profile-auth-mode="signin">Sign in</button><button type="button" data-profile-auth-mode="create">Create account</button></div>
+              <form class="ProfileForm" id="ProfileSigninForm" data-profile-auth-panel="signin"><label>Email<input id="ProfileSigninEmailInput" type="email" autocomplete="email" required /></label><label>Password<input id="ProfileSigninPasswordInput" type="password" autocomplete="current-password" required /></label><label>Two-step code<input id="ProfileSigninTwoFactorInput" inputmode="numeric" maxlength="6" placeholder="If enabled" /></label><button class="ProfilePrimaryButton" type="submit">Sign in</button></form>
+              <form class="ProfileForm" id="ProfileForm" data-profile-auth-panel="create" hidden><label>Profile photo<input id="ProfilePhotoInput" type="file" accept="image/*" /></label><label>Name<input id="ProfileNameInput" maxlength="40" required /></label><label>Email<input id="ProfileEmailInput" type="email" required /></label><label>Password<input id="ProfilePasswordInput" type="password" minlength="12" required /></label><label>Two-step code<input id="ProfileTwoFactorInput" inputmode="numeric" maxlength="6" placeholder="Optional for now" /></label><button class="ProfilePrimaryButton" type="submit">Create account</button></form>
+            </div>
+            <div id="ProfileMemberView" hidden><span class="ProfileAvatar" id="ProfileAvatar">C</span><p class="PageEyebrow">Control account</p><h2 id="ProfileDisplayName">Control user</h2><p id="ProfileDisplayEmail"></p><div class="ProfileStatusGrid"><span><b>Active</b><small>Profile ready</small></span><span><b>Local</b><small>Private storage</small></span><span><b>2-step</b><small id="ProfileTwoFactorState">Ready</small></span></div><div class="ProfileMemberActions"><button class="SecondaryButton" id="SignOutButton" type="button">Sign out</button><button class="SecondaryButton Danger" id="RemoveProfileButton" type="button">Delete local account</button></div></div>
+            <p class="ProfileNotice" id="ProfileNotice" aria-live="polite"></p>
+          </article>
+          <div class="ProfileDetails">
+            <article class="ProfileUsageCard"><header><div><p class="PageEyebrow">Today</p><h2>Usage by application</h2></div><strong id="ProfileUsageTotal">0 min</strong></header><div class="ProfileUsageRows" id="ProfileUsageRows"></div></article>
+            <article class="ProfileAdminCard">
+              <header><p class="PageEyebrow">Admin / support</p><h2>Control desk</h2><span id="AdminProfileState">Locked</span></header>
+              <div class="AdminSupportGrid">
+                <button type="button" id="OpenSupportPanelButton"><small>Support</small><strong>Open a ticket</strong><span>Reply-ready help desk</span></button>
+                <button type="button" id="OpenAdminPanelButton"><small>Admin</small><strong>Manage access</strong><span>Profile and services</span></button>
+                <button type="button" id="ReportIssueButton"><small>Issue</small><strong>Report a bug</strong><span>Interface feedback</span></button>
+              </div>
+              <dl class="AdminSupportMeta"><div><dt>Build</dt><dd>0.47.1</dd></div><div><dt>Mode</dt><dd id="AdminAccessMode">Local access</dd></div><div><dt>Data</dt><dd>Local device</dd></div></dl>
+            </article>
+            <article class="ProfileMenuCard"><button type="button" id="ShareControlButton"><span>Share Control app</span><b>Share</b></button><a href="mailto:help@control.app?subject=Control%20support"><span>Help &amp; support</span><b>Open</b></a><button type="button" id="FamilyFeaturesButton"><span>Family features</span><b>Preview</b></button><form id="OpenLinkForm"><label for="OpenLinkInput">Open a link</label><div><input id="OpenLinkInput" type="url" placeholder="https://" required /><button type="submit">Open</button></div></form></article>
+          </div>
+        </section>
+      </section>
+
+      <footer class="ProductFooter" aria-label="Control product information">
+        <section class="FooterMobileCallout">
+          <div><span>Control mobile</span><h2>Your protection,<br />ready for your pocket.</h2><p>Review locks, limits and intentional time from the same calm iOS and Android companion.</p></div>
+          <div class="FooterStoreButtons OfficialStoreButtons">
+            <button class="OfficialStoreBadge" data-store="App Store" type="button"><svg class="AppleStoreIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.1 12.5c0-2.5 2-3.7 2.1-3.8a4.6 4.6 0 0 0-3.6-2c-1.5-.2-3 .9-3.8.9-.8 0-2-1-3.3-.9a4.9 4.9 0 0 0-4.1 2.5c-1.8 3-.5 7.5 1.2 9.9.8 1.2 1.8 2.5 3.1 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.4-3.8ZM14.6 5.1A4.3 4.3 0 0 0 15.6 2a4.4 4.4 0 0 0-2.9 1.5 4.1 4.1 0 0 0-1.1 3c1.1.1 2.2-.5 3-1.4Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span><em>SOON</em></button>
+            <button class="OfficialStoreBadge" data-store="Google Play" type="button"><svg class="PlayStoreIcon" viewBox="0 0 32 36" aria-hidden="true"><path class="PlayBlue" d="M2 2.4 18.7 18 2 33.6c-.6-.5-1-1.4-1-2.5V4.9c0-1.1.4-2 1-2.5Z"/><path class="PlayGreen" d="m2.8 1.5 20.8 11.9-4.9 4.6L2 2.4c.2-.3.5-.6.8-.9Z"/><path class="PlayRed" d="m2.8 34.5 20.8-11.9-4.9-4.6L2 33.6c.2.3.5.6.8.9Z"/><path class="PlayYellow" d="m23.6 13.4 5.2 3c1.6.9 1.6 2.3 0 3.2l-5.2 3-4.9-4.6 4.9-4.6Z"/></svg><span><small>GET IT ON</small><strong>Google Play</strong></span><em>SOON</em></button>
+          </div>
+        </section>
+
+        <div class="FooterMain">
+          <section class="FooterStatement">
+            <a class="FooterBrand" href="#Home" data-section="Home" aria-label="Control home">
+              <span class="FooterBrandMark"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span>
+              <span><strong>Control</strong><small>Digital wellbeing, without the noise.</small></span>
+            </a>
+            <p>Keep conversations, profiles and intentional media. Remove the infinite entrances designed to take more of your time.</p>
+            <button class="FooterPrimaryAction" type="button" data-go-to="Apps">Review your protection <span aria-hidden="true">&#8599;</span></button>
+          </section>
+
+          <div class="FooterDirectory">
+            <nav aria-label="Product links"><strong>Product</strong><a href="#Home" data-section="Home">Overview</a><a href="#Apps" data-section="Apps">Applications</a><a href="#Activity" data-section="Activity">Activity</a><a href="#Settings" data-section="Settings">Settings</a><a href="#Profile" data-section="Profile">Profile</a></nav>
+            <nav aria-label="Resource links"><strong>Resources</strong><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install extension</a><a href="mailto:help@control.app?subject=Control%20support">Help &amp; support</a><button type="button" data-go-to="Settings">Privacy by design</button><button type="button" data-go-to="Profile">Family features</button></nav>
+            <nav aria-label="Project links"><strong>Project</strong><span>Independent software</span><span>Local-first architecture</span><span>Windows companion available</span><span>iOS &amp; Android planned</span></nav>
+            <nav aria-label="Legal links"><strong>Legal</strong><button type="button" data-footer-note="privacy">Privacy notice</button><button type="button" data-footer-note="terms">Terms of use</button><button type="button" data-footer-note="trademarks">Trademarks</button><a href="mailto:legal@control.app?subject=Control%20legal">Contact</a></nav>
+          </div>
+        </div>
+
+        <section class="FooterLocale" aria-label="Language and availability">
+          <div><strong>Language</strong><label><span>Interface language</span><select id="FooterLanguageSelect"><option value="en">English</option><option value="fr">Français</option></select></label><small id="FooterLanguageStatus">Stored on this device</small></div>
+          <div><strong>Available wherever focus matters</strong><p>Use Control on Windows today. The iOS and Android companions will appear here as soon as the signed builds are approved.</p></div>
+        </section>
+
+        <section class="FooterCompatibility" aria-label="Compatible services">
+          <span>Designed to work with</span>
+          <div>
+            <span class="FooterService"><i class="PlatformIcon Instagram"><img src="assets/Instagram.svg" alt="" /></i>Instagram</span>
+            <span class="FooterService"><i class="PlatformIcon X"><img src="assets/X.svg" alt="" /></i>X</span>
+            <span class="FooterService"><i class="PlatformIcon Snapchat"><img src="assets/Snapchat.svg" alt="" /></i>Snapchat</span>
+            <span class="FooterService"><i class="PlatformIcon YouTube"><img src="assets/YouTube.svg" alt="" /></i>YouTube</span>
+            <span class="FooterService"><i class="PlatformIcon TikTok"><img src="assets/TikTok.svg" alt="" /></i>TikTok</span>
+          </div>
+        </section>
+
+        <div class="FooterNote" id="FooterNote" hidden role="status" aria-live="polite"></div>
+        <div class="FooterCredits">Mountain photography by <a href="https://unsplash.com/photos/mountains-under-white-sky-during-daytime-vssLToDXv60" target="_blank" rel="noopener">Guillaume Briard</a>, used under the Unsplash License.</div>
+        <div class="FooterBottom"><span>&copy; 2026 Control. Private, local-first software.</span><span>Not affiliated with the services listed above. All trademarks belong to their respective owners.</span></div>
+      </footer>
+    </main>
+
+    <nav class="MobileNavigation" aria-label="Mobile navigation">
+      <a class="IsActive" href="#Home" data-section="Home"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 12 4l9 7.2v8.3a.5.5 0 0 1-.5.5H15v-6H9v6H3.5a.5.5 0 0 1-.5-.5z" /></svg></span><small>Home</small></a>
+      <a href="#Apps" data-section="Apps"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z" /></svg></span><small>Apps</small></a>
+      <a href="#Activity" data-section="Activity"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m5 10V5m6 14v-7m5 7V3" /></svg></span><small>Activity</small></a>
+      <a href="#Settings" data-section="Settings"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm8.1 5.3.1-1.5-.1-1.5-2.1-.8a7 7 0 0 0-.7-1.2l.3-2.3-2.6-1.5-1.8 1.4h-1.4L10 4.7 7.4 6.2l.3 2.3A7 7 0 0 0 7 9.7l-2.1.8-.1 1.5.1 1.5 2.1.8c.2.4.4.8.7 1.2l-.3 2.3 2.6 1.5 1.8-1.4h1.4l1.8 1.4 2.6-1.5-.3-2.3c.3-.4.5-.8.7-1.2z" /></svg></span><small>Settings</small></a>
+      <a href="#Profile" data-section="Profile"><span class="NavigationIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c.5-4 3-6 7-6s6.5 2 7 6z" /></svg></span><small>Profiles</small></a>
+    </nav>
+    <section class="LockSupportModal" id="LockSupportModal" hidden>
+      <div class="LockSupportCard" role="dialog" aria-modal="true" aria-labelledby="LockSupportTitle">
+        <span class="LockSupportLogo"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span>
+        <p class="PageEyebrow">A quiet reminder</p><h2 id="LockSupportTitle">Stay strong.</h2>
+        <p id="LockSupportMessage">You protected this entrance for a reason. Give the urge a moment to pass before changing your rules.</p>
+        <div class="LockSupportActions"><button class="PrimaryActionButton" id="KeepLockButton" type="button">Keep this locked</button><button class="SecondaryButton" id="ReviewLockButton" type="button">Review optional locks</button></div>
+      </div>
+    </section>
+    <section class="UnlockReviewModal" id="UnlockReviewModal" hidden>
+      <div class="UnlockReviewCard" role="dialog" aria-modal="true" aria-labelledby="UnlockReviewTitle">
+        <header class="UnlockReviewHeader"><div><p class="PageEyebrow">One-minute reflection</p><h2 id="UnlockReviewTitle">Review optional locks</h2><p>Select the protections you intend to release. You may cancel at any time.</p></div><button id="CloseUnlockReviewButton" type="button" aria-label="Cancel and close">&times;</button></header>
+        <div class="UnlockReviewBody">
+          <aside class="UnlockCountdownPanel"><div class="UnlockCountdownRing" id="UnlockCountdownRing"><span><strong id="UnlockCountdownValue">01:00</strong><small>before confirmation</small></span></div><p id="UnlockCountdownMessage">Use this minute to remember what you want your time to become.</p></aside>
+          <div class="UnlockRulePicker" id="UnlockRulePicker"></div>
+        </div>
+        <footer class="UnlockReviewFooter"><button class="SecondaryButton" id="CancelUnlockReviewButton" type="button">Cancel and keep every lock</button><button class="PrimaryActionButton" id="ConfirmUnlockReviewButton" type="button" disabled>Confirm after 01:00</button></footer>
+      </div>
+    </section>
+    <aside class="ControlToast" id="ControlToast" hidden aria-live="polite"><span><img src="assets/ControlSelectedWhite.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><div><strong id="ControlToastTitle">Control updated</strong><p id="ControlToastMessage"></p></div></aside>
+
+    <section class="ModalOverlay" id="InstallationNotice" hidden>
+      <div class="ModalCard" role="dialog" aria-modal="true" aria-labelledby="InstallationNoticeTitle"><span class="ModalLogo"><img src="assets/ControlSelectedBlack.png" alt="" /><i class="SiteEyePupil"></i><b class="SiteEyeBlink"></b></span><h2 id="InstallationNoticeTitle">Continue with the extension</h2><p>Your settings are already saved on this device. Install Control, reload this page, then open the app again to apply them.</p><div class="InstallationNoticeActions"><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install extension</a><button class="PrimaryModalButton" id="CloseInstallationNoticeButton" type="button">Keep configuring</button></div></div>
+    </section>
+    <section class="ZipDeskOverlay" id="ZipSupportDesk" hidden>
+      <div class="ZipDeskPanel" role="dialog" aria-modal="true" aria-labelledby="ZipDeskTitle">
+        <header><div><p>CONTROL ADMINISTRATION</p><h2 id="ZipDeskTitle">Support desk</h2><span>Create and follow your requests from this device.</span></div><button type="button" id="ZipCloseSupportDesk" aria-label="Close support desk">×</button></header>
+        <div class="ZipDeskLayout">
+          <form class="ZipTicketForm" id="ZipTicketForm">
+            <div><label>Category<select id="ZipTicketCategory"><option>Technical issue</option><option>Application filters</option><option>Account & profile</option><option>Billing</option><option>Suggestion</option></select></label><label>Priority<select id="ZipTicketPriority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label></div>
+            <label>Subject<input id="ZipTicketSubject" maxlength="80" placeholder="What can we help you with?" required /></label>
+            <label>Message<textarea id="ZipTicketMessage" maxlength="800" rows="6" placeholder="Describe the issue or request…" required></textarea></label>
+            <button type="submit">Create ticket <span aria-hidden="true">→</span></button><p id="ZipTicketFormStatus" aria-live="polite"></p>
+          </form>
+          <section class="ZipTicketListPanel" aria-labelledby="ZipTicketListTitle"><header><div><small>ADMINISTRATION</small><h3 id="ZipTicketListTitle">Your tickets</h3></div><span id="ZipTicketTotal">0 total</span></header><div class="ZipTicketList" id="ZipTicketList"></div></section>
+        </div>
+      </div>
+    </section>
+    <script src="scripts/Dashboard.js?v=0.47.1"></script>
+    <script src="scripts/HomeV2.js?v=0.69.0"></script>
+    <script src="scripts/ZipControlApp.js?v=1.1.2"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,616 @@
+/* Control unified application surfaces */
+:root {
+  --ZipInk:#121827;
+  --ZipMuted:#68738b;
+  --ZipPurple:#6557ff;
+  --ZipPurpleSoft:#eeeaff;
+  --ZipLine:rgba(81,70,137,.12);
+  --ZipShadow:0 24px 70px rgba(74,61,116,.10);
+}
+
+.ZipExtensionLink { align-items:center; display:inline-flex!important; gap:7px; }
+.ZipExtensionLink svg { height:16px; width:16px; }
+
+.ZipTopActions { align-items:center; display:flex; gap:10px; justify-self:end; }
+.ZipTopProfile { align-items:center; background:rgba(255,255,255,.82); border:1px solid rgba(255,255,255,.96); border-radius:50%; box-shadow:0 9px 24px rgba(68,54,120,.10); cursor:pointer; display:flex; height:39px; justify-content:center; padding:0; transition:transform .22s ease,box-shadow .22s ease; width:39px; }
+.ZipTopProfile:hover { box-shadow:0 12px 28px rgba(68,54,120,.16); transform:translateY(-2px); }
+.ZipTopProfile span { align-items:center; background:linear-gradient(145deg,#8d7aff,#5c56eb); background-position:center; background-size:cover; border-radius:50%; color:#fff; display:flex; font-size:12px; font-weight:800; height:29px; justify-content:center; width:29px; }
+
+.ZipComparisonCopy,.ZipBeforeAfter { transition:opacity .42s ease,transform .62s cubic-bezier(.22,1,.36,1),filter .42s ease; }
+.ZipExplore { cursor:pointer; font-family:inherit; }
+.ZipQuickScene { align-items:center; background:radial-gradient(circle at 85% 12%,rgba(255,255,255,.38),transparent 32%),linear-gradient(110deg,rgba(247,235,246,.96),rgba(238,232,250,.95) 50%,rgba(216,207,251,.97)); display:grid; gap:54px; grid-template-columns:minmax(250px,.78fr) minmax(380px,1.22fr); inset:0; opacity:0; padding:36px 42px; pointer-events:none; position:absolute; transform:translateX(104%); transition:opacity .42s ease,transform .68s cubic-bezier(.22,1,.36,1); z-index:7; }
+.ZipQuickScene > header { align-self:center; display:flex; flex-direction:column; gap:42px; }
+.ZipQuickScene > header small { color:#988ca8; font-size:9px; font-weight:800; letter-spacing:.08em; }
+.ZipQuickScene > header h2 { color:#172034; font-size:31px; letter-spacing:-.055em; line-height:1.02; margin:14px 0; }
+.ZipQuickScene > header p { color:#675f7b; font-size:12px; line-height:1.55; margin:0; max-width:305px; }
+#ZipCloseQuickControls { align-items:center; align-self:flex-start; background:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.96); border-radius:999px; box-shadow:0 8px 22px rgba(75,58,126,.08); color:#514b68; cursor:pointer; display:inline-flex; font:700 10px inherit; gap:8px; min-height:34px; padding:0 13px 0 10px; transition:background .2s ease,transform .2s ease; }
+#ZipCloseQuickControls:hover { background:#fff; transform:translateX(-2px); }
+#ZipCloseQuickControls svg { fill:none; height:16px; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; width:16px; }
+.ZipQuickSceneBody { align-self:center; background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.58)); border:1px solid rgba(255,255,255,.96); border-radius:24px; box-shadow:0 26px 64px rgba(74,61,116,.13),inset 0 1px 0 rgba(255,255,255,.72); padding:20px; }
+.ZipQuickScene .ZipAppPicker { border-bottom:1px solid rgba(97,78,155,.08); margin:0 0 15px; padding:2px 2px 15px; }
+.ZipQuickScene .ZipAppPicker button { height:42px; width:42px; }
+.ZipQuickScene .ZipAppPicker img { height:22px; width:22px; }
+.ZipQuickScene .ZipActiveApp { background:linear-gradient(120deg,rgba(255,255,255,.78),rgba(255,247,244,.72)); border-color:rgba(117,91,210,.12); padding:14px; }
+.ZipQuickScene .ZipQuickRule { font-size:10px; min-height:40px; }
+.ZipOpenAllSettings { background:linear-gradient(90deg,#675cff,#5954ea); border:0; border-radius:999px; color:#fff; cursor:pointer; font:700 10px inherit; margin-top:13px; min-height:38px; padding:0 17px; width:100%; }
+.ZipComparison.IsShowingControls .ZipComparisonCopy,.ZipComparison.IsShowingControls .ZipBeforeAfter { filter:blur(7px); opacity:0; pointer-events:none; transform:translateX(-28%) scale(.98); }
+.ZipComparison.IsShowingControls .ZipQuickScene { opacity:1; pointer-events:auto; transform:translateX(0); }
+.ZipComparisonCopy li.IsInactive { color:#81788c; }
+.ZipComparisonCopy li.IsInactive::before { background:rgba(255,255,255,.58); color:#9a91a8; content:"–"; }
+.ZipComparison.IsPaused .ZipBeforeAfter figure:last-child img { filter:grayscale(.72); opacity:.58; }
+.ZipComparison.IsPaused .ZipComparisonMark { opacity:.62; }
+.ZipComparisonCopy h2,.ZipComparisonCopy p,.ZipComparisonCopy li,.ZipBeforeAfter figure:last-child img,.ZipComparisonMark { transition:color .25s ease,filter .35s ease,opacity .35s ease; }
+
+.ZipWorkspace { margin:52px auto 0; max-width:880px; }
+.ZipWorkspaceHeader { align-items:flex-end; display:flex; gap:28px; justify-content:space-between; margin:0 5px 22px; }
+.ZipWorkspaceHeader small { color:#8d82ad; font-size:9px; font-weight:800; letter-spacing:.13em; }
+.ZipWorkspaceHeader h2 { color:#202d5b; font-size:28px; letter-spacing:-.045em; line-height:1.08; margin:8px 0; }
+.ZipWorkspaceHeader p { color:var(--ZipMuted); font-size:12px; line-height:1.55; margin:0; max-width:560px; }
+.ZipWorkspaceStatus { align-items:center; color:#69748b; display:flex; flex:0 0 auto; font-size:10px; gap:7px; }
+.ZipWorkspaceStatus i { background:#4bc786; border:4px solid #e5f7ed; border-radius:50%; height:8px; width:8px; }
+.ZipWorkspaceGrid { display:grid; gap:14px; grid-template-columns:.92fr 1.35fr .95fr; }
+.ZipWorkspaceGrid > article { background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(250,247,255,.76)); border:1px solid rgba(255,255,255,.95); border-radius:22px; box-shadow:var(--ZipShadow); min-height:290px; overflow:hidden; padding:20px; position:relative; }
+.ZipWorkspaceGrid > article::before { background:radial-gradient(circle,rgba(193,169,255,.20),transparent 68%); content:""; height:180px; pointer-events:none; position:absolute; right:-85px; top:-85px; width:180px; }
+.ZipFrameTop { align-items:center; display:flex; justify-content:space-between; position:relative; z-index:1; }
+.ZipFrameTop > span { color:#77708d; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.ZipFrameTop button { align-items:center; background:none; border:0; color:#5f53e9; cursor:pointer; display:flex; font-size:9px; font-weight:750; gap:6px; padding:3px; }
+.ZipFrameTop button b { font-size:13px; }
+.ZipProfileIdentity { align-items:center; display:flex; gap:12px; margin-top:30px; position:relative; }
+.ZipProfileAvatar { align-items:center; background:linear-gradient(145deg,#8d7aff,#5c56eb); background-position:center; background-size:cover; border:4px solid rgba(255,255,255,.82); border-radius:50%; box-shadow:0 10px 24px rgba(82,68,170,.18); color:white; display:flex; font-size:19px; font-weight:750; height:52px; justify-content:center; width:52px; }
+.ZipProfileIdentity strong,.ZipProfileIdentity small { display:block; }
+.ZipProfileIdentity strong { color:var(--ZipInk); font-size:15px; }
+.ZipProfileIdentity small { color:var(--ZipMuted); font-size:9px; margin-top:3px; }
+.ZipProfileFrame > p { color:var(--ZipMuted); font-size:10px; line-height:1.55; margin:22px 0; position:relative; }
+.ZipProfileStats { border-top:1px solid var(--ZipLine); display:grid; gap:10px; grid-template-columns:1fr 1fr; padding-top:16px; }
+.ZipProfileStats span + span { border-left:1px solid var(--ZipLine); padding-left:14px; }
+.ZipProfileStats b,.ZipProfileStats small { display:block; }
+.ZipProfileStats b { color:var(--ZipInk); font-size:20px; }
+.ZipProfileStats small { color:#8a91a1; font-size:8px; margin-top:3px; }
+
+.ZipAppPicker { display:flex; gap:7px; margin:19px 0 16px; overflow:auto; padding:2px; scrollbar-width:none; }
+.ZipAppPicker::-webkit-scrollbar { display:none; }
+.ZipAppPicker button { align-items:center; background:#fff; border:1px solid var(--ZipLine); border-radius:11px; cursor:pointer; display:flex; flex:0 0 auto; height:34px; justify-content:center; padding:0; transition:.2s ease; width:34px; }
+.ZipAppPicker button.IsActive { border-color:#7468f4; box-shadow:0 7px 18px rgba(93,77,198,.16); transform:translateY(-2px); }
+.ZipAppPicker img { height:18px; width:18px; }
+.ZipAppPicker button[data-app="Instagram"],.ZipActiveAppIcon.Instagram { background:linear-gradient(145deg,#7139c6,#d52b8a,#f6a044); }
+.ZipAppPicker button[data-app="X"],.ZipActiveAppIcon.X,.ZipAppPicker button[data-app="TikTok"],.ZipActiveAppIcon.TikTok { background:#07080a; }
+.ZipAppPicker button[data-app="Snapchat"],.ZipActiveAppIcon.Snapchat { background:#fffc00; }
+.ZipAppPicker button[data-app="YouTube"],.ZipActiveAppIcon.YouTube { background:#ff0033; }
+.ZipActiveApp { align-items:center; background:linear-gradient(120deg,#f7f4ff,#fff8f6); border:1px solid rgba(117,91,210,.10); border-radius:16px; display:grid; gap:10px; grid-template-columns:auto 1fr auto; padding:12px; }
+.ZipActiveAppIcon { align-items:center; background:#fff; border-radius:10px; display:flex; height:36px; justify-content:center; width:36px; }
+.ZipActiveAppIcon img { height:22px; width:22px; }
+.ZipActiveApp strong,.ZipActiveApp small { display:block; }
+.ZipActiveApp strong { color:var(--ZipInk); font-size:12px; }
+.ZipActiveApp small { color:var(--ZipMuted); font-size:8px; margin-top:3px; }
+.ZipActiveApp em { background:#e8f8ef; border-radius:999px; color:#218b56; font-size:8px; font-style:normal; font-weight:750; padding:5px 7px; }
+.ZipQuickRules { display:grid; gap:7px; margin-top:10px; }
+.ZipQuickRule { align-items:center; background:rgba(255,255,255,.63); border:1px solid rgba(93,79,157,.08); border-radius:12px; color:#31394b; cursor:pointer; display:flex; font-size:9px; justify-content:space-between; min-height:36px; padding:7px 10px; text-align:left; }
+.ZipQuickRule i { background:#dfe2ea; border-radius:999px; height:18px; padding:2px; transition:.2s ease; width:32px; }
+.ZipQuickRule i::after { background:#fff; border-radius:50%; box-shadow:0 2px 5px rgba(20,25,40,.18); content:""; display:block; height:14px; transition:.2s ease; width:14px; }
+.ZipQuickRule.IsOn i { background:#685cff; }
+.ZipQuickRule.IsOn i::after { transform:translateX(14px); }
+
+.ZipSupportFrame { background:linear-gradient(145deg,rgba(247,242,255,.94),rgba(255,247,242,.84))!important; }
+.ZipSupportIcon { align-items:center; background:rgba(255,255,255,.78); border:1px solid #fff; border-radius:50%; display:flex; height:58px; justify-content:center; margin:26px 0 16px; width:58px; }
+.ZipSupportIcon .ControlLogoGlyph { height:30px; width:30px; }
+.ZipSupportFrame h3 { color:var(--ZipInk); font-size:17px; letter-spacing:-.035em; margin:0 0 8px; }
+.ZipSupportFrame > p { color:var(--ZipMuted); font-size:9.5px; line-height:1.55; margin:0; }
+.ZipCreateTicket { background:linear-gradient(90deg,#675cff,#5a56ee); border:0; border-radius:999px; box-shadow:0 12px 24px rgba(92,78,220,.20); color:#fff; cursor:pointer; font-size:9px; font-weight:750; margin-top:17px; min-height:34px; padding:0 15px; }
+.ZipTicketSummary { align-items:center; border-top:1px solid var(--ZipLine); color:#7a8397; display:flex; font-size:8px; justify-content:space-between; margin-top:17px; padding-top:12px; }
+.ZipTicketSummary b { color:var(--ZipInk); }
+
+.ZipDeskOverlay { align-items:center; background:rgba(26,22,45,.34); backdrop-filter:blur(18px); display:flex; inset:0; justify-content:center; padding:24px; position:fixed; z-index:10000; }
+.ZipDeskOverlay[hidden] { display:none; }
+.ZipDeskPanel { background:linear-gradient(135deg,#fff 0%,#fcf8ff 48%,#f2edff 100%); border:1px solid rgba(255,255,255,.92); border-radius:30px; box-shadow:0 35px 100px rgba(39,28,84,.25); max-height:min(820px,calc(100vh - 48px)); max-width:1040px; overflow:auto; padding:28px; width:100%; }
+.ZipDeskPanel > header { align-items:flex-start; display:flex; justify-content:space-between; }
+.ZipDeskPanel > header p { color:#8276a2; font-size:9px; font-weight:850; letter-spacing:.14em; margin:0 0 8px; }
+.ZipDeskPanel > header h2 { color:var(--ZipInk); font-size:34px; letter-spacing:-.055em; margin:0; }
+.ZipDeskPanel > header span { color:var(--ZipMuted); display:block; font-size:11px; margin-top:7px; }
+#ZipCloseSupportDesk { background:#fff; border:1px solid var(--ZipLine); border-radius:50%; color:#4d5364; cursor:pointer; font-size:24px; height:42px; width:42px; }
+.ZipDeskLayout { display:grid; gap:18px; grid-template-columns:minmax(280px,.85fr) minmax(360px,1.15fr); margin-top:26px; }
+.ZipTicketForm,.ZipTicketListPanel { background:rgba(255,255,255,.76); border:1px solid rgba(255,255,255,.95); border-radius:22px; box-shadow:0 18px 48px rgba(77,58,123,.08); padding:20px; }
+.ZipTicketForm { display:grid; gap:13px; }
+.ZipTicketForm > div { display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+.ZipTicketForm label { color:#4d5568; display:grid; font-size:9px; font-weight:750; gap:6px; }
+.ZipTicketForm :is(input,select,textarea) { background:#faf9fd; border:1px solid rgba(91,77,148,.14); border-radius:11px; color:var(--ZipInk); font:inherit; font-size:11px; outline:none; padding:10px 11px; resize:vertical; }
+.ZipTicketForm :is(input,select,textarea):focus { border-color:#7668f2; box-shadow:0 0 0 3px rgba(118,104,242,.10); }
+.ZipTicketForm > button { background:#6258f2; border:0; border-radius:999px; color:#fff; cursor:pointer; font-size:10px; font-weight:750; min-height:39px; }
+#ZipTicketFormStatus { color:#38825b; font-size:9px; margin:0; min-height:13px; text-align:center; }
+.ZipTicketListPanel > header { align-items:center; display:flex; justify-content:space-between; }
+.ZipTicketListPanel header small { color:#81769f; font-size:8px; font-weight:800; letter-spacing:.12em; }
+.ZipTicketListPanel h3 { color:var(--ZipInk); font-size:20px; margin:5px 0 0; }
+#ZipTicketTotal { color:#7b8394; font-size:9px; }
+.ZipTicketList { display:grid; gap:10px; margin-top:16px; }
+.ZipTicketEmpty { align-items:center; border:1px dashed rgba(98,79,164,.18); border-radius:16px; color:#858c9c; display:flex; font-size:10px; justify-content:center; min-height:150px; text-align:center; }
+.ZipTicketItem { background:linear-gradient(120deg,#fff,#fbf9ff); border:1px solid rgba(91,77,148,.11); border-radius:15px; padding:13px; }
+.ZipTicketItem header { align-items:start; display:flex; gap:10px; justify-content:space-between; }
+.ZipTicketItem strong { color:var(--ZipInk); display:block; font-size:11px; }
+.ZipTicketItem small { color:#8a91a1; display:block; font-size:8px; margin-top:4px; }
+.ZipTicketItem p { color:#626c82; font-size:9px; line-height:1.45; margin:10px 0; }
+.ZipTicketActions { align-items:center; display:flex; gap:8px; }
+.ZipTicketActions select { background:#f2efff; border:0; border-radius:999px; color:#5549c9; font-size:8px; padding:6px 9px; }
+.ZipTicketActions button { background:none; border:0; color:#a06d78; cursor:pointer; font-size:8px; margin-left:auto; }
+
+/* Carry the landing-page visual language through every application screen. */
+html:not([data-current-section="Home"]) body { background:linear-gradient(145deg,#fffdf9 0%,#fcf9ff 42%,#f1ebff 100%)!important; }
+html:not([data-current-section="Home"]) .Workspace { background:transparent!important; }
+html:not([data-current-section="Home"]) .PageSection { max-width:1180px!important; padding:0 34px 50px!important; }
+html:not([data-current-section="Home"]) .Sidebar { background:rgba(255,255,255,.78)!important; border:1px solid rgba(255,255,255,.94)!important; border-radius:999px!important; box-shadow:0 16px 46px rgba(56,44,98,.10)!important; inset:18px auto auto 50%!important; min-height:62px!important; padding:8px 12px!important; transform:translateX(-50%)!important; width:min(1180px,calc(100vw - 56px))!important; }
+html:not([data-current-section="Home"]) .PageHeader { align-items:end!important; background:linear-gradient(115deg,rgba(255,255,255,.88),rgba(248,242,255,.74))!important; border:1px solid rgba(255,255,255,.95)!important; border-radius:26px!important; box-shadow:var(--ZipShadow)!important; margin-bottom:18px!important; min-height:190px!important; padding:34px!important; }
+html:not([data-current-section="Home"]) .PageHeader h1 { color:var(--ZipInk)!important; font-size:clamp(40px,5vw,68px)!important; letter-spacing:-.065em!important; }
+html:not([data-current-section="Home"]) .PageHeader p { color:var(--ZipMuted)!important; }
+html:not([data-current-section="Home"]) :is(.ExtensionConnectBanner,.AppStudio,.AppSettingsPanel,.SettingsCard,.FocusFeature,.SensitiveControlPanel,.ActivitySummaryGrid article,.ActivityChartCard,.ActivityProtectionCard,.LimitCard,.LimitInformation,.DataNotice,.ProfileIdentityCard,.ProfileUsageCard,.ProfileAdminCard,.ProfileMenuCard) { background:rgba(255,255,255,.78)!important; border:1px solid rgba(255,255,255,.96)!important; border-radius:22px!important; box-shadow:var(--ZipShadow)!important; }
+html:not([data-current-section="Home"]) .ExtensionConnectBanner { background:linear-gradient(110deg,rgba(244,240,255,.94),rgba(255,246,239,.82))!important; }
+html:not([data-current-section="Home"]) :is(.AppStudioHeader h2,.SettingsSubheading h2,.ProfileIdentityCard h2,.ProfileUsageCard h2,.ProfileAdminCard h2,.ActivityChartCard strong) { color:var(--ZipInk)!important; }
+html:not([data-current-section="Home"]) :is(.ApplicationCard,.AppSettingsRuleRow,.SettingsCard,.FocusFeature,.SensitiveListGrid article,.ProfileMenuCard button,.ProfileMenuCard a) { border-color:rgba(96,76,159,.10)!important; }
+html:not([data-current-section="Home"]) .PrimaryActionButton,
+html:not([data-current-section="Home"]) .ProfilePrimaryButton { background:linear-gradient(90deg,#675cff,#5954ea)!important; border:0!important; border-radius:999px!important; color:white!important; }
+html:not([data-current-section="Home"]) .ProductFooter { background:linear-gradient(130deg,#f8f3ff,#fff8f3 52%,#ede7ff)!important; border:1px solid rgba(255,255,255,.94)!important; color:var(--ZipInk)!important; }
+html:not([data-current-section="Home"]) .ProductFooter :is(p,small,span,a,button) { color:#667187!important; }
+
+@media(max-width:960px) {
+  .ZipQuickScene { gap:30px; grid-template-columns:minmax(210px,.72fr) minmax(310px,1.28fr); padding:28px 30px; }
+  .ZipQuickScene > header h2 { font-size:25px; }
+  .ZipWorkspace { margin-left:26px; margin-right:26px; }
+  .ZipWorkspaceGrid { grid-template-columns:1fr 1fr; }
+  .ZipToolsFrame { grid-column:1/-1; grid-row:1; }
+  .ZipDeskLayout { grid-template-columns:1fr; }
+  html:not([data-current-section="Home"]) .PageSection { padding:0 22px 42px!important; }
+}
+
+@media(max-width:680px) {
+  .ZipTopActions { gap:7px; }
+  .ZipTopProfile { height:33px; width:33px; }
+  .ZipTopProfile span { font-size:10px; height:25px; width:25px; }
+  .ZipQuickScene { align-content:start; display:grid; gap:18px; grid-template-columns:1fr; overflow:auto; padding:27px 22px 30px; }
+  .ZipQuickScene > header { align-self:start; gap:22px; padding-right:0; }
+  .ZipQuickScene > header h2 { font-size:25px; }
+  .ZipQuickScene > header p { font-size:11px; max-width:310px; }
+  #ZipCloseQuickControls { font-size:10px; min-height:33px; }
+  .ZipQuickSceneBody { align-self:start; border-radius:18px; padding:15px; }
+  .ZipQuickScene .ZipAppPicker button { height:38px; width:38px; }
+  .ZipWorkspace { margin:40px 10px 0; }
+  .ZipWorkspaceHeader { align-items:flex-start; flex-direction:column; gap:12px; margin-inline:6px; }
+  .ZipWorkspaceHeader h2 { font-size:25px; }
+  .ZipWorkspaceGrid { grid-template-columns:1fr; }
+  .ZipToolsFrame { grid-column:auto; grid-row:auto; }
+  .ZipWorkspaceGrid > article { min-height:0; }
+  .ZipDeskOverlay { align-items:flex-end; padding:0; }
+  .ZipDeskPanel { border-radius:24px 24px 0 0; max-height:92vh; padding:20px 16px; }
+  .ZipDeskPanel > header h2 { font-size:28px; }
+  .ZipTicketForm > div { grid-template-columns:1fr; }
+  html:not([data-current-section="Home"]) .PageSection { padding:0 14px 100px!important; }
+  html:not([data-current-section="Home"]) .PageHeader { min-height:150px!important; padding:24px!important; }
+  html:not([data-current-section="Home"]) .PageHeader h1 { font-size:42px!important; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .ZipAppPicker button,.ZipQuickRule i,.ZipQuickRule i::after,.ZipComparisonCopy,.ZipBeforeAfter,.ZipQuickScene,.ZipTopProfile { transition:none; }
+}
+
+/* ========================================================================== */
+/* Control cockpit — unified product panels                                   */
+/* ========================================================================== */
+
+html:not([data-current-section="Home"]) {
+  --CockpitInk:#141a2a;
+  --CockpitMuted:#68738a;
+  --CockpitLine:rgba(90,73,151,.10);
+  --CockpitPurple:#6258f4;
+  --CockpitSurface:rgba(255,255,255,.82);
+  --CockpitShadow:0 22px 64px rgba(62,48,109,.09),inset 0 1px 0 rgba(255,255,255,.82);
+}
+
+html:not([data-current-section="Home"]) body {
+  background:
+    radial-gradient(circle at 92% 9%,rgba(184,158,255,.25),transparent 31%),
+    radial-gradient(circle at 12% 24%,rgba(255,218,177,.25),transparent 28%),
+    linear-gradient(145deg,#fffdf9 0%,#fcf9ff 50%,#f1ecff 100%)!important;
+  color:var(--CockpitInk)!important;
+}
+
+html:not([data-current-section="Home"]) .AmbientCanvas { opacity:.62!important; }
+html:not([data-current-section="Home"]) .Workspace { margin:0!important; padding:108px 0 56px!important; }
+html:not([data-current-section="Home"]) .PageSection:not(#Home) { max-width:1120px!important; padding:0 24px 54px!important; }
+
+html:not([data-current-section="Home"]) .Sidebar {
+  align-items:center!important;
+  backdrop-filter:blur(26px) saturate(1.22)!important;
+  background:rgba(255,255,255,.76)!important;
+  border:1px solid rgba(255,255,255,.92)!important;
+  border-radius:24px!important;
+  box-shadow:0 18px 54px rgba(55,44,96,.12)!important;
+  display:grid!important;
+  grid-template-columns:190px 1fr 190px!important;
+  height:64px!important;
+  inset:18px auto auto 50%!important;
+  min-height:64px!important;
+  padding:8px 12px!important;
+  transform:translateX(-50%)!important;
+  width:min(1072px,calc(100vw - 48px))!important;
+}
+html:not([data-current-section="Home"]) .SidebarBrand { gap:10px!important; padding:0 8px!important; }
+html:not([data-current-section="Home"]) .SidebarBrand { grid-column:1!important; grid-row:1!important; }
+html:not([data-current-section="Home"]) .SidebarBrand img { height:34px!important; width:34px!important; }
+html:not([data-current-section="Home"]) .SidebarBrand strong { color:var(--CockpitInk)!important; font-size:17px!important; }
+html:not([data-current-section="Home"]) .SidebarBrand small { display:none!important; }
+html:not([data-current-section="Home"]) .SidebarNavigation { display:flex!important; gap:4px!important; grid-column:2!important; grid-row:1!important; justify-content:center!important; width:auto!important; }
+html:not([data-current-section="Home"]) .SidebarNavigation > p,
+html:not([data-current-section="Home"]) .SidebarFooter { display:none!important; }
+html:not([data-current-section="Home"]) .SidebarNavigation a {
+  align-items:center!important;
+  border-radius:14px!important;
+  color:#5e6678!important;
+  display:flex!important;
+  font-size:11px!important;
+  gap:7px!important;
+  min-height:44px!important;
+  padding:0 12px!important;
+}
+html:not([data-current-section="Home"]) .SidebarNavigation a .NavigationIcon {
+  align-items:center!important;
+  background:#f4f2f8!important;
+  border-radius:9px!important;
+  display:flex!important;
+  height:27px!important;
+  justify-content:center!important;
+  width:27px!important;
+}
+html:not([data-current-section="Home"]) .SidebarNavigation a.Active {
+  background:#1b202d!important;
+  box-shadow:0 10px 24px rgba(22,27,41,.20)!important;
+  color:#fff!important;
+}
+html:not([data-current-section="Home"]) .SidebarNavigation a.Active .NavigationIcon { background:rgba(255,255,255,.09)!important; }
+html:not([data-current-section="Home"]) .DeviceStatus {
+  align-items:center!important;
+  background:transparent!important;
+  border:0!important;
+  display:flex!important;
+  gap:7px!important;
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  margin:0!important;
+  padding:0 8px!important;
+  width:auto!important;
+}
+html:not([data-current-section="Home"]) .DeviceStatus > div { display:block!important; }
+html:not([data-current-section="Home"]) .DeviceStatus strong { color:#60687a!important; font-size:9px!important; font-weight:650!important; white-space:nowrap!important; }
+html:not([data-current-section="Home"]) .DeviceStatus small { display:none!important; }
+html:not([data-current-section="Home"]) .DeviceStatus .StatusDot { height:7px!important; width:7px!important; }
+
+html:not([data-current-section="Home"]) .PageHeader {
+  align-items:flex-end!important;
+  background:
+    radial-gradient(circle at 82% 18%,rgba(132,109,255,.15),transparent 36%),
+    linear-gradient(118deg,rgba(255,255,255,.94),rgba(250,246,255,.76))!important;
+  border:1px solid rgba(255,255,255,.97)!important;
+  border-radius:30px!important;
+  box-shadow:var(--CockpitShadow)!important;
+  margin:0 0 16px!important;
+  min-height:168px!important;
+  overflow:hidden!important;
+  padding:30px 34px!important;
+  position:relative!important;
+}
+html:not([data-current-section="Home"]) .PageHeader::after {
+  background:linear-gradient(135deg,rgba(255,255,255,.52),rgba(144,119,255,.08));
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:50%;
+  content:"";
+  height:190px;
+  position:absolute;
+  right:-62px;
+  top:-88px;
+  width:190px;
+}
+html:not([data-current-section="Home"]) .PageEyebrow {
+  color:#8278a2!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  letter-spacing:.14em!important;
+  text-transform:uppercase!important;
+}
+html:not([data-current-section="Home"]) .PageHeader h1 {
+  color:var(--CockpitInk)!important;
+  font-size:clamp(42px,5vw,62px)!important;
+  font-weight:710!important;
+  letter-spacing:-.065em!important;
+  line-height:.93!important;
+  margin:12px 0 0!important;
+}
+html:not([data-current-section="Home"]) .PageHeader > div > p:last-child {
+  color:var(--CockpitMuted)!important;
+  font-size:13px!important;
+  margin:13px 0 0!important;
+}
+html:not([data-current-section="Home"]) .HeaderMetric,
+html:not([data-current-section="Home"]) .SavedState {
+  backdrop-filter:blur(16px)!important;
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid rgba(255,255,255,.94)!important;
+  border-radius:18px!important;
+  box-shadow:0 15px 38px rgba(58,45,101,.10)!important;
+  min-width:135px!important;
+  padding:19px 21px!important;
+  position:relative!important;
+  z-index:1!important;
+}
+html:not([data-current-section="Home"]) .HeaderMetric span { color:#7c8495!important; font-size:10px!important; }
+html:not([data-current-section="Home"]) .HeaderMetric strong { color:var(--CockpitInk)!important; font-size:25px!important; }
+
+html:not([data-current-section="Home"]) :is(.ExtensionConnectBanner,.AppStudio,.AppSettingsPanel,.SettingsCard,.FocusFeature,.SensitiveControlPanel,.ActivitySummaryGrid article,.ActivityChartCard,.ActivityProtectionCard,.LimitCard,.LimitInformation,.DataNotice,.ProfileIdentityCard,.ProfileUsageCard,.ProfileAdminCard,.ProfileMenuCard) {
+  background:var(--CockpitSurface)!important;
+  border:1px solid rgba(255,255,255,.96)!important;
+  box-shadow:var(--CockpitShadow)!important;
+}
+
+html:not([data-current-section="Home"]) .ExtensionConnectBanner {
+  align-items:center!important;
+  background:linear-gradient(110deg,rgba(240,235,255,.94),rgba(255,247,239,.88))!important;
+  border-radius:22px!important;
+  display:grid!important;
+  gap:16px!important;
+  grid-template-columns:auto 1fr auto!important;
+  margin:0 0 16px!important;
+  min-height:76px!important;
+  padding:13px 16px!important;
+}
+html:not([data-current-section="Home"]) .ExtensionConnectIcon { height:46px!important; width:46px!important; }
+html:not([data-current-section="Home"]) .ExtensionConnectIcon img { height:27px!important; width:27px!important; }
+html:not([data-current-section="Home"]) .ExtensionConnectBanner strong { color:var(--CockpitInk)!important; font-size:12px!important; }
+html:not([data-current-section="Home"]) .ExtensionConnectBanner p { color:var(--CockpitMuted)!important; font-size:10px!important; margin-top:3px!important; }
+html:not([data-current-section="Home"]) .ExtensionConnectBanner > a {
+  background:rgba(255,255,255,.8)!important;
+  border:1px solid rgba(92,75,153,.10)!important;
+  border-radius:999px!important;
+  color:#5148c4!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  padding:11px 15px!important;
+}
+
+/* Apps */
+html[data-current-section="Apps"] .AppStudio {
+  border-radius:28px!important;
+  overflow:hidden!important;
+  padding:26px!important;
+}
+html[data-current-section="Apps"] .AppStudioHeader { margin:0 0 18px!important; }
+html[data-current-section="Apps"] .AppStudioHeader h2 { font-size:30px!important; font-weight:720!important; letter-spacing:-.045em!important; }
+html[data-current-section="Apps"] .AppCarouselControls {
+  background:#f5f3f9!important;
+  border:1px solid var(--CockpitLine)!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+  padding:4px!important;
+}
+html[data-current-section="Apps"] .AppCarouselControls button { background:#fff!important; border-radius:10px!important; height:34px!important; width:34px!important; }
+html[data-current-section="Apps"] .AppCarouselControls span { font-size:10px!important; }
+html[data-current-section="Apps"] .AppCarouselViewport { padding:2px 2px 12px!important; }
+html[data-current-section="Apps"] .AppCarouselTrack { gap:12px!important; grid-auto-columns:minmax(220px,1fr)!important; }
+html[data-current-section="Apps"] .ApplicationCard {
+  background:linear-gradient(145deg,#fff,rgba(249,246,255,.86))!important;
+  border:1px solid var(--CockpitLine)!important;
+  border-radius:20px!important;
+  box-shadow:none!important;
+  min-height:168px!important;
+}
+html[data-current-section="Apps"] .ApplicationCard:hover,
+html[data-current-section="Apps"] .ApplicationCard.Active {
+  border-color:rgba(101,87,255,.32)!important;
+  box-shadow:0 16px 34px rgba(78,64,148,.11)!important;
+  transform:translateY(-3px)!important;
+}
+html[data-current-section="Apps"] .AppSettingsPanel { border-radius:24px!important; margin-top:16px!important; overflow:hidden!important; }
+html[data-current-section="Apps"] .AppSettingsHeader { padding:20px 22px!important; }
+html[data-current-section="Apps"] .AppSettingsIdentity .AppBadge { height:52px!important; width:52px!important; }
+html[data-current-section="Apps"] .AppSettingsIdentity h2 { font-size:24px!important; }
+html[data-current-section="Apps"] .AppSettingsRuleList { gap:10px!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; padding:14px!important; }
+html[data-current-section="Apps"] .AppSettingsRuleRow {
+  background:linear-gradient(135deg,rgba(249,247,255,.94),rgba(255,255,255,.9))!important;
+  border:1px solid var(--CockpitLine)!important;
+  border-radius:16px!important;
+  min-height:82px!important;
+  padding:14px 16px!important;
+}
+html[data-current-section="Apps"] .AppSettingsRuleRow strong { font-size:13px!important; }
+html[data-current-section="Apps"] .AppSettingsRuleRow div > span { font-size:10px!important; margin-top:4px!important; }
+html[data-current-section="Apps"] .AppSettingsFooter { background:rgba(246,243,251,.72)!important; padding:16px 20px!important; }
+html[data-current-section="Apps"] .PageActions { margin:14px 2px 0!important; }
+
+/* Activity */
+html[data-current-section="Activity"] .ActivitySummaryGrid { gap:12px!important; margin:0 0 14px!important; }
+html[data-current-section="Activity"] .ActivitySummaryGrid article {
+  border-radius:20px!important;
+  gap:14px!important;
+  min-height:108px!important;
+  padding:18px!important;
+}
+html[data-current-section="Activity"] .ActivitySummaryIcon { border-radius:14px!important; height:52px!important; width:52px!important; }
+html[data-current-section="Activity"] .ActivitySummaryGrid strong { font-size:25px!important; }
+html[data-current-section="Activity"] .ActivityDashboard { gap:12px!important; grid-template-columns:minmax(0,1fr) 285px!important; }
+html[data-current-section="Activity"] .ActivityChartCard,
+html[data-current-section="Activity"] .ActivityProtectionCard { border-radius:24px!important; min-height:410px!important; padding:24px!important; }
+html[data-current-section="Activity"] .ActivityChartCard header > div:first-child strong { font-size:24px!important; }
+html[data-current-section="Activity"] .ActivityChartCard .ChartLegend { gap:7px!important; max-width:360px!important; }
+html[data-current-section="Activity"] .ActivityChartCard .ChartLegend span { background:#f7f5fa!important; border-radius:999px!important; font-size:8px!important; padding:5px 7px!important; }
+html[data-current-section="Activity"] body .ActivityProtectionCard {
+  background:radial-gradient(circle at 88% 4%,rgba(143,125,255,.28),transparent 40%),linear-gradient(155deg,#19192a,#282445)!important;
+  color:#fff!important;
+}
+html[data-current-section="Activity"] .ActivityProtectionCard h2 { color:#fff!important; font-size:31px!important; }
+html[data-current-section="Activity"] .ActivityProtectionCard > p:not(.PageEyebrow) { color:#bbb8ca!important; font-size:11px!important; }
+html[data-current-section="Activity"] .ActivityLimitsHeading { margin:26px 2px 0!important; }
+html[data-current-section="Activity"] .LimitsGrid { gap:10px!important; grid-template-columns:repeat(5,minmax(0,1fr))!important; padding-top:15px!important; }
+html[data-current-section="Activity"] .LimitCard { border-radius:18px!important; min-height:210px!important; padding:17px!important; }
+html[data-current-section="Activity"] .LimitCard h3 { font-size:15px!important; }
+html[data-current-section="Activity"] .LimitInformation,
+html[data-current-section="Activity"] .DataNotice { border-radius:18px!important; min-height:66px!important; padding:14px 18px!important; }
+
+/* Settings */
+html[data-current-section="Settings"] .SettingsSummaryGrid { gap:12px!important; margin:0 0 22px!important; padding:0!important; }
+html[data-current-section="Settings"] .SettingsCard { border-radius:20px!important; min-height:90px!important; padding:17px 19px!important; }
+html[data-current-section="Settings"] .SettingsCardIcon { background:#eeebff!important; border-radius:13px!important; box-shadow:none!important; color:#6658ed!important; height:44px!important; width:44px!important; }
+html[data-current-section="Settings"] .SettingsCard strong { font-size:13px!important; }
+html[data-current-section="Settings"] .SettingsCard p { font-size:10px!important; }
+html[data-current-section="Settings"] .SettingsSubheading { margin:24px 2px 14px!important; }
+html[data-current-section="Settings"] .SettingsSubheading h2 { color:var(--CockpitInk)!important; font-size:27px!important; font-weight:720!important; }
+html[data-current-section="Settings"] .FocusFeatureGrid {
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  display:grid!important;
+  gap:12px!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+html[data-current-section="Settings"] .FocusFeature {
+  border:1px solid rgba(255,255,255,.96)!important;
+  border-radius:20px!important;
+  gap:14px!important;
+  grid-template-columns:44px 1fr auto!important;
+  min-height:104px!important;
+  padding:16px!important;
+}
+html[data-current-section="Settings"] .FocusFeature:hover { background:#fff!important; box-shadow:0 24px 55px rgba(61,46,112,.12)!important; transform:translateY(-2px)!important; }
+html[data-current-section="Settings"] .FocusFeatureIcon { background:#f0edff!important; border-radius:13px!important; box-shadow:none!important; color:#6457e9!important; height:42px!important; width:42px!important; }
+html[data-current-section="Settings"] .FocusFeature strong { font-size:13px!important; }
+html[data-current-section="Settings"] .FocusFeature p { font-size:10px!important; line-height:1.42!important; }
+html[data-current-section="Settings"] .FocusFeature button,
+html[data-current-section="Settings"] .FocusFeature select { min-width:104px!important; padding:9px 10px!important; }
+html[data-current-section="Settings"] body .SensitiveControlPanel {
+  background:radial-gradient(circle at 90% 0,rgba(131,108,255,.18),transparent 34%),linear-gradient(145deg,#171725,#26213d)!important;
+  border-radius:26px!important;
+  color:#fff!important;
+  margin-top:18px!important;
+  overflow:hidden!important;
+}
+html[data-current-section="Settings"] .SensitiveControlPanel > header { padding:25px 28px!important; }
+html[data-current-section="Settings"] .SensitiveControlPanel > header h2 { color:#fff!important; font-size:27px!important; }
+html[data-current-section="Settings"] .SensitiveControlPanel > header p:not(.PageEyebrow) { color:#a9a6b8!important; font-size:10px!important; }
+html[data-current-section="Settings"] .SensitiveControlOptions { background:rgba(255,255,255,.035)!important; }
+html[data-current-section="Settings"] .SensitiveControlOptions label { padding:18px 24px!important; }
+html[data-current-section="Settings"] .SensitiveListGrid > article { padding:20px 22px 24px!important; }
+html[data-current-section="Settings"] .SensitiveControlPanel > footer { padding:15px 24px!important; }
+html[data-current-section="Settings"] .FeatureFAQ { background:rgba(255,255,255,.66)!important; border:1px solid rgba(255,255,255,.9)!important; border-radius:18px!important; margin-top:14px!important; padding:16px 19px!important; }
+
+/* Profile / administration */
+html[data-current-section="Profile"] .ProfileLayout { gap:14px!important; grid-template-columns:350px minmax(0,1fr)!important; padding:0!important; }
+html[data-current-section="Profile"] .ProfileIdentityCard,
+html[data-current-section="Profile"] .ProfileUsageCard,
+html[data-current-section="Profile"] .ProfileAdminCard,
+html[data-current-section="Profile"] .ProfileMenuCard { border-radius:24px!important; padding:22px!important; }
+html[data-current-section="Profile"] body .ProfileIdentityCard {
+  background:radial-gradient(circle at 100% 0,rgba(151,130,255,.16),transparent 38%),rgba(255,255,255,.86)!important;
+}
+html[data-current-section="Profile"] .ProfileAvatar { background:linear-gradient(145deg,#8f7bff,#5250d7)!important; border:4px solid rgba(255,255,255,.78)!important; border-radius:19px!important; box-shadow:0 14px 30px rgba(78,65,168,.20)!important; }
+html[data-current-section="Profile"] .ProfileIdentityCard h2,
+html[data-current-section="Profile"] .ProfileUsageCard h2,
+html[data-current-section="Profile"] .ProfileAdminCard h2 { color:var(--CockpitInk)!important; font-size:24px!important; font-weight:720!important; }
+html[data-current-section="Profile"] .ProfileIdentityCard p { font-size:10px!important; }
+html[data-current-section="Profile"] .ProviderButtons button { background:rgba(255,255,255,.82)!important; border:1px solid var(--CockpitLine)!important; border-radius:13px!important; min-height:46px!important; }
+html[data-current-section="Profile"] .AuthModeTabs { background:#f4f1f8!important; border-radius:13px!important; padding:4px!important; }
+html[data-current-section="Profile"] .AuthModeTabs button { border-radius:10px!important; min-height:34px!important; }
+html[data-current-section="Profile"] .ProfileForm { gap:9px!important; }
+html[data-current-section="Profile"] .ProfileForm input { background:rgba(255,255,255,.74)!important; border:1px solid var(--CockpitLine)!important; border-radius:11px!important; min-height:38px!important; }
+html[data-current-section="Profile"] .ProfileUsageRows { gap:10px!important; }
+html[data-current-section="Profile"] .ProfileUsageRow {
+  background:#faf8fd!important;
+  border:1px solid rgba(92,75,151,.07)!important;
+  border-radius:13px!important;
+  grid-template-columns:126px 1fr 48px!important;
+  min-height:45px!important;
+  padding:0 12px!important;
+}
+html[data-current-section="Profile"] .ProfileUsageTrack { background:#ece9f2!important; height:5px!important; }
+html[data-current-section="Profile"] .ProfileUsageTrack i { background:linear-gradient(90deg,#8a72ff,#5b56ea)!important; }
+html[data-current-section="Profile"] body .ProfileAdminCard {
+  background:linear-gradient(125deg,rgba(246,241,255,.92),rgba(255,249,243,.88))!important;
+}
+html[data-current-section="Profile"] .AdminSupportGrid { gap:9px!important; }
+html[data-current-section="Profile"] .AdminSupportGrid button {
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid var(--CockpitLine)!important;
+  border-radius:15px!important;
+  min-height:94px!important;
+  padding:14px!important;
+}
+html[data-current-section="Profile"] .AdminSupportGrid button:hover { background:#fff!important; transform:translateY(-2px)!important; }
+html[data-current-section="Profile"] .AdminSupportMeta { background:rgba(255,255,255,.58)!important; border-radius:15px!important; margin-top:12px!important; padding:12px!important; }
+html[data-current-section="Profile"] .ProfileMenuCard { display:grid!important; grid-template-columns:repeat(3,1fr)!important; gap:8px!important; padding:10px!important; }
+html[data-current-section="Profile"] .ProfileMenuCard > button,
+html[data-current-section="Profile"] .ProfileMenuCard > a {
+  background:#faf8fd!important;
+  border:1px solid var(--CockpitLine)!important;
+  border-radius:13px!important;
+  min-height:52px!important;
+  padding:12px!important;
+}
+html[data-current-section="Profile"] .ProfileMenuCard form { grid-column:1/-1!important; padding:8px 4px 2px!important; }
+
+html:not([data-current-section="Home"]) .ProductFooter {
+  background:linear-gradient(135deg,rgba(247,242,255,.96),rgba(255,249,244,.96))!important;
+  border:1px solid rgba(255,255,255,.96)!important;
+  border-radius:30px!important;
+  box-shadow:var(--CockpitShadow)!important;
+  color:var(--CockpitInk)!important;
+  margin:0 auto!important;
+  max-width:1072px!important;
+}
+html:not([data-current-section="Home"]) .ProductFooter :is(p,small,span,a,button) { color:#677288!important; }
+
+@media(max-width:900px) {
+  html:not([data-current-section="Home"]) .Workspace { padding-top:94px!important; }
+  html:not([data-current-section="Home"]) .Sidebar { grid-template-columns:auto 1fr auto!important; width:calc(100vw - 28px)!important; }
+  html:not([data-current-section="Home"]) .DeviceStatus strong { display:none!important; }
+  html:not([data-current-section="Home"]) .DeviceStatus { padding:0!important; }
+  html:not([data-current-section="Home"]) .SidebarNavigation a { padding:0 9px!important; }
+  html:not([data-current-section="Home"]) .SidebarNavigation a > span:last-child { display:none!important; }
+  html[data-current-section="Activity"] .ActivityDashboard { grid-template-columns:1fr!important; }
+  html[data-current-section="Activity"] .ActivityProtectionCard { min-height:260px!important; }
+  html[data-current-section="Activity"] .LimitsGrid { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  html[data-current-section="Profile"] .ProfileLayout { grid-template-columns:1fr!important; }
+  html[data-current-section="Profile"] .ProfileIdentityCard { display:grid!important; grid-template-columns:minmax(260px,.8fr) minmax(270px,1.2fr)!important; gap:20px!important; }
+}
+
+@media(max-width:640px) {
+  html:not([data-current-section="Home"]) .Workspace { padding-top:82px!important; }
+  html:not([data-current-section="Home"]) .PageSection:not(#Home) { padding:0 12px 96px!important; }
+  html:not([data-current-section="Home"]) .Sidebar { border-radius:18px!important; height:58px!important; min-height:58px!important; padding:6px 8px!important; top:10px!important; }
+  html:not([data-current-section="Home"]) .SidebarBrand strong,
+  html:not([data-current-section="Home"]) .DeviceStatus { display:none!important; }
+  html:not([data-current-section="Home"]) .SidebarBrand { padding:0!important; }
+  html:not([data-current-section="Home"]) .SidebarBrand img { height:30px!important; width:30px!important; }
+  html:not([data-current-section="Home"]) .SidebarNavigation { justify-content:flex-end!important; }
+  html:not([data-current-section="Home"]) .SidebarNavigation a { min-height:40px!important; padding:0 5px!important; }
+  html:not([data-current-section="Home"]) .PageHeader { border-radius:23px!important; min-height:142px!important; padding:23px!important; }
+  html:not([data-current-section="Home"]) .PageHeader h1 { font-size:40px!important; }
+  html:not([data-current-section="Home"]) .HeaderMetric { min-width:105px!important; padding:14px!important; }
+  html:not([data-current-section="Home"]) .HeaderMetric strong { font-size:20px!important; }
+  html:not([data-current-section="Home"]) .ExtensionConnectBanner { grid-template-columns:auto 1fr!important; }
+  html:not([data-current-section="Home"]) .ExtensionConnectBanner > a { grid-column:1/-1!important; text-align:center!important; }
+  html[data-current-section="Apps"] .AppStudio { border-radius:22px!important; padding:17px!important; }
+  html[data-current-section="Apps"] .AppStudioHeader { align-items:flex-start!important; }
+  html[data-current-section="Apps"] .AppCarouselTrack { grid-auto-columns:calc(100vw - 76px)!important; }
+  html[data-current-section="Apps"] .AppSettingsHeader { grid-template-columns:1fr auto!important; }
+  html[data-current-section="Apps"] .AppSettingsUsage { display:none!important; }
+  html[data-current-section="Apps"] .AppSettingsRuleList { grid-template-columns:1fr!important; }
+  html[data-current-section="Apps"] .AppSettingsFooter { align-items:stretch!important; flex-direction:column!important; }
+  html[data-current-section="Activity"] .ActivitySummaryGrid { grid-template-columns:1fr!important; }
+  html[data-current-section="Activity"] .ActivitySummaryGrid article { min-height:88px!important; }
+  html[data-current-section="Activity"] .LimitsGrid { grid-template-columns:1fr!important; }
+  html[data-current-section="Settings"] .SettingsSummaryGrid,
+  html[data-current-section="Settings"] .FocusFeatureGrid { grid-template-columns:1fr!important; }
+  html[data-current-section="Settings"] .FocusFeature { grid-template-columns:42px 1fr auto!important; }
+  html[data-current-section="Settings"] .SensitiveControlOptions,
+  html[data-current-section="Settings"] .SensitiveListGrid { grid-template-columns:1fr!important; }
+  html[data-current-section="Settings"] .SensitiveControlOptions label + label,
+  html[data-current-section="Settings"] .SensitiveListGrid > article + article { border-left:0!important; border-top:1px solid rgba(255,255,255,.08)!important; }
+  html[data-current-section="Settings"] .SensitiveControlPanel > footer { align-items:flex-start!important; flex-direction:column!important; }
+  html[data-current-section="Profile"] .ProfileIdentityCard { display:block!important; }
+  html[data-current-section="Profile"] .ProfileMenuCard { grid-template-columns:1fr!important; }
+  html[data-current-section="Profile"] .ProfileMenuCard form { grid-column:auto!important; }
+}

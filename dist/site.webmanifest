@@ -1,0 +1,23 @@
+{
+  "name": "Control",
+  "short_name": "Control",
+  "description": "Private, local-first controls for intentional social media use.",
+  "start_url": "/#Home",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fffdf9",
+  "theme_color": "#6557ff",
+  "icons": [
+    {
+      "src": "/assets/ControlUnifiedIcon128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/ControlUnifiedIcon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+CONTROL - BROWSER EXTENSION INSTALLATION
+
+VERSION 0.31.8
+
+1. Open chrome://extensions in Chrome or edge://extensions in Edge.
+2. Enable Developer mode.
+3. Select "Load unpacked".
+4. Choose this desktop-extension folder.
+5. Accept the requested website access. It is needed for local adult-domain blocking and content filtering.
+6. Pin Control to the browser toolbar.
+
+After every update, click Reload on the Control extension and refresh any protected tabs already open.
+
+Sensitive protection is disabled by default. Enable it in Control > Settings, then edit your private blacklist if needed. The bundled local snapshot contains 76,743 maintained adult domains. Detection and preferences stay on this device.
