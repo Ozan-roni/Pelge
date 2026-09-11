@@ -14,7 +14,12 @@
     const {Type,RequestId,Patch}=event.data;
     if(typeof RequestId!=='string'||RequestId.length>100)return;
     try {
-      if(Type==='ReadRules') { const data=await chrome.storage.sync.get('Rules'); respond('RulesRead',RequestId,{Rules:data.Rules??null}); }
+      if(['StartProtectionPause','ReadProtectionPause','CompleteProtectionPause'].includes(Type)) {
+        const result=await chrome.runtime.sendMessage({Type,Selected:event.data.Selected});
+        if(!result?.Success)throw new Error(result?.Error||'Protection pause unavailable');
+        respond('ProtectionPauseResult',RequestId,result);
+      }
+      else if(Type==='ReadRules') { const data=await chrome.storage.sync.get('Rules'); respond('RulesRead',RequestId,{Rules:data.Rules??null}); }
       else if(Type==='PatchRules') {
         const result=await chrome.runtime.sendMessage({Type:'UpdateRules',Patch});
         if(!result?.Success)throw new Error(result?.Error||'Settings were not applied');

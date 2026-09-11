@@ -287,6 +287,13 @@ function WriteStoredRules(Rules) {
   const Previous=LastQueuedRules||MergeRules(null);
   const RawPatch=ControlRuleProtocol.diff(Previous,Rules);
   const Patch=ControlRuleProtocol.validate(RawPatch,DefaultRules);
+  try { ControlRuleProtocol.assertProtection(Previous,Patch); }
+  catch(error) {
+    ActiveRules=structuredClone(Previous);
+    PublishRulesUpdate();
+    window.dispatchEvent(new Event('control:protection-locked'));
+    return Promise.reject(error);
+  }
   const Snapshot=ApplyCoreProtection(ControlRuleProtocol.apply(Rules,Patch));
   // Include mode changes in this same application-scoped write.
   const FinalPatch=ControlRuleProtocol.diff(Previous,Snapshot);
@@ -304,6 +311,7 @@ function WriteStoredRules(Rules) {
       Result=await SendBridgeRequest('PatchRules',{Patch:FinalPatch});
     } else {
       const Latest=MergeRules(JSON.parse(localStorage.getItem('ControlRules')||'null'));
+      ControlRuleProtocol.assertProtection(Latest,FinalPatch);
       Result={Rules:ApplyCoreProtection(ControlRuleProtocol.apply(Latest,FinalPatch))};
       localStorage.setItem('ControlRules',JSON.stringify(Result.Rules));
     }

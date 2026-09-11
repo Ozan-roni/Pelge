@@ -9,6 +9,7 @@
   ];
   const AdultPlatformPattern = /\b(?:only\s?fans|fansly|manyvids|justfor\.fans|loyalfans|clips4sale|pornhub|xvideos|xnxx|xhamster|chaturbate|stripchat|myfreecams|livejasmin|bongacams|camsoda|fapello|erome|nhentai)\b/i;
   const ExplicitPattern = /\b(?:nsfw|porn(?:ography)?|xxx|nudes?|nudity|explicit|erotic(?:a)?|adult\s+content|sexual\s+content|contenu\s+adulte|contenu\s+explicite|porno(?:graphie)?|nudite|erotique)\b/i;
+  const AdultMarkerPattern = /(?:\b18\s*\+|\+\s*18\b|🔞|\bNSFW\b|\badults?\s+only\b|\br[eé]serv[eé]\s+aux\s+adultes\b)/i;
   const MonetizationPattern = /\b(?:subscribe|subscription|premium|exclusive|vip|link\s+in\s+bio|lien\s+en\s+bio|abonne(?:ment)?|contenu\s+prive)\b/i;
   const ContentUnitSelector = [
     "article", "[role='article']", "[data-testid='tweet']", "[role='listitem']",
@@ -74,6 +75,7 @@
   function TextScore(Text, Config) {
     const Normalized = String(Text ?? "").toLowerCase();
     let Score = 0;
+    if (AdultMarkerPattern.test(Normalized)) Score += 4;
     if (AdultPlatformPattern.test(Normalized)) Score += 3;
     if (ExplicitPattern.test(Normalized)) Score += 2;
     if (MonetizationPattern.test(Normalized)) Score += 1;
@@ -98,10 +100,8 @@
   }
 
   function ProtectionEnabled() {
-    const Domains = {X:["x.com","twitter.com"],Instagram:["instagram.com"],Snapchat:["snapchat.com"],YouTube:["youtube.com","youtu.be"],TikTok:["tiktok.com"],Reddit:["reddit.com"],Threads:["threads.com","threads.net"],Facebook:["facebook.com"]};
-    const Application = Object.keys(Domains).find(Key => Domains[Key].some(Domain => location.hostname === Domain || location.hostname.endsWith("." + Domain)));
-    const Enabled = Application ? (Rules[Application]?.Enabled ?? (Array.isArray(Rules.ProtectedApplications) ? Rules.ProtectedApplications.includes(Application) : !["Reddit","Threads","Facebook"].includes(Application))) : true;
-    return Rules.SensitiveContentProtection === true && Enabled;
+    // Adult-content protection is independent of social distraction controls.
+    return Rules.SensitiveContentProtection === true;
   }
 
   function RestoreSensitiveContent() {
@@ -123,7 +123,7 @@
     if (!Normalized || DetectedAccounts.has(Normalized)) return;
     DetectedAccounts.add(Normalized);
     const Stored = await chrome.storage.local.get("DetectedSensitiveAccounts");
-    const Accounts = [...new Set([...(Array.isArray(Stored.DetectedSensitiveAccounts) ? Stored.DetectedSensitiveAccounts : []), Normalized])].slice(-2000);
+    const Accounts = [...new Set([...(Array.isArray(Stored.DetectedSensitiveAccounts) ? Stored.DetectedSensitiveAccounts : []), AccountScope()+':'+Normalized])].slice(-2000);
     await chrome.storage.local.set({ DetectedSensitiveAccounts: Accounts });
   }
 
@@ -171,6 +171,15 @@
   function GetProfileHandle() {
     return GetUrlHandle(location.href);
   }
+  function AccountScope() {
+    const host=location.hostname.toLowerCase().replace(/^(www|mobile|m)\./,'');
+    return host==='twitter.com'?'x.com':host;
+  }
+  function ScopedAccounts(values) {
+    const prefix=AccountScope()+':';
+    // Old unscoped automatic detections are not reused across unrelated networks.
+    return new Set((Array.isArray(values)?values:[]).filter(value=>typeof value==='string'&&value.startsWith(prefix)).map(value=>NormalizeHandle(value.slice(prefix.length))).filter(Boolean));
+  }
 
   function RenderBlockedProfile() {
     if (document.getElementById("ControlSensitiveProfileBlocker")) return;
@@ -199,8 +208,9 @@
       return;
     }
     const CurrentHandle = GetProfileHandle();
-    const Main = document.querySelector("main") ?? document.body;
-    const ProfileDetectedNow = Boolean(CurrentHandle && Config.HideDetectedAccounts && Main && ElementSignalsSensitive(Main, Config) && document.querySelectorAll(ContentUnitSelector).length < 8);
+    // Only profile metadata can classify an account; a quoted post must not label its author.
+    const ProfileBio = document.querySelector('[data-testid="UserDescription"], [data-e2e="user-bio"], .ProfileHeaderCard-bio');
+    const ProfileDetectedNow = Boolean(CurrentHandle && Config.HideDetectedAccounts && ProfileBio && ElementSignalsSensitive(ProfileBio, Config));
     const ProfileIsBlocked = Boolean(CurrentHandle && Config.Accounts.includes(CurrentHandle)) || ProfileDetectedNow;
     if (ProfileDetectedNow && CurrentHandle) void RememberDetectedAccount(CurrentHandle);
     if (ProfileIsBlocked) RenderBlockedProfile(); else RemoveBlockedProfile();
@@ -251,7 +261,7 @@
       chrome.storage.local.get("DetectedSensitiveAccounts"),
     ]).then(([StoredRules, StoredAccounts]) => {
       Rules = { ...Rules, ...(StoredRules.Rules ?? {}) };
-      DetectedAccounts = new Set((Array.isArray(StoredAccounts.DetectedSensitiveAccounts) ? StoredAccounts.DetectedSensitiveAccounts : []).map(NormalizeHandle).filter(Boolean));
+      DetectedAccounts = ScopedAccounts(StoredAccounts.DetectedSensitiveAccounts);
       ScheduleScan();
     });
   }
@@ -263,7 +273,7 @@
       ScheduleScan();
     }
     if (AreaName === "local" && Changes.DetectedSensitiveAccounts) {
-      DetectedAccounts = new Set((Array.isArray(Changes.DetectedSensitiveAccounts.newValue) ? Changes.DetectedSensitiveAccounts.newValue : []).map(NormalizeHandle).filter(Boolean));
+      DetectedAccounts = ScopedAccounts(Changes.DetectedSensitiveAccounts.newValue);
       ScheduleScan();
     }
   });

@@ -1,0 +1,11 @@
+{
+  "name": "control-focus",
+  "version": "0.34.0",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/serve.cjs",
+    "test": "node extension/check.cjs && node extension/check-settings.cjs",
+    "package:extension": "node scripts/package-extension.cjs"
+  }
+}

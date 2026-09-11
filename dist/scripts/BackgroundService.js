@@ -319,10 +319,7 @@ async function UpdateSensitiveNetworkRules(RulesValue = null) {
   const Domains = [...new Set([
     ...SensitiveBlockedDomains,
     ...(Rules.SensitiveProtectionConfig.BlockedDomains ?? []).map(NormalizeSensitiveDomain).filter(Boolean),
-  ])].filter(Domain => {
-    const Application = GetTrackedApplication(`https://${Domain}/`);
-    return !Application || Rules[Application]?.Enabled === true;
-  }).slice(0, 900);
+  ])].slice(0, 900);
   const AddRules = Rules.SensitiveContentProtection && Rules.SensitiveProtectionConfig.BlockAdultSites !== false
     ? Domains.map((Domain, Index) => ({
         id: 6000 + Index,
@@ -342,7 +339,6 @@ async function ApplySensitiveNavigationProtection(TabId, Url) {
   try {
     const Target = new URL(Url);
     const Application = GetTrackedApplication(Url);
-    if (Application && !Rules[Application]?.Enabled) return;
     if (!await IsSensitiveHostnameComplete(Target.hostname, Rules.SensitiveProtectionConfig.BlockedDomains)) return;
     await chrome.tabs.update(TabId, { url: chrome.runtime.getURL(`Blocked.html?host=${encodeURIComponent(Target.hostname)}`) });
   } catch { return; }
@@ -381,6 +377,7 @@ function UpdateRulesPatch(Patch) {
   const CleanPatch = ControlRuleProtocol.validate(Patch, DefaultRules);
   const Task = RuleWriteTask.catch(() => {}).then(async () => {
     const Stored = (await chrome.storage.sync.get('Rules')).Rules;
+    ControlRuleProtocol.assertProtection(MergeRules(Stored),CleanPatch);
     const Rules = MergeRules(ControlRuleProtocol.apply(MergeRules(Stored), CleanPatch));
     await chrome.storage.sync.set({Rules});
     return Rules;
@@ -390,6 +387,26 @@ function UpdateRulesPatch(Patch) {
 }
 
 chrome.runtime.onMessage.addListener((Message, Sender, SendResponse) => {
+  if(['StartProtectionPause','ReadProtectionPause','CompleteProtectionPause'].includes(Message?.Type)) {
+    if(Sender.id!==chrome.runtime.id) {SendResponse({Success:false});return false;}
+    const task=RuleWriteTask.catch(()=>{}).then(async()=>{
+      let state=(await chrome.storage.local.get('ProtectionPause')).ProtectionPause;
+      if(Message.Type==='StartProtectionPause'&&!state?.startedAt) {
+        state={startedAt:Date.now()};await chrome.storage.local.set({ProtectionPause:state});
+      }
+      if(Message.Type==='CompleteProtectionPause') {
+        const current=MergeRules((await chrome.storage.sync.get('Rules')).Rules);
+        const Rules=ControlRuleProtocol.rechoose(current,Message.Selected,state);
+        await chrome.storage.sync.set({Rules});
+        await chrome.storage.local.remove('ProtectionPause');
+        return {Success:true,Rules};
+      }
+      return {Success:true,...ControlRuleProtocol.pauseState(state)};
+    });
+    RuleWriteTask=task;
+    void task.then(SendResponse).catch(error=>SendResponse({Success:false,Error:error.message}));
+    return true;
+  }
   if(Message?.Type === 'UpdateRules') {
     if(Sender.id !== chrome.runtime.id) { SendResponse({Success:false}); return false; }
     try {

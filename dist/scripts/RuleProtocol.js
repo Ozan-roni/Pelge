@@ -38,5 +38,23 @@
     if(patch.YouTube?.Shorts===false && patch.YouTube?.VideoOnly!==true) next.YouTube.VideoOnly=false;
     return next;
   }
-  globalThis.ControlRuleProtocol=Object.freeze({diff,validate,apply});
+  const applications = ['Instagram','X','Snapchat','TikTok','YouTube','Reddit','Threads','Facebook'];
+  function assertProtection(rules, patch) {
+    if(applications.some(app => rules[app]?.Enabled === true && patch[app]?.Enabled === false)) {
+      throw new Error('Use Settings → Rechoose your protection application to remove protection.');
+    }
+  }
+  function pauseState(state, now=Date.now()) {
+    const startedAt=Number(state?.startedAt)||0;
+    return {startedAt,remaining:startedAt ? Math.max(0,startedAt+300000-now) : 300000,ready:startedAt>0&&now>=startedAt+300000};
+  }
+  function rechoose(rules, selected, state, now=Date.now()) {
+    if(!pauseState(state,now).ready) throw new Error('Your five-minute pause is not complete.');
+    if(!Array.isArray(selected)||selected.some(app=>!applications.includes(app))) throw new Error('Invalid application selection');
+    const next=structuredClone(rules);
+    for(const app of applications) next[app].Enabled=selected.includes(app);
+    next.ProtectedApplications=[...new Set(selected)];
+    return next;
+  }
+  globalThis.ControlRuleProtocol=Object.freeze({diff,validate,apply,assertProtection,pauseState,rechoose});
 })();
