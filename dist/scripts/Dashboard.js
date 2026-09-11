@@ -197,7 +197,7 @@ ApplicationDefinitions.push(
   ] }
 );
 
-const RequiredExtensionVersion = "0.33.0";
+const RequiredExtensionVersion = "0.33.1";
 let ActiveSession = null;
 let SessionTimer = null;
 let ToastTimer = null;

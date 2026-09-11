@@ -402,6 +402,11 @@ chrome.runtime.onMessage.addListener((Message, Sender, SendResponse) => {
     SendResponse({ Success: true });
     return false;
   }
+  if (Message?.Type === "OpenDailyLimits" && Sender.id === chrome.runtime.id) {
+    void chrome.tabs.create({url:chrome.runtime.getURL("Dashboard.html#DailyLimits")})
+      .then(() => SendResponse({Success:true})).catch(() => SendResponse({Success:false}));
+    return true;
+  }
 
   if (Message?.Type === "OpenProtectedPage") {
     if (!IsProtectedLaunchUrl(Message.Url)) {

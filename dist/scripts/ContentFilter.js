@@ -621,6 +621,7 @@ function ShowBlocker(Title, Description, SafeUrl) {
     document.documentElement.append(Blocker);
   }
 
+  Blocker.dataset.controlGlass = typeof ControlExtendedDetectLightTheme === "function" && ControlExtendedDetectLightTheme() ? "light" : "dark";
   const TitleElement = Blocker.querySelector("#ControlRouteTitle");
   const DescriptionElement = Blocker.querySelector("#ControlRouteDescription");
   const SafeButton = Blocker.querySelector("#ControlRouteSafeButton");

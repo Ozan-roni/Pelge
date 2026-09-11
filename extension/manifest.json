@@ -1,126 +1,128 @@
 {
-    "manifest_version":  3,
-    "name":  "Control",
-    "version":  "0.33.0",
-    "key":  "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv+VlE/c0BItdopTPCOx20QgmAq6PflCveCF/gLgA6oE7wkg3mOPkE+PNlobfLUkAO+c3WT9ivDKLbMSuB+nPQVXDePH98dBZD1U/RPh/id5Td2ur5QP4UU2D79HByGomCnWAblEUlZ0WAA+/7lkhp9GLhQ29tWiGhhyWwr2iTT9PwR797ad9ykSf1Nd19Mvv9T1PblkjlHwozJuYXoX/IFzO+sjXeFRpZlA/1WdtRyHZbTnY27JFYbkvru3vJ6ZZIVamqxZGE87ei4R9F4gJ/65C+/831rf0mWCIe+0PkaJORROjfB2MrlvM5h/LNMn4EgwZVCy5rPcSZogiqFyVZwIDAQAB",
-    "description":  "A private control panel for quieter social networks, focused video and daily time limits.",
-    "permissions":  [
-                        "storage",
-                        "tabs",
-                        "alarms",
-                        "idle",
-                        "declarativeNetRequest"
-                    ],
-    "host_permissions":  [
-                             "<all_urls>"
-                         ],
-    "background":  {
-                       "service_worker":  "scripts/BackgroundService.js",
-                       "type":  "module"
-                   },
-    "action":  {
-                   "default_title":  "Control",
-                   "default_popup":  "Popup.html",
-                   "default_icon":  {
-                                        "16":  "assets/ControlSelectedBlackIcon16.png",
-                                        "32":  "assets/ControlSelectedBlackIcon32.png",
-                                        "48":  "assets/ControlSelectedBlackIcon48.png",
-                                        "128":  "assets/ControlSelectedBlackIcon128.png"
-                                    }
-               },
-    "icons":  {
-                  "16":  "assets/ControlSelectedBlackIcon16.png",
-                  "32":  "assets/ControlSelectedBlackIcon32.png",
-                  "48":  "assets/ControlSelectedBlackIcon48.png",
-                  "128":  "assets/ControlSelectedBlackIcon128.png"
-              },
-    "options_page":  "Dashboard.html",
-    "content_scripts":  [
-                            {
-                                "matches":  [
-                                                "<all_urls>"
-                                            ],
-                                "css":  [
-                                            "styles/SensitiveProtection.css"
-                                        ],
-                                "js":  [
-                                           "scripts/SensitiveProtection.js"
-                                       ],
-                                "run_at":  "document_start"
-                            },
-                            {
-                                "matches":  [
-                                                "http://127.0.0.1:4173/*",
-                                                "http://127.0.0.1:8788/*",
-                                                "https://control-focus-app.dylanyonan4.chatgpt.site/*"
-                                            ],
-                                "js":  [
-                                           "scripts/ExtensionBridge.js"
-                                       ],
-                                "run_at":  "document_start"
-                            },
-                            {
-                                "matches":  [
-                                                "https://www.instagram.com/*",
-                                                "https://instagram.com/*",
-                                                "https://web.snapchat.com/*",
-                                                "https://www.snapchat.com/*"
-                                            ],
-                                "css":  [
-                                            "styles/ContentFilter.css",
-                                            "styles/ContentFilterExtended.css"
-                                        ],
-                                "js":  [
-                                           "scripts/ContentFilter.js",
-                                           "scripts/ExtendedFilters.js"
-                                       ],
-                                "run_at":  "document_start"
-                            },
-                            {
-                                "matches":  [
-                                                "https://x.com/*",
-                                                "https://twitter.com/*",
-                                                "https://www.youtube.com/*",
-                                                "https://youtube.com/*",
-                                                "https://youtu.be/*",
-                                                "https://www.tiktok.com/*",
-                                                "https://tiktok.com/*",
-                                                "https://*.reddit.com/*",
-                                                "https://*.threads.com/*",
-                                                "https://*.threads.net/*",
-                                                "https://*.facebook.com/*"
-                                            ],
-                                "css":  [
-                                            "styles/ContentFilterExtended.css"
-                                        ],
-                                "js":  [
-                                           "scripts/ExtendedFilters.js"
-                                       ],
-                                "run_at":  "document_start"
-                            }
-                        ],
-    "web_accessible_resources":  [
-                                     {
-                                         "resources":  [
-                                                           "assets/ControlSelectedWhiteIcon128.png"
-                                                       ],
-                                         "matches":  [
-                                                         "https://www.instagram.com/*",
-                                                         "https://instagram.com/*",
-                                                         "https://web.snapchat.com/*",
-                                                         "https://www.snapchat.com/*",
-                                                         "https://x.com/*",
-                                                         "https://twitter.com/*",
-                                                         "https://www.youtube.com/*",
-                                                         "https://youtube.com/*",
-                                                         "https://youtu.be/*",
-                                                         "https://www.tiktok.com/*",
-                                                         "https://tiktok.com/*",
-                                                         "https://*.reddit.com/*",
-                                                         "https://*.threads.com/*",
-                                                         "https://*.threads.net/*",
-                                                         "https://*.facebook.com/*"
-                                                     ]
-                                     }
-                                 ]
+  "manifest_version": 3,
+  "name": "Control",
+  "version": "0.33.1",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv+VlE/c0BItdopTPCOx20QgmAq6PflCveCF/gLgA6oE7wkg3mOPkE+PNlobfLUkAO+c3WT9ivDKLbMSuB+nPQVXDePH98dBZD1U/RPh/id5Td2ur5QP4UU2D79HByGomCnWAblEUlZ0WAA+/7lkhp9GLhQ29tWiGhhyWwr2iTT9PwR797ad9ykSf1Nd19Mvv9T1PblkjlHwozJuYXoX/IFzO+sjXeFRpZlA/1WdtRyHZbTnY27JFYbkvru3vJ6ZZIVamqxZGE87ei4R9F4gJ/65C+/831rf0mWCIe+0PkaJORROjfB2MrlvM5h/LNMn4EgwZVCy5rPcSZogiqFyVZwIDAQAB",
+  "description": "A private control panel for quieter social networks, focused video and daily time limits.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms",
+    "idle",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "scripts/BackgroundService.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Control",
+    "default_popup": "Popup.html",
+    "default_icon": {
+      "16": "assets/ControlSelectedBlackIcon16.png",
+      "32": "assets/ControlSelectedBlackIcon32.png",
+      "48": "assets/ControlSelectedBlackIcon48.png",
+      "128": "assets/ControlSelectedBlackIcon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/ControlSelectedBlackIcon16.png",
+    "32": "assets/ControlSelectedBlackIcon32.png",
+    "48": "assets/ControlSelectedBlackIcon48.png",
+    "128": "assets/ControlSelectedBlackIcon128.png"
+  },
+  "options_page": "Dashboard.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "styles/SensitiveProtection.css"
+      ],
+      "js": [
+        "scripts/SensitiveProtection.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "http://127.0.0.1:4173/*",
+        "http://127.0.0.1:8788/*",
+        "https://control-focus-app.dylanyonan4.chatgpt.site/*"
+      ],
+      "js": [
+        "scripts/ExtensionBridge.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://instagram.com/*",
+        "https://web.snapchat.com/*",
+        "https://www.snapchat.com/*"
+      ],
+      "css": [
+        "styles/ContentFilter.css",
+        "styles/ContentFilterExtended.css",
+        "styles/ControlFeedback.css"
+      ],
+      "js": [
+        "scripts/ContentFilter.js",
+        "scripts/ExtendedFilters.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*",
+        "https://www.youtube.com/*",
+        "https://youtube.com/*",
+        "https://youtu.be/*",
+        "https://www.tiktok.com/*",
+        "https://tiktok.com/*",
+        "https://*.reddit.com/*",
+        "https://*.threads.com/*",
+        "https://*.threads.net/*",
+        "https://*.facebook.com/*"
+      ],
+      "css": [
+        "styles/ContentFilterExtended.css",
+        "styles/ControlFeedback.css"
+      ],
+      "js": [
+        "scripts/ExtendedFilters.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/ControlSelectedWhiteIcon128.png"
+      ],
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://instagram.com/*",
+        "https://web.snapchat.com/*",
+        "https://www.snapchat.com/*",
+        "https://x.com/*",
+        "https://twitter.com/*",
+        "https://www.youtube.com/*",
+        "https://youtube.com/*",
+        "https://youtu.be/*",
+        "https://www.tiktok.com/*",
+        "https://tiktok.com/*",
+        "https://*.reddit.com/*",
+        "https://*.threads.com/*",
+        "https://*.threads.net/*",
+        "https://*.facebook.com/*"
+      ]
+    }
+  ]
 }

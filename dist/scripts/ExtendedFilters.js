@@ -19,6 +19,7 @@ let ControlExtendedRules = structuredClone(ControlExtendedDefaultRules);
 let ControlExtendedLimitReached = false;
 let ControlExtendedFilterTimer = null;
 let ControlExtendedRulesLoaded = false;
+let ControlExtendedLimitRevision = 0;
 
 function ControlExtendedGetApplication() {
   const Hostname = location.hostname.toLowerCase();
@@ -136,10 +137,12 @@ function ControlExtendedShowBlocker(Title, Description, SafeUrl = "__close__") {
     document.documentElement.append(Blocker);
   }
 
+  Blocker.dataset.controlGlass = ControlExtendedDetectLightTheme() ? "light" : "dark";
   const TitleElement = Blocker.querySelector("#ControlExtendedTitle");
   const DescriptionElement = Blocker.querySelector("#ControlExtendedDescription");
   const SafeButton = Blocker.querySelector("#ControlExtendedSafeButton");
-  const ButtonLabel = SafeUrl === "__close__" ? "Close application" : "Return to the useful area";
+  Blocker.querySelector(".ControlRouteEyebrow").textContent = SafeUrl === "__limits__" ? "CONTROL · DAILY LIMIT" : "CONTROL · YOUR SPACE";
+  const ButtonLabel = SafeUrl === "__limits__" ? "Adjust my daily limit" : SafeUrl === "__close__" ? "Close application" : "Back to my app";
   if (TitleElement.textContent !== Title) {
     TitleElement.textContent = Title;
   }
@@ -150,6 +153,7 @@ function ControlExtendedShowBlocker(Title, Description, SafeUrl = "__close__") {
     SafeButton.textContent = ButtonLabel;
   }
   SafeButton.onclick = () => {
+    if (SafeUrl === "__limits__") { void chrome.runtime.sendMessage({Type:"OpenDailyLimits"}); return; }
     if (SafeUrl === "__close__") {
       void chrome.runtime.sendMessage({ Type: "CloseCurrentTab" });
       return;
@@ -389,9 +393,9 @@ function ControlExtendedApplyFilters() {
     return;
   }
 
-  if (ControlExtendedLimitReached) {
+  if (ControlExtendedLimitReached && Number(Rules.DailyLimitMinutes) > 0) {
     const Limit = Number(Rules.DailyLimitMinutes) || 0;
-    ControlExtendedShowBlocker("Daily limit reached", `You have used today’s ${Limit}-minute allowance for ${Application}.`);
+    ControlExtendedShowBlocker("Your daily pause", `You’ve reached your ${Limit}-minute limit on ${Application}. Change or remove it in Control to continue.`, "__limits__");
     return;
   }
 
@@ -422,6 +426,7 @@ function ControlExtendedScheduleFilters() {
 }
 
 async function ControlExtendedRefreshLimit() {
+  const Revision = ++ControlExtendedLimitRevision;
   const Application = ControlExtendedGetApplication();
   if (!Application) {
     return;
@@ -429,14 +434,17 @@ async function ControlExtendedRefreshLimit() {
   const LimitMinutes = Math.max(0, Number(ControlExtendedRules[Application]?.DailyLimitMinutes) || 0);
   if (!ControlExtendedRules[Application]?.Enabled || LimitMinutes === 0) {
     ControlExtendedLimitReached = false;
-    ControlExtendedScheduleFilters();
+    ControlExtendedApplyFilters();
     return;
   }
 
-  const StoredData = await chrome.storage.local.get("UsageState");
-  const UsedToday = Number(StoredData.UsageState?.Days?.[ControlExtendedGetLocalDateKey()]?.[Application]) || 0;
+  const DateKey = ControlExtendedGetLocalDateKey();
+  let StoredData;
+  try { StoredData = await chrome.storage.local.get("UsageState"); } catch { return; }
+  if (Revision !== ControlExtendedLimitRevision || DateKey !== ControlExtendedGetLocalDateKey()) return;
+  const UsedToday = Number(StoredData.UsageState?.Days?.[DateKey]?.[Application]) || 0;
   ControlExtendedLimitReached = ControlExtendedRules[Application]?.Enabled === true && Number(ControlExtendedRules[Application]?.DailyLimitMinutes) === LimitMinutes && UsedToday >= LimitMinutes * 60 * 1000;
-  ControlExtendedScheduleFilters();
+  ControlExtendedApplyFilters();
 }
 
 
@@ -504,6 +512,7 @@ async function ControlExtendedInitializeUsageTimer(Application) {
 
 async function ControlExtendedLoadRules() {
   const StoredData = await chrome.storage.sync.get("Rules");
+  if (ControlExtendedRulesLoaded) return;
   ControlExtendedRules = ControlExtendedMergeRules(StoredData.Rules);
   ControlExtendedRulesLoaded = true;
   ControlExtendedScheduleFilters();
@@ -553,6 +562,8 @@ if (document.documentElement) {
 chrome.storage.onChanged.addListener((Changes, AreaName) => {
   if (AreaName === "sync" && Changes.Rules?.newValue) {
     ControlExtendedRestorePage();
+    ControlExtendedLimitRevision++;
+    ControlExtendedLimitReached = false;
     ControlExtendedRules = ControlExtendedMergeRules(Changes.Rules.newValue);
     ControlExtendedRulesLoaded = true;
     ControlExtendedApplyFilters();
@@ -564,5 +575,24 @@ chrome.storage.onChanged.addListener((Changes, AreaName) => {
     void ControlExtendedRefreshLimit();
   }
 });
-window.setInterval(() => void ControlExtendedRefreshLimit(), 15000);
+// Recover missed storage events after suspension or a background tab.
+async function ControlExtendedReconcileRules() {
+  const Revision = ControlExtendedLimitRevision;
+  try {
+    const Stored = await chrome.storage.sync.get("Rules");
+    if (Revision !== ControlExtendedLimitRevision) return;
+    const Latest = ControlExtendedMergeRules(Stored.Rules);
+    if (JSON.stringify(Latest) !== JSON.stringify(ControlExtendedRules)) {
+      ControlExtendedRestorePage();
+      ControlExtendedLimitReached = false;
+      ControlExtendedLimitRevision++;
+      ControlExtendedRules = Latest;
+      ControlExtendedRulesLoaded = true;
+    }
+    await ControlExtendedRefreshLimit();
+  } catch { /* Keep current state; the next storage event/focus will retry. */ }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) void ControlExtendedReconcileRules(); });
+window.addEventListener("focus", () => void ControlExtendedReconcileRules());
+window.setInterval(() => void ControlExtendedReconcileRules(), 5000);
 void ControlExtendedLoadRules();

@@ -1,6 +1,6 @@
 CONTROL - BROWSER EXTENSION INSTALLATION
 
-VERSION 0.33.0
+VERSION 0.33.1
 
 1. Open chrome://extensions in Chrome or edge://extensions in Edge.
 2. Enable Developer mode.

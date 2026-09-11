@@ -44,7 +44,7 @@
     const content = root.querySelector('#CSContent');
     if(!content)return;
     const views = {Dashboard:dashboard,Activity:activity,DailyLimits:limits,Apps:blockedApps,Focus:focusPage,Shield:shieldPage,Family:familyPage,Settings:settingsPage,Profile:profilePage,Setup:setupPage};
-    content.innerHTML = '<div class="CSSyncStatus" role="status" aria-live="polite" data-state="'+ControlSyncState.state+'"><span></span><p>'+esc(ControlSyncState.message)+'</p></div>'+views[page]();
+    content.innerHTML = views[page]();
     EnsureLogoEyes(content);
     root.querySelector('.CSAccount').innerHTML=avatar()+`<span><strong>${esc(ReadLocalProfile()?.Name||'Your profile')}</strong><small>Local workspace</small></span>${icon('chevron')}`;
     root.querySelector('.CSAccount').setAttribute('aria-label','Open your profile');

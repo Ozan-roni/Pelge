@@ -23,7 +23,7 @@ async function test(){
     document:{documentElement:root,addEventListener(){},getElementById:id=>id==='ControlUsageTimer'&&!timer.removed?timer:null,
       querySelectorAll:selector=>selector.includes('video,')?[tweet]:selector.includes('data-control-extended-hidden')&&tweet.hasAttribute('data-control-extended-hidden')?[tweet]:[]},
     sessionStorage:{getItem:()=>null},
-    window:{clearTimeout(){},setTimeout(){},clearInterval(){},setInterval(){}},
+    window:{clearTimeout(){},setTimeout(){},clearInterval(){},setInterval(){},addEventListener(){}},
     MutationObserver:class{observe(){}},
     chrome:{storage:{sync:{get:async()=>({Rules:initial})},local:{get:async()=>({})},onChanged:{addListener:fn=>listeners.push(fn)}}}
   });
@@ -48,6 +48,24 @@ async function test(){
   listeners[0]({Rules:{newValue:{...initial,X:{...initial.X,Videos:false}}}},'sync');
   vm.runInContext('ControlExtendedApplyFilters()',context);
   assert(!tweet.hasAttribute('data-control-extended-hidden'),'Individual video toggle restores content');
+  // An older async usage read must never win after a newer allowance.
+  vm.runInContext('ControlExtendedShowBlocker = () => {};',context);
+  context.chrome.storage.local.get=async()=>({UsageState:{Days:{[vm.runInContext('ControlExtendedGetLocalDateKey()',context)]:{X:45*60*1000}}}});
+  vm.runInContext('ControlExtendedRules.X.DailyLimitMinutes=30',context);
+  await vm.runInContext('ControlExtendedRefreshLimit()',context);
+  assert.equal(vm.runInContext('ControlExtendedLimitReached',context),true);
+  vm.runInContext('ControlExtendedRules.X.DailyLimitMinutes=60',context);
+  await vm.runInContext('ControlExtendedRefreshLimit()',context);
+  assert.equal(vm.runInContext('ControlExtendedLimitReached',context),false);
+  let finishOldRead;
+  context.chrome.storage.local.get=()=>new Promise(resolve=>{finishOldRead=resolve;});
+  vm.runInContext('ControlExtendedRules.X.DailyLimitMinutes=30',context);
+  const oldRead=vm.runInContext('ControlExtendedRefreshLimit()',context);
+  vm.runInContext('ControlExtendedRules.X.DailyLimitMinutes=0',context);
+  await vm.runInContext('ControlExtendedRefreshLimit()',context);
+  finishOldRead({UsageState:{Days:{[vm.runInContext('ControlExtendedGetLocalDateKey()',context)]:{X:90*60*1000}}}});
+  await oldRead;
+  assert.equal(vm.runInContext('ControlExtendedLimitReached',context),false,'Unlimited survives a stale usage response');
   const protocolContext=vm.createContext({structuredClone});
   vm.runInContext(read('RuleProtocol.js'),protocolContext);
   const protocol=protocolContext.ControlRuleProtocol;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "control-site-v6";
+const CACHE_NAME = "control-site-v7";
 const APP_SHELL = [
   "/",
   "/#Home",
@@ -12,7 +12,7 @@ const APP_SHELL = [
   "/styles/ControlStudio.css?v=1.3.0",
   "/assets/landing/ControlLoginBackground.png",
   "/assets/landing/ControlStudioBackground.png",
-  "/scripts/ControlStudio.js?v=1.2.0",
+  "/scripts/ControlStudio.js?v=1.2.1",
   "/scripts/RuleProtocol.js?v=1.0.0",
   "/scripts/Dashboard.js",
   "/scripts/HomeV2.js",
