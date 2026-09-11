@@ -41,7 +41,8 @@ html[data-current-section="Studio"] :is(.Sidebar,.MobileTopbar,.MobileNavigation
 #Studio .CSSideNote .CSButton { font-size:12px; width:100%; padding:10px; background:#fff9; }
 #Studio .CSBackHome { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; font-size:12px; color:var(--cs-muted); text-decoration:none; }
 #Studio .CSBackHome svg { width:16px; transform:rotate(180deg); }
-#Studio .CSMain { margin-left:230px; min-height:100svh; background-image:linear-gradient(180deg,transparent 0px,var(--cs-base) 390px),linear-gradient(90deg,var(--cs-base) 0%,#fafbfe99 42%,transparent 85%),url('../assets/landing/ZipControlAuraBackground.png'); background-size:100% 470px; background-position:right top; background-repeat:no-repeat; }
+#Studio .CSMain { margin-left:230px; min-height:100svh; position:relative; isolation:isolate; }
+#Studio .CSMain::before { content:""; position:absolute; inset:0 0 auto; height:470px; z-index:-1; pointer-events:none; background:url('../assets/landing/ControlStudioBackground.png') right top / cover no-repeat; mask-image:linear-gradient(#000 45%,transparent 100%); -webkit-mask-image:linear-gradient(#000 45%,transparent 100%); }
 #Studio .CSTopbar { position:relative; z-index:25; height:82px; padding:18px 32px; display:flex; gap:24px; align-items:center; background:rgba(255,255,255,.85); border-bottom:1px solid #ffffff90; backdrop-filter:blur(22px); }
 #Studio .CSSearch { position:relative; display:flex; align-items:center; gap:10px; width:min(520px,52%); border-radius:24px; background:#f3f2fa; padding:0 16px; color:#929cbb; }
 #Studio .CSSearch input { width:100%; padding:11px 0 !important; background:none !important; border:0 !important; border-radius:0 !important; }
@@ -292,7 +293,7 @@ html[data-current-section="Studio"] :is(.Sidebar,.MobileTopbar,.MobileNavigation
 #Studio[data-accent="orange"] { --cs-accent:#d88955; --cs-soft:#fff1e8; }
 #Studio[data-studio-theme="Dark"] { --cs-ink:#e8e7f5; --cs-muted:#9d9bb6; --cs-line:#353248; --cs-card:#242132eb; --cs-base:#191722; --cs-soft:#373046; }
 #Studio[data-studio-theme="Dark"] :is(.CSSidebar,.CSTopbar) { background:#201d2e; border-color:var(--cs-line); }
-#Studio[data-studio-theme="Dark"] .CSMain { background-image:linear-gradient(180deg,#191722bb,var(--cs-base) 390px),url('../assets/landing/ZipControlAuraBackground.png'); }
+#Studio[data-studio-theme="Dark"] .CSMain::before { opacity:.22; }
 #Studio[data-studio-theme="Dark"] :is(.CSMetric,.CSMetric.Warm,.CSLimitSummary,.CSLimitTip,.CSChild,.CSSideNote,.CSQuote) { background:linear-gradient(140deg,#342b46,#282536); border-color:var(--cs-line); }
 #Studio[data-studio-theme="Dark"] :is(.CSBrand strong,.CSSidebar nav button) { color:var(--cs-ink); }
 #Studio[data-studio-theme="Dark"] .CSLogo img { filter:invert(1); }
