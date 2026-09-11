@@ -1085,6 +1085,11 @@ async function UpdateUsageStatistics() {
 }
 
 function ShowSection(SectionName) {
+  if (SectionName === "Profile" && !ReadLocalProfile()) SectionName = "Login";
+  if (SectionName === "Signup") {
+    SectionName = "Login";
+    window.ControlAuth?.setMode("create");
+  }
   for (const Section of document.querySelectorAll(".PageSection")) {
     Section.classList.toggle("IsVisible", Section.id === SectionName);
   }
@@ -1098,6 +1103,10 @@ function ShowSection(SectionName) {
   MainNavigation.classList.remove("IsOpen");
   MobileMenuButton.setAttribute("aria-expanded", "false");
   document.documentElement.dataset.currentSection = SectionName;
+  if (SectionName === "Login") {
+    document.getElementById("Onboarding").hidden = true;
+    document.body.classList.remove("OnboardingActive");
+  }
   history.replaceState(null, "", `#${SectionName}`);
   window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -1832,6 +1841,8 @@ function BindProfileActions() {
     SignOutAccount();
     SetProfileNotice("Signed out. Protection and settings remain available locally.");
     RenderLocalProfile();
+    window.ControlAuth?.setMode("signin");
+    ShowSection("Login");
     RenderApplications();
     RenderLimits();
   });
@@ -1839,6 +1850,8 @@ function BindProfileActions() {
     DeleteCurrentAccount();
     SetProfileNotice("Local account deleted. Protection and settings remain available locally.");
     RenderLocalProfile();
+    window.ControlAuth?.setMode("signin");
+    ShowSection("Login");
     RenderApplications();
     RenderLimits();
   });
@@ -2058,7 +2071,7 @@ async function Initialize() {
   });
 
   const InitialSection = location.hash.slice(1);
-  if (["Home", "Apps", "Activity", "Settings", "Profile"].includes(InitialSection)) {
+  if (["Home", "Apps", "Activity", "Settings", "Profile", "Login", "Signup"].includes(InitialSection)) {
     ShowSection(InitialSection);
   }
 

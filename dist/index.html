@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="styles/HomeV2.css?v=0.70.0" />
     <link rel="stylesheet" href="styles/ZipControlHome.css?v=1.2.0" />
     <link rel="stylesheet" href="styles/ZipControlApp.css?v=1.2.1" />
+    <link rel="stylesheet" href="styles/ControlAuth.css?v=1.0.0" />
   </head>
   <body class="AppShell Booting">
     <div class="AmbientCanvas" aria-hidden="true">
@@ -838,6 +839,53 @@
         <article class="DataNotice"><span class="DataIcon">&#9678;</span><div><strong>Private by design</strong><p>No remote server and no exported history. Usage remains inside Control on this device.</p></div><button class="TextButton Danger" id="ResetUsageButton" type="button">Erase activity</button></article>
       </section>
 
+      <section class="PageSection" id="Login" aria-labelledby="AuthTitle">
+        <div class="AuthWindow">
+          <header class="AuthTopbar">
+            <a class="AuthBack" href="#Home" data-section="Home" aria-label="Back to Control home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6M8 12h13"/></svg></a>
+            <div class="AuthTopAccount"><span id="AuthTopPrompt">New to Control?</span><button type="button" class="AuthCreateLink" data-auth-mode="create"><span id="AuthTopAction">Create account</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button></div>
+          </header>
+          <div class="AuthLayout">
+            <div class="AuthStory">
+              <a href="#Home" data-section="Home" class="AuthBrand" aria-label="Control home"><span class="AuthLogo"><img src="assets/ControlSelectedBlack.png" alt="" /></span><strong>Control</strong></a>
+              <p class="AuthKicker"><span aria-hidden="true">✳</span> A calmer, more focused you</p>
+              <h1>Take back <em>control.</em></h1>
+              <p class="AuthLead">Remove the endless scroll, distractions and manipulative features from your favorite apps — so you can focus on what matters.</p>
+              <div class="AuthBenefits">
+                <div><span class="AuthBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-2 5 4 4 0 0 0 1 7 3 3 0 0 0 4 3V3Zm6 0a3 3 0 0 1 3 3 3 3 0 0 1 2 5 4 4 0 0 1-1 7 3 3 0 0 1-4 3V3ZM6 8l3 2m-4 5 4-1m9-6-3 2m4 5-4-1"/></svg></span><span><strong>Focus Mode</strong><small>Deeper focus,<br />brighter days</small></span></div>
+                <div><span class="AuthBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg></span><span><strong>Block Reels &amp; Shorts</strong><small>Remove addictive<br />content</small></span></div>
+                <div><span class="AuthBenefitIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></svg></span><span><strong>Privacy first</strong><small>No data selling.<br />Your focus is yours.</small></span></div>
+              </div>
+              <div class="AuthArt" aria-label="Control focus mode and a calmer mind">
+                <img class="AuthPhone AuthPhoneBack" src="assets/landing/AuthPhoneCalm.png" alt="Control on a phone with a mountain landscape and the words A calmer mind, a brighter you." width="1086" height="1448" />
+                <img class="AuthPhone AuthPhoneFront" src="assets/landing/AuthPhoneFocus.png" alt="Control Focus Mode, with Instagram Reels, TikTok For You and YouTube Shorts blocked." width="1086" height="1448" />
+                <div class="AuthGlass AuthSaved"><div><strong>12h 47m</strong><span>time saved<br />this week</span></div><span class="AuthBars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+                <div class="AuthGlass AuthQuote"><span aria-hidden="true">“</span><p>Less scrolling.<br />A fuller life.</p></div>
+              </div>
+            </div>
+            <article class="AuthCard">
+              <div class="AuthCardHeading"><span class="AuthLogo AuthCardLogo"><img src="assets/ControlSelectedBlack.png" alt="" /></span><strong class="AuthCardBrand">Control</strong><h2 id="AuthTitle">Welcome back</h2><p id="AuthSubtitle">Sign in to continue your focused journey.</p></div>
+              <form id="ControlAuthForm" class="AuthForm">
+                <div class="AuthField" id="AuthNameField" hidden><label for="AuthName">Full name</label><div class="AuthInputWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><input id="AuthName" name="name" autocomplete="name" maxlength="40" placeholder="Your name" /></div></div>
+                <div class="AuthField"><label for="AuthEmail">Email</label><div class="AuthInputWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><input id="AuthEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></div></div>
+                <div class="AuthField"><label for="AuthPassword">Password</label><div class="AuthInputWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></svg><input id="AuthPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required /><button type="button" class="AuthShowPassword" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><small id="AuthPasswordHint" hidden>At least 12 characters, with an uppercase letter, a lowercase letter and a number.</small></div>
+                <div class="AuthField" id="AuthCodeField" hidden><label for="AuthCode">Two-step code</label><div class="AuthInputWrap"><input id="AuthCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter your two-step code" /></div></div>
+                <button class="AuthForgot" type="button" id="AuthForgot">Forgot password?</button>
+                <p class="AuthNotice" id="AuthNotice" role="status" aria-live="polite" hidden></p>
+                <button class="AuthSubmit" type="submit"><span id="AuthSubmitLabel">Sign in</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+              </form>
+              <div class="AuthDivider"><span>or continue with</span></div>
+              <div class="AuthProviders">
+                <button type="button" data-auth-provider="Apple"><svg class="AuthApple" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.1 12.5c0-2.5 2-3.7 2.1-3.8a4.6 4.6 0 0 0-3.6-2c-1.5-.2-3 .9-3.8.9-.8 0-2-1-3.3-.9a4.9 4.9 0 0 0-4.1 2.5c-1.8 3-.5 7.5 1.2 9.9.8 1.2 1.8 2.5 3.1 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.4-3.8ZM14.6 5.1A4.3 4.3 0 0 0 15.6 2a4.4 4.4 0 0 0-2.9 1.5 4.1 4.1 0 0 0-1.1 3c1.1.1 2.2-.5 3-1.4Z"/></svg>Continue with Apple</button>
+                <button type="button" data-auth-provider="Google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.7A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14.1a6 6 0 0 1 0-3.9V7.5H3.2a10 10 0 0 0 0 9.3l3.3-2.7Z"/><path fill="#ea4335" d="M12 6.1c1.6 0 3 .5 4.1 1.6l3.1-3A10 10 0 0 0 3.2 7.5l3.3 2.7a5.8 5.8 0 0 1 5.5-4.1Z"/></svg>Continue with Google</button>
+              </div>
+              <p class="AuthSwitch"><span id="AuthSwitchPrompt">Don’t have an account?</span> <button type="button" data-auth-mode="create" id="AuthSwitchAction">Create account</button></p>
+              <p class="AuthTerms">By continuing, you agree to our <button type="button" data-auth-legal="terms">Terms of Service</button><br />and <button type="button" data-auth-legal="privacy">Privacy Policy.</button></p>
+            </article>
+          </div>
+        </div>
+        <dialog class="AuthDialog" id="AuthInfoDialog" aria-labelledby="AuthInfoTitle"><button type="button" id="AuthCloseDialog" aria-label="Close message">×</button><h2 id="AuthInfoTitle"></h2><p id="AuthInfoMessage"></p></dialog>
+      </section>
       <section class="PageSection" id="Profile">
         <header class="PageHeader CompactHeader"><div><p class="PageEyebrow">Profile</p><h1>Profile</h1><p>Local, private and yours.</p></div><div class="HeaderMetric"><span>Today</span><strong id="ProfileTodayUsage">0 min</strong></div></header>
         <section class="ProfileLayout">
@@ -964,6 +1012,7 @@
     <script src="scripts/Dashboard.js?v=0.47.1"></script>
     <script src="scripts/HomeV2.js?v=0.69.0"></script>
     <script src="scripts/ZipControlApp.js?v=1.1.2"></script>
+    <script src="scripts/ControlAuth.js?v=1.0.0"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
