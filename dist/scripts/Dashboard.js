@@ -1578,6 +1578,7 @@ function StartInsightAnimation() {
   const Group = Track?.querySelector(".InsightGroup");
   if (!Track || !Group) return;
   InsightAnimation?.cancel();
+  if(PrefersReducedInterfaceMotion())return;
   const Distance = Group.getBoundingClientRect().width + 14;
   InsightAnimation = Track.animate([{ transform: "translate3d(0,0,0)" }, { transform: `translate3d(-${Distance}px,0,0)` }], { duration: Math.max(76000, Distance * 24), iterations: Infinity, easing: "linear" });
   const Viewport = Track.closest(".InsightViewport");
@@ -1608,11 +1609,16 @@ function InitializeVisualStream() {
   requestAnimationFrame(StartInsightAnimation);
 }
 
+function PrefersReducedInterfaceMotion() {
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return true;
+  try { return JSON.parse(localStorage.getItem('ControlStudioPreferences.v1'))?.motion===false; } catch { return false; }
+}
+
 function RunBootSequence() {
   const BootScreen = document.getElementById("BootScreen");
   const BootSeraph = BootScreen?.querySelector(".BootSeraph");
   const BootStatusText = document.getElementById("BootStatusText");
-  const PrefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const PrefersReducedMotion = PrefersReducedInterfaceMotion();
 
   if (!(BootScreen instanceof HTMLElement) || !(BootSeraph instanceof HTMLElement)) {
     return Promise.resolve();
@@ -1631,13 +1637,13 @@ function RunBootSequence() {
     const MessageTimer = window.setInterval(() => {
       BootMessageIndex = Math.min(BootMessageIndex + 1, BootMessages.length - 1);
       if (BootStatusText) BootStatusText.textContent = BootMessages[BootMessageIndex];
-    }, 840);
+    }, 280);
     window.setTimeout(() => {
       window.clearInterval(MessageTimer);
       if (BootStatusText) BootStatusText.textContent = BootMessages.at(-1);
       BootSeraph.classList.add("IsCentered");
-      window.setTimeout(Resolve, 790);
-    }, 2360);
+      window.setTimeout(Resolve, 240);
+    }, 650);
   });
 }
 
@@ -1997,7 +2003,7 @@ async function SetOnboardingStep(StepIndex) {
     await CurrentStep.animate([
       { filter: "blur(0)", opacity: 1, transform: "translateY(0) scale(1)" },
       { filter: "blur(5px)", opacity: 0, transform: "translateY(-14px) scale(.985)" },
-    ], { duration: 320, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }).finished.catch(() => undefined);
+    ], { duration: PrefersReducedInterfaceMotion()?0:320, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }).finished.catch(() => undefined);
     CurrentStep.classList.remove("IsActive");
   }
   document.querySelectorAll(".OnboardingProgress i").forEach((Dot, Index) => Dot.classList.toggle("IsActive", Index <= StepIndex));
@@ -2006,7 +2012,7 @@ async function SetOnboardingStep(StepIndex) {
   await NextStep.animate([
     { filter: "blur(7px)", opacity: 0, transform: "translateY(18px) scale(.985)" },
     { filter: "blur(0)", opacity: 1, transform: "translateY(0) scale(1)" },
-  ], { duration: 520, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" }).finished.catch(() => undefined);
+  ], { duration: PrefersReducedInterfaceMotion()?0:520, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" }).finished.catch(() => undefined);
   OnboardingTransitionActive = false;
 }
 async function InitializeOnboarding() {
@@ -2086,7 +2092,7 @@ function InitializeProductFooter() {
       FooterNote.animate([
         { opacity: 0, transform: "translateY(6px)" },
         { opacity: 1, transform: "translateY(0)" },
-      ], { duration: 280, easing: "cubic-bezier(.16,1,.3,1)" });
+      ], { duration: PrefersReducedInterfaceMotion()?0:280, easing: "cubic-bezier(.16,1,.3,1)" });
     });
   }
   const FooterLanguageSelect = document.getElementById("FooterLanguageSelect");
@@ -2164,7 +2170,7 @@ async function Initialize() {
   });
 
   const InitialSection = location.hash.slice(1);
-  if (["Home", "Apps", "Activity", "Settings", "Profile", "Login", "Signup", "Dashboard", "Focus", "DailyLimits", "Shield", "Family", "Setup"].includes(InitialSection)) {
+  if (window.ControlStudio?.supports(InitialSection) || ["Home", "Apps", "Activity", "Settings", "Profile", "Login", "Signup"].includes(InitialSection)) {
     ShowSection(InitialSection);
   }
 

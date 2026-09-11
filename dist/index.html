@@ -17,8 +17,9 @@
     <link rel="stylesheet" href="styles/ZipControlHome.css?v=1.2.0" />
     <link rel="stylesheet" href="styles/ZipControlApp.css?v=1.3.0" />
     <link rel="stylesheet" href="styles/ControlAuth.css?v=1.1.0" />
-    <link rel="stylesheet" href="styles/ControlStudio.css?v=1.3.0" />
+    <link rel="stylesheet" href="styles/ControlStudio.css?v=1.4.0" />
     <link rel="stylesheet" href="styles/ProtectionPause.css?v=1.0.0" />
+    <link rel="stylesheet" href="styles/ControlResponsive.css?v=1.0.0" />
   </head>
   <body class="AppShell Booting">
     <div class="AmbientCanvas" aria-hidden="true">
@@ -102,7 +103,7 @@
                 <a href="#ZipBenefits">FAQ</a>
                 <a class="ZipExtensionLink" href="#Apps" data-section="Apps"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.7A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14.1a6 6 0 0 1 0-3.9V7.5H3.2a10 10 0 0 0 0 9.3l3.3-2.7Z"/><path fill="#ea4335" d="M12 6.1c1.6 0 3 .5 4.1 1.6l3.1-3A10 10 0 0 0 3.2 7.5l3.3 2.7a5.8 5.8 0 0 1 5.5-4.1Z"/></svg>Use extension</a>
               </div>
-              <div class="ZipTopActions">
+              <div class="ZipTopActions"><button type="button" id="ControlPublicTheme" class="ControlPublicTheme" aria-label="Toggle color theme">◐</button>
                 <a class="ZipButton ZipButtonSmall" href="INSTALLATION.txt" target="_blank" rel="noopener">Download Control</a>
                 <button class="ZipTopProfile" type="button" data-section="Profile" aria-label="Open profile"><span id="ZipTopProfileAvatar">C</span></button>
               </div>
@@ -211,7 +212,7 @@
               </footer>
               <footer class="ZipLegalBar" aria-label="Mentions légales">
                 <span>© 2026 Control. Tous droits réservés.</span>
-                <span>Mentions légales</span>
+                <nav class="CSCommunityLinks" aria-label="Community"><a href="#Contact" data-go-to="Contact">Contact us</a><a href="#Donation" data-go-to="Donation">Donation</a><a href="#Admin" data-go-to="Admin">Administration</a></nav>
               </footer>
             </section>
           </main>
@@ -942,7 +943,7 @@
             <nav aria-label="Product links"><strong>Product</strong><a href="#Home" data-section="Home">Overview</a><a href="#Apps" data-section="Apps">Applications</a><a href="#Activity" data-section="Activity">Activity</a><a href="#Settings" data-section="Settings">Settings</a><a href="#Profile" data-section="Profile">Profile</a></nav>
             <nav aria-label="Resource links"><strong>Resources</strong><a href="INSTALLATION.txt" target="_blank" rel="noopener">Install extension</a><a href="mailto:help@control.app?subject=Control%20support">Help &amp; support</a><button type="button" data-go-to="Settings">Privacy by design</button><button type="button" data-go-to="Profile">Family features</button></nav>
             <nav aria-label="Project links"><strong>Project</strong><span>Independent software</span><span>Local-first architecture</span><span>Windows companion available</span><span>iOS &amp; Android planned</span></nav>
-            <nav aria-label="Legal links"><strong>Legal</strong><button type="button" data-footer-note="privacy">Privacy notice</button><button type="button" data-footer-note="terms">Terms of use</button><button type="button" data-footer-note="trademarks">Trademarks</button><a href="mailto:legal@control.app?subject=Control%20legal">Contact</a></nav>
+            <nav aria-label="Legal links"><strong>Legal</strong><button type="button" data-footer-note="privacy">Privacy notice</button><button type="button" data-footer-note="terms">Terms of use</button><button type="button" data-footer-note="trademarks">Trademarks</button><a href="#Contact" data-go-to="Contact">Contact</a></nav>
           </div>
         </div>
 
@@ -1000,7 +1001,7 @@
     </section>
     <section class="ZipDeskOverlay" id="ZipSupportDesk" hidden>
       <div class="ZipDeskPanel" role="dialog" aria-modal="true" aria-labelledby="ZipDeskTitle">
-        <header><div><p>CONTROL ADMINISTRATION</p><h2 id="ZipDeskTitle">Support desk</h2><span>Create and follow your requests from this device.</span></div><button type="button" id="ZipCloseSupportDesk" aria-label="Close support desk">×</button></header>
+        <header><div><p>CONTROL ADMINISTRATION</p><h2 id="ZipDeskTitle">Support desk</h2><span>Local support drafts · nothing is sent.</span></div><button type="button" id="ZipCloseSupportDesk" aria-label="Close support desk">×</button></header>
         <div class="ZipDeskLayout">
           <form class="ZipTicketForm" id="ZipTicketForm">
             <div><label>Category<select id="ZipTicketCategory"><option>Technical issue</option><option>Application filters</option><option>Account & profile</option><option>Billing</option><option>Suggestion</option></select></label><label>Priority<select id="ZipTicketPriority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label></div>
@@ -1013,11 +1014,12 @@
       </div>
     </section>
     <script src="scripts/RuleProtocol.js?v=1.0.0"></script>
-    <script src="scripts/Dashboard.js?v=0.49.1"></script>
+    <script src="scripts/Dashboard.js?v=0.50.0"></script>
     <script src="scripts/HomeV2.js?v=0.69.0"></script>
-    <script src="scripts/ZipControlApp.js?v=1.2.0"></script>
+    <script src="scripts/ZipControlApp.js?v=1.3.0"></script>
     <script src="scripts/ControlAuth.js?v=1.0.0"></script>
-    <script src="scripts/ControlStudio.js?v=1.2.1"></script>
+    <script src="scripts/ControlAdmin.js?v=1.0.0"></script>
+    <script src="scripts/ControlStudio.js?v=1.4.0"></script>
     <script src="scripts/ProtectionPause.js?v=1.0.0"></script>
     <script>
       if ("serviceWorker" in navigator) {

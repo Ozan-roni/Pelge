@@ -1,0 +1,210 @@
+/* Shared mobile polish; loaded after the existing product styles. */
+#Studio.PageSection:not([data-studio-theme="Dark"]) { --cs-muted:#626d89; }
+#Studio .CSMain, #Studio .CSContent, #Studio .CSCard, #Studio .CSStack { min-width:0; }
+#Studio .CSMobileDock { display:none; }
+#Studio h1:focus { outline:none; }
+#Studio :is(.CSNavBackdrop,.CSSidebarClose) { display:none; }
+#Studio .CSAppsColumns { grid-template-columns:minmax(0,1fr) 280px; }
+#Studio .CSSidebar { padding-top:22px; }
+#Studio .CSSidebar nav { gap:3px; }
+#Studio .CSSideNote { margin-top:24px; }
+#Studio .CSViewToolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin:20px 0; }
+#Studio .CSViewToolbar p { font-size:13px; }
+#Studio #CSAppRows { display:grid; gap:14px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+#Studio .CSApplication { min-width:0; display:flex; flex-direction:column; gap:18px; padding:20px; border:1px solid var(--cs-line); border-radius:20px; background:var(--cs-card); }
+#Studio .CSApplicationIdentity { display:flex; align-items:center; gap:12px; }
+#Studio .CSApplicationIdentity > div { flex:1; min-width:0; }
+#Studio .CSApplication h3 { font-size:16px; }
+#Studio .CSApplicationIdentity .CSAppIcon { width:42px; height:42px; flex-shrink:0; }
+#Studio .CSApplicationDescription { font-size:13px; min-height:42px; }
+#Studio .CSApplicationFacts { display:flex; gap:18px; flex-wrap:wrap; margin:auto 0 0; }
+#Studio .CSApplicationFacts > div { flex:1; }
+#Studio .CSApplicationFacts dt { color:var(--cs-muted); font-size:12px; }
+#Studio .CSApplicationFacts dd { margin:4px 0 0; font-size:15px; font-weight:600; }
+#Studio .CSApplication > .CSButton { width:100%; justify-content:space-between; margin:0; }
+#Studio #CSAppRows[data-view="list"] { grid-template-columns:1fr; }
+#Studio #CSAppRows[data-view="list"] .CSApplication { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 20px; }
+#Studio #CSAppRows[data-view="list"] .CSApplicationDescription { grid-row:2; min-height:0; }
+#Studio #CSAppRows[data-view="list"] .CSApplicationFacts { grid-column:2; grid-row:1; margin:0; }
+#Studio #CSAppRows[data-view="list"] .CSApplication > .CSButton { grid-column:2; grid-row:2; }
+#Studio #CSAppRows[data-view="cards"] { display:flex; overflow-x:auto; scroll-snap-type:x proximity; overscroll-behavior-x:contain; gap:20px; padding:4px 3px 20px; scroll-padding:3px; }
+#Studio #CSAppRows[data-view="cards"] .CSApplication { flex:0 0 min(88%,340px); min-height:350px; scroll-snap-align:start; padding:26px; background:linear-gradient(155deg,var(--cs-soft),var(--cs-card)); }
+#Studio #CSAppRows[data-view="cards"] .CSApplicationIdentity { flex-wrap:wrap; }
+#Studio #CSAppRows[data-view="cards"] .CSApplicationIdentity .CSAppIcon { width:58px; height:58px; }
+#Studio #CSAppRows[data-view="cards"] h3 { font-size:22px; }
+#Studio #CSAppRows .CSEmpty { grid-column:1/-1; width:100%; }
+#Studio :is(.CSAdminSetup,.CSAdminStats) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin-bottom:24px; }
+#Studio .CSAdminStats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+#Studio .CSAdminStats h2 { font-size:15px; margin-bottom:16px; }
+#Studio .CSAdminNumber { display:block; font-size:42px; letter-spacing:-.05em; margin:14px 0 6px; }
+#Studio .CSAdminSeal { display:grid; place-items:center; width:74px; height:74px; border:1px solid var(--cs-line); border-radius:24px; background:var(--cs-soft); color:var(--cs-accent); margin-bottom:28px; box-shadow:0 12px 35px #7458c414; }
+#Studio .CSAdminSeal svg { width:36px; height:36px; }
+#Studio .CSAdminSetup .CSForm { margin-top:24px; }
+#Studio .CSAdminRoadmap ol { padding-left:25px; display:grid; gap:28px; margin:30px 0; }
+#Studio .CSAdminRoadmap li { padding-left:10px; color:var(--cs-accent); }
+#Studio .CSAdminRoadmap strong { color:var(--cs-ink); }
+#Studio .CSAdminTabs { display:flex; gap:8px; flex-wrap:wrap; margin:24px 0; }
+#Studio .CSAdminTabs .CSButton { margin:0; }
+#Studio .CSAdminEntry { border-top:1px solid var(--cs-line); padding:24px 0; display:grid; gap:12px; }
+#Studio .CSAdminEntry header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+#Studio .CSAdminEntry h3 { overflow-wrap:anywhere; }
+#Studio .CSAdminEntry .CSButton { justify-self:start; margin:0; }
+#Studio .CSPreWrap { white-space:pre-wrap; overflow-wrap:anywhere; }
+#Studio .CSAdminLog { display:flex; align-items:center; gap:14px; padding:18px 0; border-top:1px solid var(--cs-line); }
+#Studio .CSPlaceholder { padding:18px; margin:20px 0; border:1px dashed var(--cs-accent); border-radius:14px; font-family:monospace; color:var(--cs-accent); overflow-wrap:anywhere; background:var(--cs-soft); }
+#Studio .CSDonation { max-width:740px; margin:auto; padding:48px; text-align:center; }
+#Studio .CSDonation .CSAdminSeal { margin:0 auto 24px; }
+#Studio .CSDonation h2 { font-size:28px; margin-bottom:18px; }
+#Studio .CSDonation .CSFine { margin:16px 0; }
+#Studio .CSForm textarea { resize:vertical; min-height:140px; }
+#Studio .CSMoreGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:24px; }
+#Studio .CSMoreGrid .CSButton { margin:0; justify-content:space-between; text-align:left; }
+#Studio .CSAppIcon { object-fit:contain; }
+img[src$="/Reddit.svg"], img[src$="/Threads.svg"], img[src$="/Facebook.svg"] { background:#fff; padding:5px; border-radius:10px; }
+.CSCommunityLinks { display:flex; gap:20px; flex-wrap:wrap; }
+.CSCommunityLinks a { color:inherit; text-underline-offset:5px; }
+#Studio .CSForm :is(input,select,textarea) { width:100%; min-width:0; background:var(--cs-base); color:var(--cs-ink); border:1px solid var(--cs-line); border-radius:12px; padding:12px 14px; font:inherit; }
+#Studio :is(.CSCard,.CSMetric,.CSAdminEntry) { overflow-wrap:anywhere; }
+@media(max-width:1150px) {
+  #Studio .CSAdminStats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #Studio #CSAppRows { grid-template-columns:1fr; }
+}
+@media(max-width:950px) {
+  #Studio .CSSidebarClose { display:flex; margin-left:auto; }
+  #Studio .CSNavBackdrop { position:fixed; inset:0; width:100%; height:100%; background:#21163944; z-index:35; backdrop-filter:blur(3px); }
+  #Studio.CSNavOpen .CSNavBackdrop { display:block; }
+  #Studio.CSNavOpen .CSMain::after { display:none; }
+  #Studio .CSContent { padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
+  #Studio .CSMobileDock { display:flex; position:fixed; z-index:34; bottom:calc(12px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(460px,calc(100% - 24px)); padding:6px; gap:3px; border:1px solid var(--cs-line); border-radius:26px; background:var(--cs-card); box-shadow:0 12px 40px #21163924,inset 0 1px 0 #fff3; backdrop-filter:blur(24px) saturate(145%); -webkit-backdrop-filter:blur(24px) saturate(145%); }
+  #Studio .CSMobileDock button { flex:1; min-width:0; min-height:58px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border-radius:20px; color:var(--cs-muted); font-size:11px; }
+  #Studio .CSMobileDock button.Active { color:var(--cs-accent); background:var(--cs-soft); font-weight:600; }
+  #Studio .CSMobileDock svg { width:21px; height:21px; }
+  #Studio .CSToast { bottom:calc(96px + env(safe-area-inset-bottom)); }
+  #Studio .CSSidebar { max-height:100dvh; padding-bottom:24px; }
+  #Studio.CSNavOpen .CSMain { pointer-events:none; }
+  #Studio :is(.CSButton,.CSIconButton,.CSSegmented button,.CSPresets button,.CSClockAdjust button,.CSChips button,.CSDataMode button) { min-height:44px; }
+  #Studio :is(.CSIconButton,.CSClockAdjust button,.CSChips button) { min-width:44px; }
+  #Studio .CSSwitch { position:relative; flex-shrink:0; }
+  #Studio .CSSwitch::before { content:""; position:absolute; inset:-11px -2px; }
+  #Studio :is(input,select,textarea), #Studio .CSSearch input { font-size:16px !important; }
+  #Studio .CSAdminSetup { grid-template-columns:1fr; }
+  #Studio .CSAppRow { grid-template-columns:36px minmax(0,1fr) 44px 44px; gap:9px; }
+  #Studio .CSAppRow .CSStatus { display:none; }
+  #Studio .CSCardHeader { flex-wrap:wrap; gap:10px; }
+  #Studio .CSCardHeader > div { min-width:0; }
+  #Studio .CSCardHeader > .CSButton { font-size:12px; }
+  #Studio :is(.CSMetric p,.CSCardHeader p,.CSQuick strong,.CSDataMode,.CSDataMode button,.CSLegendRow,.CSFine) { font-size:12px; }
+  #Studio .CSHero h1 + p { font-size:15px; }
+  #Studio .CSQuick button { min-height:80px; }
+  #Studio .CSDataMode { flex-wrap:wrap; }
+  #Studio .CSProtectionSettings { flex-wrap:wrap; }
+}
+@media(max-width:700px) {
+  #Studio .CSAppsColumns { grid-template-columns:1fr; }
+  #Studio #CSAppRows { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #Studio .CSApplication { padding:16px; }
+  #Studio .CSApplicationIdentity { flex-wrap:wrap; }
+  #Studio .CSApplicationIdentity > div { flex-basis:calc(100% - 60px); }
+  #Studio .CSApplicationIdentity .CSSwitch { margin-left:auto; }
+  #Studio .CSFormPair { grid-template-columns:1fr; }
+  #Studio .CSFocusRing { width:min(250px,100%); height:auto; aspect-ratio:1; }
+  #Studio .CSUsageRow { grid-template-columns:30px minmax(65px,1fr) minmax(100px,1fr); }
+  #Studio .CSUsageRow .CSProgress { display:none; }
+  #Studio .CSActivityColumns > .CSCard:last-child { display:block; }
+  #Studio .CSDonut { margin:20px auto; }
+  #Studio .CSLegendRow { font-size:13px; }
+  #Studio .CSDonation { padding:26px 20px; }
+  #Studio .CSAdminTabs { gap:6px; }
+  #Studio .CSAdminStats { gap:12px; }
+  #Studio .CSAdminStats .CSCard { padding:18px; }
+  #Studio .CSAdminStats .CSButton { font-size:12px; padding:8px; }
+  #Studio .CSAdminEntry header { flex-wrap:wrap; }
+  #Studio .CSDialog { max-width:calc(100vw - 24px); max-height:calc(100dvh - 32px); }
+  #Studio .CSMoreGrid { grid-template-columns:1fr; }
+  .CSCommunityLinks { gap:12px; }
+  .CSCommunityLinks a { display:inline-flex; align-items:center; min-height:44px; }
+  html:not([data-current-section="Studio"]) .MobileNavigation { bottom:calc(10px + env(safe-area-inset-bottom)); left:12px; right:12px; width:auto; border-radius:24px; background:#ffffffe6; backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); box-shadow:0 8px 35px #21163924; }
+  html[data-theme="dark"]:not([data-current-section="Studio"]) .MobileNavigation { background:#252030e8; }
+  html:not([data-current-section="Studio"]) :is(input,select,textarea) { font-size:16px; }
+  #ZipSupportDesk :is(input,select,textarea,button) { min-height:44px; font-size:16px; }
+}
+@media(max-width:480px) {
+  #Studio #CSAppRows { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplication { padding:12px; gap:14px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplicationIdentity { flex-wrap:wrap; gap:10px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplicationIdentity > div { flex:0 0 100%; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplicationIdentity .CSAppIcon { width:36px; height:36px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplicationIdentity .CSSwitch { order:1; margin:0; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplicationFacts { flex-direction:column; gap:10px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplication > .CSButton { padding:9px 6px; font-size:12px; gap:3px; }
+  #Studio #CSAppRows[data-view="grid"] .CSApplication > .CSButton svg { width:16px; }
+  #Studio #CSAppRows[data-view="list"] { grid-template-columns:1fr; }
+  #Studio #CSAppRows[data-view="list"] .CSApplication { grid-template-columns:1fr; }
+  #Studio #CSAppRows[data-view="list"] :is(.CSApplicationFacts,.CSApplicationDescription,.CSApplication > .CSButton) { grid-column:auto; grid-row:auto; }
+  #Studio .CSApplicationIdentity { flex-wrap:nowrap; }
+  #Studio .CSApplicationIdentity > div { flex-basis:auto; }
+  #Studio .CSFamilyGrid { grid-template-columns:1fr; }
+  #Studio .CSAppFilters .CSSegmented { width:100%; }
+  #Studio .CSAppFilters .CSSegmented button { flex:1; font-size:12px; }
+  #Studio .CSAdminStats { grid-template-columns:1fr; }
+  #Studio .CSAdminStats .CSCard { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:center; }
+  #Studio .CSAdminNumber { margin:0; text-align:right; }
+  #Studio .CSAdminStats h2 { margin:0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  #Studio #CSAppRows[data-view="cards"] { scroll-snap-type:none; }
+}
+html:has(#Studio[data-reduce-motion="true"]) *, html:has(#Studio[data-reduce-motion="true"]) *::before, html:has(#Studio[data-reduce-motion="true"]) *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+.BootScreen { background:radial-gradient(ellipse at 30% 25%,#e7dfff 0,transparent 55%),radial-gradient(ellipse at 80% 80%,#ffede3 0,transparent 55%),#faf9fe; }
+html[data-theme="dark"] .BootScreen { background:radial-gradient(ellipse at 30% 25%,#362b4b 0,transparent 55%),#191722; }
+.BootMessage { padding:20px 34px; border-radius:24px; border:1px solid #b8a6d42b; background:#ffffff80; backdrop-filter:blur(20px); }
+html[data-theme="dark"] .BootMessage { background:#30273d90; color:#efedf9; }
+@media(max-width:480px) { .BootMessage { max-width:calc(100vw - 32px); } }
+
+/* The public website and sign-in share the workspace's night palette. */
+.ControlPublicTheme { width:44px; height:44px; flex-shrink:0; border:1px solid #b8a6d44d; border-radius:50%; background:#ffffff88; color:#63558c; font-size:24px; cursor:pointer; }
+html[data-theme="dark"][data-current-section="Home"],
+html[data-theme="dark"][data-current-section="Home"] :is(body,body.AppShell,.Workspace,#Home.PageSection),
+html[data-theme="dark"][data-current-section="Login"] :is(body.AppShell,.Workspace) { background:#191722 !important; }
+html[data-theme="dark"][data-current-section="Home"] #Home > .ZipControlHome { color:#efedf9; background-color:#191722; background-image:linear-gradient(#191722d4,#191722ee),url('../assets/landing/ZipControlHeroSeamless.png'); }
+html[data-theme="dark"] .ZipControlHome :is(h1,h2,h3,strong) { color:#efedf9; }
+html[data-theme="dark"] .ZipControlHome :is(p,small,figcaption,.ZipHeroPromises,.ZipLegalBar,.ZipAvailable,.ZipComparisonCopy li) { color:#c0bbd3; }
+html[data-theme="dark"] .ZipControlHome :is(.ZipBenefits,.ZipStatsCard) { background:#262131d9; border-color:#c1aee329; }
+html[data-theme="dark"] .ZipControlHome .ZipComparison { background:linear-gradient(145deg,#43324e,#29213f); border-color:#c1aee329; }
+html[data-theme="dark"] .ZipControlHome .ZipComparison::after { opacity:.12; }
+html[data-theme="dark"] .ZipControlHome :is(.ZipKicker,.ZipBenefitIcon,.ZipExplore,.ZipHeroPromises i) { background:#3b3055; color:#d0c4ff; }
+html[data-theme="dark"] .ZipControlHome .ZipBrand img { filter:invert(1); }
+html[data-theme="dark"] .ControlPublicTheme { color:#d0c4ff; background:#30273dbb; border-color:#c1aee340; }
+html[data-theme="dark"] #Login { --AuthInk:#efedf9; --AuthMuted:#c0bbd3; --AuthPurple:#baacff; color-scheme:dark; }
+html[data-theme="dark"] #Login .AuthWindow { background:#191722; }
+html[data-theme="dark"] #Login .AuthWindow::before { opacity:.14; }
+html[data-theme="dark"] #Login :is(.AuthCard,.AuthGlass,.AuthDialog) { color:#efedf9; background:linear-gradient(140deg,#352b43eb,#231e31ed); border-color:#c1aee329; }
+html[data-theme="dark"] #Login :is(.AuthBrand strong,.AuthCardBrand,.AuthStory h1,.AuthCard h2,.AuthField label,.AuthSaved strong,.AuthQuote p) { color:#efedf9; }
+html[data-theme="dark"] #Login :is(.AuthTopAccount,.AuthLead,.AuthCardHeading p,.AuthField small,.AuthSwitch,.AuthTerms,.AuthDivider,.AuthSaved div > span,.AuthDialog p) { color:#c0bbd3; }
+html[data-theme="dark"] #Login :is(.AuthInputWrap,.AuthProviders button,.AuthCreateLink,.AuthBack,.AuthKicker,.AuthBenefitIcon) { color:#d0c4ff; background:#30283eaa; border-color:#c1aee340; }
+html[data-theme="dark"] #Login .AuthInputWrap input { color:#efedf9 !important; }
+html[data-theme="dark"] #Login .AuthInputWrap input::placeholder { color:#b9b2ca; }
+html[data-theme="dark"] #Login .AuthNotice { color:#ffd0a0; background:#4c352a; }
+html[data-theme="dark"] #Login .AuthLogo img { filter:invert(1); }
+html[data-theme="dark"][data-current-section="Home"] #Home :is(.ZipWatch,.ZipAvailable b,.ZipStatsCard strong) { color:#efedf9 !important; }
+html[data-theme="dark"][data-current-section="Home"] #Home :is(.ZipStatsCard span,.ZipStatsCard small) { color:#c0bbd3; }
+html[data-theme="dark"] #Login .AuthProviders .AuthApple { fill:#fff; }
+@media(max-width:700px) {
+  html { scroll-padding-block:80px 110px; }
+  html[data-current-section="Home"] .MobileNavigation { display:grid !important; height:72px; grid-template-columns:repeat(5,minmax(0,1fr)); padding:6px; border:1px solid #b8a6d440; }
+  html[data-current-section="Home"] .MobileNavigation a { min-height:56px; border-radius:18px; color:#626d89; }
+  html[data-current-section="Home"] .MobileNavigation a.IsActive { color:#6b56ff; background:#eee9ff; box-shadow:none; }
+  html[data-current-section="Home"] .MobileNavigation small { font-size:11px; }
+  html[data-theme="dark"][data-current-section="Home"] .MobileNavigation a { color:#c0bbd3; }
+  html[data-theme="dark"][data-current-section="Home"] .MobileNavigation a.IsActive { background:#443453; color:#d0c4ff; }
+  html[data-current-section="Home"] #Home > .ZipControlHome { padding-bottom:calc(100px + env(safe-area-inset-bottom)); }
+  .ZipTopActions { gap:8px; }
+  .ZipTopActions .ZipButtonSmall { min-height:44px; padding:10px 12px; font-size:12px; }
+  .ZipStatsCard :is(span,small) { font-size:11px; }
+  .ZipTopProfile { min-width:44px; min-height:44px; }
+  #Login :is(.AuthBack,.AuthShowPassword,.AuthForgot,.AuthSwitch button,.AuthTerms button) { min-width:44px; min-height:44px; }
+  #Login .AuthShowPassword { flex-basis:44px; }
+  #Studio input,#Studio textarea { scroll-margin-block:90px; }
+}
+@media(max-width:420px) { .ZipTopActions .ZipButtonSmall { display:none; } }

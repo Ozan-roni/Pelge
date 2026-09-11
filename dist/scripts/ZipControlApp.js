@@ -127,7 +127,7 @@
   }
 
   function ReadTickets() { return ReadJson(TicketKey, []); }
-  function WriteTickets(Tickets) { localStorage.setItem(TicketKey, JSON.stringify(Tickets)); RenderTickets(); }
+  function WriteTickets(Tickets) { localStorage.setItem(TicketKey, JSON.stringify(Tickets)); RenderTickets(); window.dispatchEvent(new CustomEvent('control:support-updated')); }
   function TicketNumber(Index) { return `CT-${new Date().getFullYear()}-${String(Index + 1).padStart(3,"0")}`; }
 
   function RenderTickets() {
@@ -173,6 +173,8 @@
     document.body.classList.remove("ModalIsOpen");
   }
 
+  window.ControlSupportDesk = {open:OpenDesk, close:CloseDesk};
+
   document.addEventListener("DOMContentLoaded", () => {
     RenderHomeProfile();
     RenderHomeTools();
@@ -183,7 +185,8 @@
       if (typeof ShowSection === "function") ShowSection("Profile");
     });
     document.querySelectorAll("[data-open-support-desk]").forEach(Button => Button.addEventListener("click", OpenDesk));
-    ["OpenSupportPanelButton","OpenAdminPanelButton","ReportIssueButton"].forEach(Id => document.getElementById(Id)?.addEventListener("click", OpenDesk));
+    ["OpenSupportPanelButton","ReportIssueButton"].forEach(Id => document.getElementById(Id)?.addEventListener("click", OpenDesk));
+    document.getElementById('OpenAdminPanelButton')?.addEventListener('click', () => ShowSection('Admin'));
     document.getElementById("ZipCloseSupportDesk")?.addEventListener("click", CloseDesk);
     document.getElementById("ZipSupportDesk")?.addEventListener("click", Event => { if (Event.target.id === "ZipSupportDesk") CloseDesk(); });
     document.addEventListener("keydown", Event => { if (Event.key === "Escape" && !document.getElementById("ZipSupportDesk")?.hidden) CloseDesk(); });
