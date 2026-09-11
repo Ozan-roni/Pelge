@@ -2,8 +2,8 @@
 html[data-current-section="Login"] { background: #f3f0ff !important; }
 html[data-current-section="Login"] body.AppShell { display: block !important; margin: 0 !important; padding: 0 !important; background: #f3f0ff !important; }
 html[data-current-section="Login"] :is(.Sidebar,.MobileTopbar,.MobileNavigation,.BottomNavigation,.ProductFooter,.AmbientCanvas) { display: none !important; }
-html[data-current-section="Login"] .Workspace { display: block !important; margin: 0 !important; padding: 22px !important; width: 100% !important; max-width: none !important; background: radial-gradient(ellipse at 92% 0%,#dfd0fc,transparent 50%),#f3f0ff !important; }
-html[data-current-section="Login"] #Login.PageSection { display: block !important; margin: 0 auto !important; padding: 0 !important; width: 100% !important; max-width: 1560px !important; }
+html[data-current-section="Login"] .Workspace { display: block !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; background: #f5f1ff !important; }
+html[data-current-section="Login"] #Login.PageSection { display: block !important; margin: 0 auto !important; padding: 0 !important; width: 100% !important; max-width: none !important; }
 #Login { --AuthInk: #0c1027; --AuthMuted: #747d9e; --AuthPurple: #6250ff; font-family: Inter,"Segoe UI",Arial,sans-serif; color: var(--AuthInk); }
 #Login *, #Login *::before, #Login *::after { box-sizing: border-box; }
 #Login [hidden] { display: none !important; }
@@ -12,7 +12,7 @@ html[data-current-section="Login"] #Login.PageSection { display: block !importan
 #Login svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 #Login a { color: inherit; text-decoration: none; }
 #Login button:focus-visible, #Login a:focus-visible { outline: 3px solid #8c7bff; outline-offset: 4px; }
-#Login .AuthWindow { position: relative; isolation: isolate; min-height: calc(100svh - 44px); overflow: hidden; border: 1px solid rgba(255,255,255,.95); border-radius: 24px; background: #f5f1ff; box-shadow: 0 10px 50px #a393d511; }
+#Login .AuthWindow { position: relative; isolation: isolate; min-height: 100svh; overflow: hidden; border: 0; border-radius: 0; background: #f5f1ff; box-shadow: none; }
 #Login .AuthWindow::before { content: ''; position: absolute; z-index: -2; inset: 0; background: url('../assets/landing/ZipControlAuraBackground.png') center / cover; transform: rotate(180deg); }
 #Login .AuthWindow::after { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(170deg,rgba(255,255,255,.93),rgba(255,255,255,.70) 35%,rgba(255,255,255,.1) 75%,rgba(255,255,255,.30)); }
 #Login .AuthTopbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 23px 4.2% 0 24px; }
@@ -39,7 +39,7 @@ html[data-current-section="Login"] #Login.PageSection { display: block !importan
 #Login .AuthBenefits small { display: block; font-size: 14px; line-height: 1.35; color: var(--AuthMuted); }
 #Login .AuthArt { position: relative; height: 440px; margin-top: 27px; }
 #Login .AuthPhone { position: absolute; max-width: none; height: auto; pointer-events: none; }
-#Login .AuthPhoneFront { z-index: 2; width: 73%; left: 0%; top: -28px; transform: rotate(2deg); }
+#Login .AuthPhoneFront { z-index: 2; width: 73%; left: 0%; top: -28px; transform: none; }
 #Login .AuthPhoneBack { z-index: 1; width: 77%; left: 36%; top: 33px; }
 #Login .AuthGlass { position: absolute; z-index: 3; border: 1.5px solid #fff; border-radius: 17px; background: linear-gradient(130deg,#ffffff9e,#eeebff8c); box-shadow: 0 10px 35px #7e69ad12,inset 0 0 20px #fff4; backdrop-filter: blur(16px); }
 #Login .AuthSaved { left: -3%; top: 55px; width: 166px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 19px; }
@@ -98,8 +98,8 @@ html[data-current-section="Login"] #Login.PageSection { display: block !importan
   #Login .AuthQuote { right: -7%; bottom: 20px; }
 }
 @media (max-width: 800px) {
-  html[data-current-section="Login"] .Workspace { padding: 12px !important; }
-  #Login .AuthWindow { border-radius: 22px; }
+  html[data-current-section="Login"] .Workspace { padding: 0 !important; }
+  #Login .AuthWindow { border-radius: 0; }
   #Login .AuthTopbar { padding: 16px 18px 0; }
   #Login .AuthTopAccount { font-size: 14px; gap: 9px; }
   #Login .AuthCreateLink { padding: 10px 14px; gap: 8px; }
@@ -133,3 +133,7 @@ html[data-current-section="Login"] #Login.PageSection { display: block !importan
   #Login .AuthQuote p { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { #Login *, #Login *::before, #Login *::after { animation: none !important; transition: none !important; } }
+@keyframes authSoftEnter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#Login.IsVisible .AuthStory, #Login.IsVisible .AuthCard { animation: authSoftEnter .75s cubic-bezier(.2,.7,.2,1) both; }
+#Login.IsVisible .AuthCard { animation-delay: .10s; }
+#Login.IsVisible .AuthGlass { animation: authSoftEnter .8s .25s both; }

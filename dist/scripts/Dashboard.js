@@ -1085,6 +1085,10 @@ async function UpdateUsageStatistics() {
 }
 
 function ShowSection(SectionName) {
+  if (window.ControlStudio?.supports(SectionName) && !(SectionName === "Profile" && !ReadLocalProfile())) {
+    window.ControlStudio.open(SectionName);
+    return;
+  }
   if (SectionName === "Profile" && !ReadLocalProfile()) SectionName = "Login";
   if (SectionName === "Signup") {
     SectionName = "Login";
@@ -1121,6 +1125,11 @@ function BindPrimaryNavigation() {
   document.addEventListener("click", (Event) => {
     const Target = Event.target instanceof Element ? Event.target.closest("[data-section], [data-go-to], [data-hero-page]") : null;
     if (!Target) return;
+    if (Target.matches('.ZipExtensionLink') && window.ControlStudio) {
+      Event.preventDefault();
+      window.ControlStudio.enter();
+      return;
+    }
     const SectionName = Target.getAttribute("data-section") ?? Target.getAttribute("data-go-to");
     if (SectionName) {
       Event.preventDefault();
@@ -2071,7 +2080,7 @@ async function Initialize() {
   });
 
   const InitialSection = location.hash.slice(1);
-  if (["Home", "Apps", "Activity", "Settings", "Profile", "Login", "Signup"].includes(InitialSection)) {
+  if (["Home", "Apps", "Activity", "Settings", "Profile", "Login", "Signup", "Dashboard", "Focus", "DailyLimits", "Shield", "Family", "Setup"].includes(InitialSection)) {
     ShowSection(InitialSection);
   }
 

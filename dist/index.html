@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="styles/ZipControlHome.css?v=1.2.0" />
     <link rel="stylesheet" href="styles/ZipControlApp.css?v=1.2.1" />
     <link rel="stylesheet" href="styles/ControlAuth.css?v=1.0.0" />
+    <link rel="stylesheet" href="styles/ControlStudio.css?v=1.0.0" />
   </head>
   <body class="AppShell Booting">
     <div class="AmbientCanvas" aria-hidden="true">
@@ -839,6 +840,7 @@
         <article class="DataNotice"><span class="DataIcon">&#9678;</span><div><strong>Private by design</strong><p>No remote server and no exported history. Usage remains inside Control on this device.</p></div><button class="TextButton Danger" id="ResetUsageButton" type="button">Erase activity</button></article>
       </section>
 
+      <section class="PageSection" id="Studio" aria-label="Control workspace"></section>
       <section class="PageSection" id="Login" aria-labelledby="AuthTitle">
         <div class="AuthWindow">
           <header class="AuthTopbar">
@@ -858,7 +860,7 @@
               </div>
               <div class="AuthArt" aria-label="Control focus mode and a calmer mind">
                 <img class="AuthPhone AuthPhoneBack" src="assets/landing/AuthPhoneCalm.png" alt="Control on a phone with a mountain landscape and the words A calmer mind, a brighter you." width="1086" height="1448" />
-                <img class="AuthPhone AuthPhoneFront" src="assets/landing/AuthPhoneFocus.png" alt="Control Focus Mode, with Instagram Reels, TikTok For You and YouTube Shorts blocked." width="1086" height="1448" />
+                <img class="AuthPhone AuthPhoneFront" src="assets/landing/ZipControlHeroPhone.png" alt="Control Focus Mode, with Instagram Reels, TikTok For You and YouTube Shorts blocked." />
                 <div class="AuthGlass AuthSaved"><div><strong>12h 47m</strong><span>time saved<br />this week</span></div><span class="AuthBars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
                 <div class="AuthGlass AuthQuote"><span aria-hidden="true">“</span><p>Less scrolling.<br />A fuller life.</p></div>
               </div>
@@ -1013,6 +1015,7 @@
     <script src="scripts/HomeV2.js?v=0.69.0"></script>
     <script src="scripts/ZipControlApp.js?v=1.1.2"></script>
     <script src="scripts/ControlAuth.js?v=1.0.0"></script>
+    <script src="scripts/ControlStudio.js?v=1.0.0"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));

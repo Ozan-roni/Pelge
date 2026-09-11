@@ -1,0 +1,439 @@
+/* The product workspace is deliberately isolated from the legacy dashboard. */
+html[data-current-section="Studio"] body { background: #faf9fe !important; padding: 0 !important; margin: 0 !important; }
+html[data-current-section="Studio"] .Workspace { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; transform:none !important; animation:none !important; }
+html[data-current-section="Studio"] .Workspace #Studio.PageSection { max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important; transform:none !important; }
+html[data-current-section="Studio"] :is(.Sidebar,.MobileTopbar,.MobileNavigation,.ProductFooter,.AmbientCanvas) { display: none !important; }
+#Studio.PageSection { --cs-ink:#11162c; --cs-muted:#75809e; --cs-accent:#6b56ff; --cs-soft:#f2eeff; --cs-line:#ececf6; --cs-card:rgba(255,255,255,.88); --cs-base:#fafbfe; max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important; color:var(--cs-ink); font-family:Inter,"Segoe UI",sans-serif; font-size:14px; line-height:1.5; }
+#Studio *,#Studio *::before,#Studio *::after { box-sizing:border-box; }
+#Studio [hidden] { display:none !important; }
+#Studio :is(h1,h2,h3,p) { margin:0; }
+#Studio h1 { font-size:clamp(32px,3.4vw,48px); font-weight:650; letter-spacing:-.055em; line-height:1.15; color:var(--cs-ink); }
+#Studio h2 { font-size:18px; font-weight:620; letter-spacing:-.035em; line-height:1.3; color:var(--cs-ink); }
+#Studio h3 { font-size:17px; letter-spacing:-.025em; color:var(--cs-ink); }
+#Studio p { color:var(--cs-muted); line-height:1.6; }
+#Studio small { display:block; font-size:12px; font-weight:400; color:var(--cs-muted); line-height:1.5; }
+#Studio strong { font-weight:600; }
+#Studio svg { width:22px; height:22px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+#Studio button,#Studio a { font:inherit; color:inherit; -webkit-tap-highlight-color:transparent; }
+#Studio button { cursor:pointer; border:0; background:transparent; padding:0; letter-spacing:normal; transition:background .2s,box-shadow .2s,transform .2s,color .2s; }
+#Studio button:hover { filter:none; }
+#Studio button:active { transform:scale(.98); }
+#Studio button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+#Studio button:focus-visible,#Studio a:focus-visible { outline:3px solid #a295ff; outline-offset:4px; }
+#Studio :is(input,select) { min-width:0; font:inherit !important; color:var(--cs-ink) !important; border:1px solid var(--cs-line) !important; border-radius:12px !important; background:var(--cs-card) !important; box-shadow:none !important; padding:11px 14px !important; outline:none; }
+#Studio :is(input,select):focus-visible { border-color:var(--cs-accent) !important; box-shadow:0 0 0 3px #9584ff18 !important; }
+#Studio input::placeholder { color:#929ab3; }
+#Studio .CSLayout { min-height:100svh; background:var(--cs-base); }
+#Studio .CSSidebar { width:230px; position:fixed; inset:0 auto 0 0; z-index:40; padding:32px 20px 18px; display:flex; flex-direction:column; overflow-y:auto; background:linear-gradient(160deg,#fff 30%,#f5f3fc); border-right:1px solid #eeedf6; }
+#Studio .CSBrand { display:flex; gap:10px; align-items:center; text-decoration:none; margin:6px 16px 35px; }
+#Studio .CSBrand strong { color:#101118; font-size:25px; letter-spacing:-.04em; }
+#Studio .CSLogo { width:38px; height:38px; display:block; position:relative; }
+#Studio .CSLogo img { width:100%; height:100%; object-fit:contain; }
+#Studio .CSSidebar nav { display:grid; gap:7px; }
+#Studio .CSSidebar nav button { display:flex; align-items:center; text-align:left; gap:15px; min-height:46px; padding:10px 14px; border-radius:12px; color:#535f81; }
+#Studio .CSSidebar nav button:hover { background:#f3effd; }
+#Studio .CSSidebar nav button.Active { background:linear-gradient(110deg,#f0ecff,#eee9ff); color:var(--cs-accent); font-weight:600; }
+#Studio .CSSidebar nav button[data-cs-route="Settings"] { margin-top:22px; position:relative; }
+#Studio .CSSidebar nav button[data-cs-route="Settings"]::before { content:""; position:absolute; height:1px; background:var(--cs-line); top:-14px; left:14px; right:14px; }
+#Studio .CSSideNote { margin-top:auto; padding:22px 16px 15px; border-radius:20px; background:linear-gradient(140deg,#fff9,#efe7ff99); border:1px solid white; }
+#Studio .CSSideNote strong { display:block; margin:12px 0 7px; font-size:14px; }
+#Studio .CSSideNote p { font-size:12px; margin-bottom:16px; }
+#Studio .CSSideNote .CSButton { font-size:12px; width:100%; padding:10px; background:#fff9; }
+#Studio .CSBackHome { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; font-size:12px; color:var(--cs-muted); text-decoration:none; }
+#Studio .CSBackHome svg { width:16px; transform:rotate(180deg); }
+#Studio .CSMain { margin-left:230px; min-height:100svh; background-image:linear-gradient(180deg,transparent 0px,var(--cs-base) 390px),linear-gradient(90deg,var(--cs-base) 0%,#fafbfe99 42%,transparent 85%),url('../assets/landing/ZipControlAuraBackground.png'); background-size:100% 470px; background-position:right top; background-repeat:no-repeat; }
+#Studio .CSTopbar { position:relative; z-index:25; height:82px; padding:18px 32px; display:flex; gap:24px; align-items:center; background:rgba(255,255,255,.85); border-bottom:1px solid #ffffff90; backdrop-filter:blur(22px); }
+#Studio .CSSearch { position:relative; display:flex; align-items:center; gap:10px; width:min(520px,52%); border-radius:24px; background:#f3f2fa; padding:0 16px; color:#929cbb; }
+#Studio .CSSearch input { width:100%; padding:11px 0 !important; background:none !important; border:0 !important; border-radius:0 !important; }
+#Studio .CSSearchResults { position:absolute; top:52px; left:0; right:0; border-radius:18px; padding:8px; background:var(--cs-card); backdrop-filter:blur(20px); box-shadow:0 15px 45px #33315b22; border:1px solid var(--cs-line); }
+#Studio .CSSearchResults button { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:12px; border-radius:10px; }
+#Studio .CSSearchResults button:hover { background:var(--cs-soft); }
+#Studio .CSSearchResults img { width:24px; height:24px; }
+#Studio .CSSearchResults p { padding:12px; }
+#Studio .CSTopActions { margin-left:auto; display:flex; align-items:center; gap:22px; }
+#Studio .CSIconButton { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; flex-shrink:0; border-radius:50%; color:#616d8f; position:relative; }
+#Studio .CSIconButton:hover { background:var(--cs-soft); color:var(--cs-accent); }
+#Studio .CSTopActions .CSIconButton i { position:absolute; width:6px; height:6px; background:var(--cs-accent); border-radius:50%; top:4px; right:6px; }
+#Studio .CSAccount { display:flex; gap:12px; align-items:center; text-align:left; padding-left:22px; border-left:1px solid var(--cs-line); }
+#Studio .CSAccount small { color:var(--cs-accent); }
+#Studio .CSAccount > svg { width:15px; margin-left:14px; transform:rotate(90deg); }
+#Studio .CSAvatar { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:42px; height:42px; border:3px solid white; border-radius:50%; background:linear-gradient(145deg,#d7cfff,#a899e2); color:#514079; font-size:20px; font-weight:600; }
+#Studio .CSMenu { display:none; }
+#Studio .CSContent { width:100%; max-width:1560px; padding:30px 32px 36px; margin:0 auto; }
+#Studio .CSHero { display:flex; justify-content:space-between; align-items:center; gap:30px; margin-bottom:24px; min-height:145px; }
+#Studio .CSEyebrow { font-size:11px; font-weight:600; letter-spacing:.045em; color:#7c87aa; margin-bottom:10px; }
+#Studio .CSHero h1 em { color:#8d79ff; font-style:normal; }
+#Studio .CSHero h1 + p { font-size:16px; margin-top:10px; }
+#Studio .CSQuote { width:226px; flex-shrink:0; min-height:132px; padding:15px 24px; border:1px solid #fff; border-radius:21px; background:linear-gradient(140deg,#fff9,#ffffff30); backdrop-filter:blur(15px); }
+#Studio .CSQuote b { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#e6ddff9c; color:var(--cs-accent); font-size:29px; line-height:1; padding-top:10px; }
+#Studio .CSQuote p { color:var(--cs-ink); font-size:17px; line-height:1.5; margin:8px 0 2px; }
+#Studio .CSQuote > span { color:var(--cs-accent); }
+#Studio .CSDataMode { display:flex; gap:8px; align-items:center; font-size:11px; color:var(--cs-muted); margin:-3px 0 18px; }
+#Studio .CSDataDot { width:6px; height:6px; background:#a496d2; border-radius:50%; }
+#Studio .CSDataMode button { color:var(--cs-accent); padding:4px 8px; border:1px solid #ddd4ff; border-radius:20px; margin-left:3px; background:#ffffff70; font-size:11px; }
+#Studio .CSMetrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:20px; }
+#Studio .CSMetric { display:flex; align-items:flex-start; gap:12px; position:relative; overflow:hidden; padding:22px 17px; border:1px solid white; border-radius:18px; background:linear-gradient(130deg,#f0edffde,#f7f4ffed); min-height:130px; }
+#Studio .CSMetric.Warm { background:linear-gradient(130deg,#fff4e9e0,#fcf7f0ed); }
+#Studio .CSIcon { width:43px; height:43px; border-radius:50%; background:var(--cs-soft); color:var(--cs-accent); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+#Studio .CSIcon svg { width:24px; height:24px; }
+#Studio .CSMetric .CSIcon { background:#e6dfff; }
+#Studio .CSMetric.Warm .CSIcon { color:#ec984a; background:#ffead8; }
+#Studio .CSMetric strong { display:block; font-size:24px; line-height:1.3; letter-spacing:-.04em; margin:7px 0; max-width:190px; }
+#Studio .CSMetric p { font-size:10px; padding-right:22px; }
+#Studio .CSSpark { display:flex; align-items:flex-end; gap:3px; position:absolute; bottom:23px; right:16px; opacity:.5; }
+#Studio .CSSpark i { width:4px; background:#aa94ff; border-radius:6px; }
+#Studio .Warm .CSSpark i { background:#ffc08c; }
+#Studio .CSColumns,#Studio .CSActivityColumns,#Studio .CSFocusGrid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:18px; margin-bottom:20px; align-items:start; }
+#Studio .CSActivityColumns { grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr); }
+#Studio .CSStack { display:grid; gap:16px; min-width:0; }
+#Studio .CSCard { min-width:0; padding:22px; border:1px solid var(--cs-line); border-radius:20px; background:var(--cs-card); box-shadow:0 4px 30px #47438c03; }
+#Studio .CSCard > p { margin:12px 0; }
+#Studio .CSCardHeader { display:flex; align-items:center; gap:13px; margin-bottom:18px; }
+#Studio .CSCardHeader > div { min-width:0; }
+#Studio .CSCardHeader p { font-size:12px; margin-top:3px; }
+#Studio .CSCardHeader > .CSButton,#Studio .CSCardHeader > .CSBadge,#Studio .CSCardHeader > .CSSegmented { margin-left:auto; flex-shrink:0; }
+#Studio .CSCardHeader > .CSButton { font-size:12px; min-height:34px; padding:7px 12px; }
+#Studio .CSButton { display:inline-flex; align-items:center; justify-content:center; gap:10px; border:1px solid var(--cs-line); border-radius:24px; padding:10px 17px; min-height:42px; background:var(--cs-soft); color:var(--cs-accent); font-size:13px; font-weight:500; text-decoration:none; }
+#Studio .CSButton svg { width:17px; height:17px; }
+#Studio .CSButton:hover { background:#e8e1ff; box-shadow:0 4px 13px #7966bf13; transform:translateY(-1px); }
+#Studio .CSButton.CSPrimary,#Studio button[type="submit"].CSPrimary { background:linear-gradient(105deg,var(--cs-accent),#9c88ff) !important; color:white !important; border:1px solid transparent !important; box-shadow:0 5px 15px #7966bf14 !important; }
+#Studio .CSPrimary:hover { filter:brightness(1.06); }
+#Studio .CSBadge { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:5px 11px; border-radius:20px; background:var(--cs-soft); color:var(--cs-accent); font-size:10px; line-height:1.5; white-space:nowrap; }
+#Studio .CSBadge.Green { color:#25a86b; background:#e8f8ef; }
+#Studio .CSBadge.Orange { color:#cb8339; background:#fff1e5; }
+#Studio .CSTableHead { display:flex; justify-content:space-between; color:#697492; background:#f6f5fa; padding:8px 16px; border-radius:9px; font-size:11px; }
+#Studio .CSTableHead span:last-child { padding-right:60px; }
+#Studio .CSAppIcon { width:37px; height:37px; border-radius:10px; flex-shrink:0; object-fit:contain; }
+#Studio .CSAppIcon[src$="Instagram.svg"] { background:linear-gradient(145deg,#7239ed,#e3279c 60%,#ffc34c); padding:6px; }
+#Studio .CSAppIcon[src$="X.svg"] { background:#09090b; padding:7px; }
+#Studio .CSAppIcon[src$="Snapchat.svg"] { background:#fffc00; padding:5px; }
+#Studio .CSAppIcon[src$="YouTube.svg"] { background:#fff; padding:2px; }
+#Studio .CSAppRow { display:flex; align-items:center; gap:13px; min-height:73px; padding:13px 3px; border-bottom:1px solid var(--cs-line); }
+#Studio .CSAppRow:last-child { border:0; }
+#Studio .CSAppRow > div { flex:1; min-width:0; }
+#Studio .CSAppRow strong { font-size:13px; }
+#Studio .CSAppRow small { font-size:10px; margin-top:3px; }
+#Studio .CSStatus { width:57px; font-size:11px; }
+#Studio .CSSwitch { width:44px; height:25px; flex-shrink:0; padding:3px; background:#d5d6e1; border-radius:20px; display:inline-flex; align-items:center; transition:background .25s; }
+#Studio .CSSwitch span { display:block; width:19px; height:19px; border-radius:50%; background:white; box-shadow:0 1px 4px #25253a24; transition:transform .25s cubic-bezier(.2,.8,.2,1); }
+#Studio .CSSwitch.IsOn { background:linear-gradient(110deg,#a297ff,var(--cs-accent)); }
+#Studio .CSSwitch.IsOn span { transform:translateX(19px); }
+#Studio .CSSetting { display:flex; align-items:center; gap:13px; min-height:69px; padding:13px 0; border-bottom:1px solid var(--cs-line); }
+#Studio .CSSetting > span { flex:1; min-width:0; }
+#Studio .CSSetting strong { display:block; font-size:12px; }
+#Studio .CSSetting small { font-size:11px; margin-top:2px; }
+#Studio .CSSetting > svg { width:18px; color:#576586; }
+#Studio .CSSetting:last-child { border-bottom:0; }
+#Studio .CSSetting select { max-width:130px; padding:7px 10px !important; font-size:11px !important; }
+#Studio .CSCard > .CSButton { margin-top:14px; }
+#Studio .CSQuick { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+#Studio .CSQuick button { display:flex; flex-direction:column; align-items:center; gap:10px; padding:15px 8px; border-radius:14px; background:#f3effc; }
+#Studio .CSQuick button:nth-child(even) { background:#fff4eb; }
+#Studio .CSQuick strong { font-size:11px; line-height:1.35; max-width:68px; }
+#Studio .CSQuick button:hover { transform:translateY(-3px); background:#ebe4ff; }
+#Studio .CSBottomProfile { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+#Studio .CSBottomProfile .CSAvatar { width:61px; height:61px; font-size:28px; }
+#Studio .CSBottomProfile small { margin-top:5px; }
+#Studio .CSBottomProfile > .CSButton { margin:0 0 0 auto; }
+#Studio .CSBottomDivider { width:1px; height:45px; background:var(--cs-line); margin:0 18px; }
+#Studio .CSSegmented { display:flex; gap:4px; background:#f5f3fa; padding:4px; border-radius:12px; }
+#Studio .CSSegmented button { border-radius:9px; padding:8px 13px; font-size:11px; white-space:nowrap; color:var(--cs-muted); }
+#Studio .CSSegmented button.Active { background:var(--cs-accent); color:white; box-shadow:0 2px 7px #6759ba18; }
+#Studio .CSChart { height:251px; position:relative; padding:14px 0 0 39px; margin:18px 0 12px; }
+#Studio .CSChartGrid { position:absolute; inset:12px 0 25px; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+#Studio .CSChartGrid span { position:relative; color:#939bb2; font-size:10px; }
+#Studio .CSChartGrid span::after { content:""; position:absolute; left:40px; right:0; top:50%; border-top:1px dashed var(--cs-line); }
+#Studio .CSChartBars { position:relative; height:100%; display:grid; grid-template-columns:repeat(var(--columns),minmax(0,1fr)); gap:12px; }
+#Studio .CSChartBar { display:flex; flex-direction:column; align-items:center; height:100%; min-width:0; position:relative; }
+#Studio .CSBarTrack { flex:1; width:100%; display:flex; align-items:flex-end; max-width:45px; }
+#Studio .CSBarStack { display:flex; flex-direction:column; width:100%; min-height:2px; border-radius:7px 7px 3px 3px; overflow:hidden; opacity:.88; transition:opacity .2s,filter .2s,height .6s; }
+#Studio .CSChartBar:hover .CSBarStack,#Studio .CSChartBar.Selected .CSBarStack { opacity:1; filter:saturate(1.3); }
+#Studio .CSChartBar small { margin-top:10px; font-size:10px; height:15px; }
+#Studio .CSBarTotal { position:absolute; left:50%; top:-20px; transform:translateX(-50%); white-space:nowrap; font-size:10px; background:var(--cs-soft); padding:3px 6px; border-radius:6px; opacity:0; z-index:2; transition:opacity .2s; }
+#Studio .CSChartBar:hover .CSBarTotal,#Studio .CSChartBar:focus-visible .CSBarTotal,#Studio .CSChartBar.Selected .CSBarTotal { opacity:1; }
+#Studio .CSChartLegend { display:flex; justify-content:center; flex-wrap:wrap; gap:15px; padding:10px 0; }
+#Studio .CSChartLegend span { display:flex; gap:5px; align-items:center; font-size:10px; color:var(--cs-muted); }
+#Studio .CSChartLegend i,#Studio .CSLegendRow i { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+#Studio .CSChartSelection { font-size:11px; min-height:20px; margin-top:5px; }
+#Studio .CSDonut { width:190px; height:190px; border-radius:50%; background:conic-gradient(var(--segments)); padding:23px; margin:15px auto 21px; transform:rotate(-90deg); }
+#Studio .CSDonut > div { background:var(--cs-base); border-radius:50%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; transform:rotate(90deg); }
+#Studio .CSDonut strong { font-size:27px; letter-spacing:-.04em; }
+#Studio .CSDonut small { font-size:11px; margin-top:3px; }
+#Studio .CSLegendRow { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:11px; color:var(--cs-muted); }
+#Studio .CSLegendRow strong { margin-left:auto; color:var(--cs-ink); }
+#Studio .CSUsageRow { display:grid; grid-template-columns:35px 100px minmax(50px,1fr) 135px 90px; gap:15px; align-items:center; min-height:68px; border-bottom:1px solid var(--cs-line); }
+#Studio .CSUsageRow:last-child { border:0; }
+#Studio .CSUsageRow > strong,#Studio .CSUsageRow > span { font-size:12px; }
+#Studio .CSUsageRow small { display:inline; font-size:11px; }
+#Studio .CSProgress { height:6px; border-radius:8px; background:#eeeaf9; overflow:hidden; }
+#Studio .CSProgress i { height:100%; display:block; border-radius:8px; background:linear-gradient(90deg,#b4a4ff,var(--cs-accent)); transition:width .5s ease; }
+#Studio .CSLimitSummary { display:flex; gap:18px; align-items:center; background:linear-gradient(100deg,#efebffbb,#fff6eed9); border:1px solid white; border-radius:20px; padding:22px 25px; margin-bottom:20px; }
+#Studio .CSLimitSummary strong { display:block; font-size:30px; letter-spacing:-.04em; }
+#Studio .CSLimitSummary span { color:var(--cs-muted); font-size:12px; }
+#Studio .CSLimitSummary p { font-size:12px; margin-left:auto; }
+#Studio .CSLimitGrid,#Studio .CSSettingsGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+#Studio .CSLimitCard header { display:flex; align-items:center; gap:12px; }
+#Studio .CSLimitCard header .CSSwitch { margin-left:auto; }
+#Studio .CSLimitCard h2 { font-size:16px; }
+#Studio .CSLimitNumber { margin:27px 0 18px; display:flex; align-items:baseline; gap:8px; }
+#Studio .CSLimitNumber strong { font-size:35px; letter-spacing:-.04em; }
+#Studio .CSLimitNumber span { font-size:11px; color:var(--cs-muted); }
+#Studio input[type="range"] { width:100%; height:22px; min-height:0; padding:0 !important; border:0 !important; background:transparent !important; accent-color:var(--cs-accent); cursor:pointer; }
+#Studio .CSRangeLabels { display:flex; justify-content:space-between; font-size:10px; color:#929bb5; margin:1px 0 18px; }
+#Studio .CSPresets { display:flex; justify-content:center; gap:8px; }
+#Studio .CSPresets button { flex:1; min-height:34px; padding:7px 9px; border:1px solid var(--cs-line); border-radius:10px; font-size:11px; color:var(--cs-muted); white-space:nowrap; }
+#Studio .CSPresets button.Active { color:var(--cs-accent); background:var(--cs-soft); border-color:#cbbfff; }
+#Studio .CSLimitCard footer { display:flex; justify-content:space-between; color:var(--cs-muted); font-size:10px; margin:23px 0 9px; }
+#Studio .CSLimitCard footer strong { color:var(--cs-accent); }
+#Studio .CSLimitTip { background:linear-gradient(130deg,#f0ecff,#fff6f2); display:flex; justify-content:center; flex-direction:column; align-items:flex-start; min-height:310px; padding:32px; }
+#Studio .CSLimitTip h2 { margin-top:20px; font-size:23px; }
+#Studio .CSAppFilters { display:flex; gap:12px; justify-content:space-between; align-items:center; margin-bottom:20px; }
+#Studio .CSInlineSearch { display:flex; align-items:center; color:#929ab7; padding-left:10px; width:180px; border:1px solid var(--cs-line); border-radius:12px; }
+#Studio .CSInlineSearch input { width:100%; border:0 !important; padding:10px !important; background:transparent !important; font-size:12px !important; }
+#Studio .CSInlineSearch svg { width:16px; }
+#Studio .CSAppListRow { display:grid; grid-template-columns:37px minmax(0,1fr) 44px 72px 30px; gap:12px; align-items:center; min-height:87px; border-bottom:1px solid var(--cs-line); }
+#Studio .CSAppListRow strong { font-size:13px; }
+#Studio .CSAppListRow small { font-size:10px; margin-top:3px; }
+#Studio .CSAppAllowance { font-size:11px; color:var(--cs-muted); text-align:center; }
+#Studio .CSAppTableHead { display:grid; grid-template-columns:1fr 69px 90px; padding:6px 27px 12px 0; border-bottom:1px solid var(--cs-line); font-size:10px; color:var(--cs-muted); }
+#Studio .CSInfoRow { display:flex; align-items:center; gap:15px; padding:15px 0; }
+#Studio .CSInfoRow strong { font-size:14px; }
+#Studio .CSInfoRow small { margin-top:4px; }
+#Studio .CSLocalNote { display:flex; align-items:center; gap:8px; margin-top:22px; color:var(--cs-muted); font-size:11px; }
+#Studio .CSLocalNote svg { width:16px; }
+#Studio .CSFocusCard { text-align:center; padding:34px; }
+#Studio .CSFocusRing { width:280px; height:280px; position:relative; margin:26px auto; }
+#Studio .CSFocusRing > svg { width:100%; height:100%; transform:rotate(-90deg); }
+#Studio .CSFocusRing circle { stroke:#eee9fb; stroke-width:6px; }
+#Studio .CSFocusRing #CSFocusProgress { stroke:var(--cs-accent); stroke-dasharray:679; stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+#Studio .CSFocusRing > div { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#Studio #CSFocusState { color:var(--cs-accent); font-size:12px; }
+#Studio #CSFocusTime { display:block; font-size:63px; letter-spacing:-.065em; font-weight:550; font-variant-numeric:tabular-nums; line-height:1.5; }
+#Studio .CSFocusRing small { font-size:11px; }
+#Studio .CSFocusCard .CSPresets { max-width:330px; margin:auto; }
+#Studio .CSFocusActions { display:flex; justify-content:center; gap:12px; margin:25px 0 19px; }
+#Studio .CSFocusCard > p { max-width:350px; margin:0 auto; font-size:11px; }
+#Studio .CSFocusApp { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--cs-line); }
+#Studio .CSFocusApp .CSSwitch { margin-left:auto; }
+#Studio .CSFocusApp strong { font-size:13px; }
+#Studio .CSCallout { display:flex; align-items:center; gap:14px; padding:17px 20px; border-radius:15px; background:#f0ebfb9c; color:var(--cs-accent); margin:18px 0 24px; }
+#Studio .CSCallout p { font-size:12px; }
+#Studio .CSInlineForm { display:flex; gap:10px; }
+#Studio .CSInlineForm input { width:100%; }
+#Studio .CSChips { display:flex; flex-wrap:wrap; gap:9px; margin:20px 0; }
+#Studio .CSChips > span { display:flex; align-items:center; gap:8px; background:var(--cs-soft); border-radius:20px; padding:6px 10px 6px 14px; font-size:12px; }
+#Studio .CSChips button { width:25px; height:25px; }
+#Studio .CSChips svg { width:14px; height:14px; }
+#Studio .CSFine { font-size:11px; color:var(--cs-muted); }
+#Studio .CSEmpty { padding:25px 5px; color:var(--cs-muted); text-align:center; font-size:13px; }
+#Studio .CSFamilyGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+#Studio .CSFamilyEmpty { grid-column:1/-1; padding:48px 10px; }
+#Studio .CSFamilyEmpty h3 { margin:15px 0 7px; }
+#Studio .CSFamilyEmpty .CSButton { margin-top:22px; }
+#Studio .CSChild { padding:22px 16px; text-align:center; border:1px solid var(--cs-line); border-radius:18px; background:linear-gradient(130deg,#fff,#f9f6ff); }
+#Studio .CSChildAvatar { display:flex; align-items:center; justify-content:center; background:#ecdfff; color:#9c79b3; border-radius:50%; width:65px; height:65px; font-size:26px; margin:0 auto 12px; }
+#Studio .CSChild:nth-child(even) .CSChildAvatar { background:#dbe7ff; color:#8299c5; }
+#Studio .CSChild p { font-size:12px; margin:4px 0 10px; }
+#Studio .CSChildMetric { display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; color:var(--cs-muted); margin:16px 0; }
+#Studio .CSChild .CSButton { min-height:34px; font-size:10px; padding:8px 12px; margin:4px; }
+#Studio .CSSettingsGrid .CSCard { align-self:start; }
+#Studio .CSSettingsGrid .CSCard > .CSButton { display:flex; justify-content:space-between; width:100%; background:transparent; border:0; border-bottom:1px solid var(--cs-line); border-radius:0; color:var(--cs-ink); padding:12px 0; margin:0; font-size:12px; }
+#Studio .CSSwatches { display:flex; gap:8px; }
+#Studio .CSSwatches button { width:19px; height:19px; border-radius:50%; background:#8971ff; border:2px solid white; }
+#Studio .CSSwatches button[data-cs-accent="blue"] { background:#789bec; }
+#Studio .CSSwatches button[data-cs-accent="pink"] { background:#ed8aba; }
+#Studio .CSSwatches button[data-cs-accent="orange"] { background:#ffad85; }
+#Studio .CSSwatches button.Active { outline:1px solid var(--cs-accent); outline-offset:2px; }
+#Studio .CSProfileCard { text-align:center; padding:40px; }
+#Studio .CSProfileCard .CSAvatar { width:100px; height:100px; margin:0 auto 20px; font-size:46px; }
+#Studio .CSProfileCard h2 { font-size:26px; }
+#Studio .CSProfileCard > p { margin:8px 0 15px; }
+#Studio .CSProfileStats { display:flex; justify-content:center; gap:50px; margin:30px 0; }
+#Studio .CSProfileStats strong { display:block; font-size:25px; }
+#Studio .CSProfileCard > .CSButton { margin:5px; }
+#Studio .CSSetup { width:min(640px,100%); margin:24px auto; text-align:center; }
+#Studio .CSSetupProgress { display:flex; justify-content:center; gap:34px; margin-bottom:30px; }
+#Studio .CSSetupProgress span { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; border:1px solid #d9d4e7; color:#aaa2bd; font-size:12px; position:relative; }
+#Studio .CSSetupProgress span:not(:last-child)::after { content:""; position:absolute; left:40px; width:18px; height:1px; background:#d9d4e7; }
+#Studio .CSSetupProgress span.Active { background:var(--cs-accent); border-color:var(--cs-accent); color:white; }
+#Studio .CSSetup > p:not(.CSEyebrow) { margin:14px 0 26px; }
+#Studio .CSSetup .CSCard { padding:35px; }
+#Studio .CSSetup .CSCard > h2 { font-size:24px; margin-top:20px; }
+#Studio .CSSetupLogo { display:block; width:65px; height:65px; margin:15px auto; }
+#Studio .CSSetupLogo img { width:100%; height:100%; object-fit:contain; }
+#Studio .CSSetupDone { display:inline-flex; align-items:center; justify-content:center; width:70px; height:70px; border-radius:50%; background:#eaf7f1; color:#50b18a; }
+#Studio .CSSetupDone svg { width:35px; height:35px; }
+#Studio .CSSetupActions { display:flex; justify-content:space-between; gap:20px; margin-top:23px; }
+#Studio .CSDialog { width:min(610px,calc(100% - 32px)); max-height:85svh; padding:32px; border:1px solid white; border-radius:24px; color:var(--cs-ink); background:var(--cs-base); box-shadow:0 35px 140px #2e204044; }
+#Studio .CSDialog::backdrop { background:#28203e55; backdrop-filter:blur(8px); }
+#Studio .CSDialog[open] { animation:csEnter .25s ease both; }
+#Studio .CSCloseDialog { float:right; margin:-12px -12px 0 10px; }
+#Studio .CSDialog h2 { font-size:25px; margin:0 35px 8px 0; }
+#Studio .CSDialog h2 + p { margin-bottom:20px; font-size:13px; }
+#Studio .CSDialogApp { display:flex; gap:12px; align-items:center; background:var(--cs-soft); padding:16px; border-radius:14px; margin-bottom:10px; }
+#Studio .CSDialogApp .CSBadge { margin-left:auto; }
+#Studio .CSRuleList { padding-top:4px; }
+#Studio .CSDialogFooter { display:flex; justify-content:space-between; gap:12px; margin-top:25px; }
+#Studio .CSForm { display:grid; gap:18px; }
+#Studio .CSForm label { display:grid; gap:7px; font-size:12px; font-weight:500; }
+#Studio .CSFormPair { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+#Studio .CSNotification { display:flex; gap:15px; margin:28px 0; }
+#Studio .CSNotification p { margin-top:8px; font-size:13px; }
+#Studio .CSToast { display:flex; align-items:center; gap:10px; position:fixed; bottom:24px; right:26px; z-index:100; max-width:calc(100vw - 32px); padding:14px 20px; color:#554575; background:#fffc; border:1px solid white; border-radius:16px; box-shadow:0 10px 40px #3b276325; backdrop-filter:blur(20px); font-size:12px; animation:csEnter .25s ease both; }
+#Studio .CSToast svg { color:var(--cs-accent); width:18px; }
+@keyframes csEnter { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+#Studio .CSEntering > * { animation:csEnter .45s cubic-bezier(.2,.7,.2,1) both; }
+#Studio .CSEntering > :nth-child(2) { animation-delay:.035s; }
+#Studio .CSEntering > :nth-child(3) { animation-delay:.07s; }
+#Studio .CSEntering > :nth-child(4) { animation-delay:.10s; }
+#Studio .CSEntering > :nth-child(5) { animation-delay:.13s; }
+#Studio[data-accent="blue"] { --cs-accent:#5883df; --cs-soft:#edf2fd; }
+#Studio[data-accent="pink"] { --cs-accent:#cc65a2; --cs-soft:#fbedf5; }
+#Studio[data-accent="orange"] { --cs-accent:#d88955; --cs-soft:#fff1e8; }
+#Studio[data-studio-theme="Dark"] { --cs-ink:#e8e7f5; --cs-muted:#9d9bb6; --cs-line:#353248; --cs-card:#242132eb; --cs-base:#191722; --cs-soft:#373046; }
+#Studio[data-studio-theme="Dark"] :is(.CSSidebar,.CSTopbar) { background:#201d2e; border-color:var(--cs-line); }
+#Studio[data-studio-theme="Dark"] .CSMain { background-image:linear-gradient(180deg,#191722bb,var(--cs-base) 390px),url('../assets/landing/ZipControlAuraBackground.png'); }
+#Studio[data-studio-theme="Dark"] :is(.CSMetric,.CSMetric.Warm,.CSLimitSummary,.CSLimitTip,.CSChild,.CSSideNote,.CSQuote) { background:linear-gradient(140deg,#342b46,#282536); border-color:var(--cs-line); }
+#Studio[data-studio-theme="Dark"] :is(.CSBrand strong,.CSSidebar nav button) { color:var(--cs-ink); }
+#Studio[data-studio-theme="Dark"] .CSLogo img { filter:invert(1); }
+#Studio[data-studio-theme="Dark"] :is(.CSSearch,.CSSegmented,.CSTableHead,.CSQuick button,.CSSidebar nav button.Active) { background:var(--cs-soft); }
+#Studio[data-studio-theme="Dark"] .CSQuote p { color:var(--cs-ink); }
+#Studio[data-reduce-motion="true"] *,#Studio[data-reduce-motion="true"] *::before,#Studio[data-reduce-motion="true"] *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+@media(min-height:1000px) { #Studio .CSSideNote { margin-top:45px; } }
+@media(max-width:1250px) {
+ #Studio .CSSidebar { width:205px; padding:25px 14px 15px; }
+ #Studio .CSMain { margin-left:205px; }
+ #Studio .CSContent { padding:25px; }
+ #Studio .CSTopbar { padding:18px 25px; }
+ #Studio .CSMetrics { gap:10px; }
+ #Studio .CSMetric { padding:18px 12px; gap:10px; }
+ #Studio .CSMetric .CSIcon { width:34px; height:34px; }
+ #Studio .CSMetric .CSIcon svg { width:21px; height:21px; }
+ #Studio .CSMetric strong { font-size:21px; }
+ #Studio .CSMetric small { font-size:10px; }
+ #Studio .CSSpark { opacity:.3; }
+ #Studio .CSCard { padding:19px; }
+ #Studio .CSCardHeader { gap:10px; }
+ #Studio .CSCardHeader h2 { font-size:16px; }
+ #Studio .CSCardHeader .CSIcon { width:34px; height:34px; }
+ #Studio .CSAppRow { gap:9px; }
+ #Studio .CSStatus { display:none; }
+ #Studio .CSSettingsGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ #Studio .CSAppFilters { align-items:stretch; flex-direction:column; }
+ #Studio .CSInlineSearch { width:100%; }
+ #Studio .CSAppListRow { grid-template-columns:32px minmax(0,1fr) 40px 55px 24px; gap:8px; }
+ #Studio .CSAppIcon { width:33px; height:33px; }
+ #Studio .CSFamilyGrid { grid-template-columns:1fr; }
+ #Studio .CSActivityColumns { grid-template-columns:minmax(0,1.5fr) minmax(230px,1fr); }
+ #Studio .CSChartCard .CSCardHeader { flex-wrap:wrap; }
+ #Studio .CSChartCard .CSSegmented { margin-left:0; }
+ #Studio .CSLimitGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:950px) {
+ #Studio .CSSidebar { transform:translateX(-100%); transition:transform .3s; width:230px; box-shadow:20px 0 80px #28203e20; }
+ #Studio .CSMain { margin-left:0; }
+ #Studio .CSMenu { display:flex; }
+ #Studio.CSNavOpen .CSSidebar { transform:none; }
+ #Studio.CSNavOpen .CSMain::after { content:""; position:fixed; inset:0; background:#21163944; z-index:35; backdrop-filter:blur(3px); }
+ #Studio .CSTopbar { gap:12px; }
+ #Studio .CSSearch { flex:1; width:auto; }
+ #Studio .CSHero { min-height:140px; }
+ #Studio .CSHero h1 { font-size:38px; }
+ #Studio .CSHero h1 + p { font-size:14px; }
+ #Studio .CSQuote { width:205px; }
+}
+@media(max-width:700px) {
+ #Studio .CSContent { padding:20px 16px 30px; }
+ #Studio .CSTopbar { padding:13px 16px; height:72px; }
+ #Studio .CSAccount { padding-left:0; border:0; }
+ #Studio .CSAccount > span:not(.CSAvatar),#Studio .CSAccount > svg { display:none; }
+ #Studio .CSTopActions { gap:5px; }
+ #Studio .CSSearch { padding:0 10px; }
+ #Studio .CSSearch > svg { width:16px; }
+ #Studio .CSSearch input { font-size:11px !important; }
+ #Studio .CSHero { min-height:0; margin:12px 0 24px; }
+ #Studio .CSHero h1 { font-size:34px; }
+ #Studio .CSHero h1 + p { max-width:430px; font-size:13px; }
+ #Studio .CSQuote { display:none; }
+ #Studio .CSMetrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ #Studio .CSMetric { padding:18px 13px; min-height:120px; }
+ #Studio .CSMetric strong { font-size:21px; }
+ #Studio .CSMetric p { font-size:9px; }
+ #Studio .CSSpark { right:10px; bottom:18px; }
+ #Studio .CSColumns,#Studio .CSActivityColumns,#Studio .CSFocusGrid { grid-template-columns:1fr; gap:16px; }
+ #Studio .CSCard { padding:19px; border-radius:18px; }
+ #Studio .CSCardHeader p { font-size:11px; }
+ #Studio .CSCardHeader > .CSButton { font-size:10px; padding:7px 9px; gap:4px; }
+ #Studio .CSCardHeader > .CSButton svg { width:14px; }
+ #Studio .CSStatus { display:block; }
+ #Studio .CSBottomProfile { flex-wrap:wrap; gap:12px; }
+ #Studio .CSBottomProfile .CSBottomDivider,#Studio .CSBottomProfile .CSBottomDivider + .CSIcon,#Studio .CSBottomProfile .CSBottomDivider + .CSIcon + div { display:none; }
+ #Studio .CSBottomProfile > .CSButton { margin:0 0 0 auto; font-size:11px; }
+ #Studio .CSUsageRow { grid-template-columns:30px 70px minmax(20px,1fr) 102px; gap:10px; min-height:65px; }
+ #Studio .CSUsageRow .CSBadge { display:none; }
+ #Studio .CSUsageRow > strong,#Studio .CSUsageRow > span { font-size:11px; }
+ #Studio .CSUsageRow small { font-size:9px; }
+ #Studio .CSActivityColumns > .CSCard:last-child { display:grid; grid-template-columns:1fr 1fr; column-gap:20px; }
+ #Studio .CSActivityColumns > .CSCard:last-child .CSCardHeader { grid-column:1/-1; }
+ #Studio .CSDonut { grid-column:1; grid-row:2/7; width:150px; height:150px; margin:auto; padding:19px; }
+ #Studio .CSDonut strong { font-size:23px; }
+ #Studio .CSLegendRow { grid-column:2; font-size:11px; }
+ #Studio .CSLimitSummary { padding:18px; flex-wrap:wrap; gap:13px; }
+ #Studio .CSLimitSummary p { display:none; }
+ #Studio .CSLimitSummary .CSButton { margin-left:auto; font-size:10px; }
+ #Studio .CSLimitSummary strong { font-size:26px; }
+ #Studio .CSLimitSummary span { font-size:10px; }
+ #Studio .CSLimitGrid,#Studio .CSSettingsGrid { gap:14px; }
+ #Studio .CSLimitGrid { grid-template-columns:1fr; }
+ #Studio .CSLimitNumber { margin-top:22px; }
+ #Studio .CSLimitTip { min-height:220px; }
+ #Studio .CSSettingsGrid { grid-template-columns:1fr; }
+ #Studio .CSSetting { min-height:72px; }
+ #Studio .CSSetting strong { font-size:13px; }
+ #Studio .CSSetting small { font-size:11px; }
+ #Studio .CSAppFilters { flex-direction:row; flex-wrap:wrap; }
+ #Studio .CSInlineSearch { flex:1; min-width:150px; }
+ #Studio .CSFocusRing { width:250px; height:250px; }
+ #Studio .CSFamilyGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ #Studio .CSFamilyEmpty { padding:35px 5px; }
+ #Studio .CSSetup { margin:15px auto; }
+ #Studio .CSSetup h1 { font-size:32px; }
+ #Studio .CSSetup .CSCard { padding:25px 20px; }
+ #Studio .CSDialog { padding:25px 20px; }
+ #Studio .CSToast { bottom:16px; right:16px; }
+}
+@media(max-width:420px) {
+ #Studio .CSContent { padding-left:12px; padding-right:12px; }
+ #Studio .CSTopbar { padding:12px 10px; gap:6px; }
+ #Studio .CSTopActions > .CSIconButton { display:none; }
+ #Studio .CSAvatar { width:35px; height:35px; font-size:16px; }
+ #Studio .CSMetric { gap:8px; padding:16px 10px; }
+ #Studio .CSMetric .CSIcon { width:29px; height:29px; }
+ #Studio .CSMetric .CSIcon svg { width:18px; height:18px; }
+ #Studio .CSMetric strong { font-size:19px; }
+ #Studio .CSCard { padding:17px; }
+ #Studio .CSStatus { display:none; }
+ #Studio .CSAppRow .CSIconButton { width:28px; }
+ #Studio .CSCardHeader .CSIcon { width:31px; height:31px; }
+ #Studio .CSCardHeader h2 { font-size:15px; }
+ #Studio .CSCardHeader p { font-size:10px; }
+ #Studio .CSQuick { gap:6px; }
+ #Studio .CSQuick strong { font-size:10px; }
+ #Studio .CSQuick .CSIcon { width:35px; height:35px; }
+ #Studio .CSChartBars { gap:8px; }
+ #Studio .CSChartLegend { gap:9px; }
+ #Studio .CSDonut { width:132px; height:132px; padding:17px; }
+ #Studio .CSLegendRow { font-size:10px; gap:6px; }
+ #Studio .CSUsageRow { grid-template-columns:28px 63px 1fr 95px; gap:7px; }
+ #Studio .CSUsageRow .CSAppIcon { width:28px; height:28px; }
+ #Studio .CSAppListRow { grid-template-columns:32px minmax(0,1fr) 44px 25px; gap:10px; }
+ #Studio .CSAppAllowance { display:none; }
+ #Studio .CSAppTableHead { grid-template-columns:1fr 75px; }
+ #Studio .CSAppTableHead span:last-child { display:none; }
+ #Studio .CSFamilyGrid { grid-template-columns:1fr; }
+ #Studio .CSLimitSummary .CSButton { margin-left:56px; }
+ #Studio .CSDataMode { gap:5px; font-size:10px; }
+ #Studio .CSDataMode button { font-size:10px; }
+ #Studio .CSDialogFooter { flex-wrap:wrap; }
+}
+@media(prefers-reduced-motion:reduce) { #Studio *,#Studio *::before,#Studio *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }

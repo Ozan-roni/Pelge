@@ -1,4 +1,4 @@
-const CACHE_NAME = "control-site-v2";
+const CACHE_NAME = "control-site-v3";
 const APP_SHELL = [
   "/",
   "/#Home",
@@ -9,6 +9,8 @@ const APP_SHELL = [
   "/styles/ZipControlApp.css",
   "/styles/ControlAuth.css?v=1.0.0",
   "/scripts/ControlAuth.js?v=1.0.0",
+  "/styles/ControlStudio.css?v=1.0.0",
+  "/scripts/ControlStudio.js?v=1.0.0",
   "/scripts/Dashboard.js",
   "/scripts/HomeV2.js",
   "/scripts/ZipControlApp.js",

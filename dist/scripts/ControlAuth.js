@@ -94,7 +94,8 @@
       }
       form.reset();
       RenderLocalProfile();
-      ShowSection("Profile");
+      if (window.ControlStudio) window.ControlStudio.enter();
+      else ShowSection("Profile");
       document.getElementById("ProfileDisplayName")?.focus({ preventScroll: true });
     } catch (error) {
       setNotice(error.message || "Unable to sign in. Please try again.");
