@@ -5,11 +5,14 @@ const ControlExtendedDefaultRules = {
   ShowUsageTimer: true,
   SensitiveContentProtection: false,
   SensitiveProtectionConfig: { BlockAdultSites: true, HideDetectedAccounts: true, BlockedDomains: [], BlockedKeywords: [], BlockedAccounts: [] },
-  Instagram: { Enabled: true, Reels: true, ForYou: true, Explore: true, Search: false, SearchGridGuard: true, SearchScrollLock: true, Stories: true, AdsAndSuggested: true, SuggestedPosts: true, StoryAds: true, Live: true, Shopping: true, SavedPosts: true, HomeFeed: true, HideFollowingPosts: true, DMsOnly: true, DailyLimitMinutes: 45 },
-  X: { Enabled: true, DMsOnly: false, ForYou: true, SearchProfilesOnly: true, Videos: true, DailyLimitMinutes: 30 },
-  Snapchat: { Enabled: true, DMsOnly: true, DailyLimitMinutes: 30 },
-  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 30 },
-  YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 60 },
+  Instagram: { Enabled: true, Reels: true, ForYou: true, Explore: true, Search: false, SearchGridGuard: true, SearchScrollLock: true, Stories: true, AdsAndSuggested: true, SuggestedPosts: true, StoryAds: true, Live: true, Shopping: true, SavedPosts: true, HomeFeed: true, HideFollowingPosts: true, DMsOnly: true, DailyLimitMinutes: 0 },
+  X: { Enabled: true, DMsOnly: false, ForYou: true, SearchProfilesOnly: true, Videos: true, DailyLimitMinutes: 0 },
+  Snapchat: { Enabled: true, DMsOnly: true, DailyLimitMinutes: 0 },
+  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
+  YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
+  Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
 };
 
 let ControlExtendedRules = structuredClone(ControlExtendedDefaultRules);
@@ -18,6 +21,9 @@ let ControlExtendedFilterTimer = null;
 
 function ControlExtendedGetApplication() {
   const Hostname = location.hostname.toLowerCase();
+  for (const [App, Domains] of Object.entries({Reddit:["reddit.com"],Threads:["threads.com","threads.net"],Facebook:["facebook.com"]})) {
+    if (Domains.some(Domain => Hostname === Domain || Hostname.endsWith("." + Domain))) return App;
+  }
   if (Hostname === "instagram.com" || Hostname.endsWith(".instagram.com")) {
     return "Instagram";
   }
@@ -55,7 +61,7 @@ function ControlExtendedMergeRules(StoredRules) {
   Rules.ShowUsageTimer = StoredRules.ShowUsageTimer ?? Rules.ShowUsageTimer;
   Rules.SensitiveContentProtection = StoredRules.SensitiveContentProtection ?? Rules.SensitiveContentProtection;
   Rules.SensitiveProtectionConfig = { ...Rules.SensitiveProtectionConfig, ...(StoredRules.SensitiveProtectionConfig ?? {}) };
-  for (const ApplicationKey of ["Instagram", "X", "Snapchat", "YouTube", "TikTok"]) {
+  for (const ApplicationKey of ["Instagram", "X", "Snapchat", "YouTube", "TikTok", "Reddit", "Threads", "Facebook"]) {
     Rules[ApplicationKey] = { ...Rules[ApplicationKey], ...(StoredRules[ApplicationKey] ?? {}) };
   }
   Rules.Instagram.Enabled = typeof StoredRules.Instagram?.Enabled === "boolean" ? StoredRules.Instagram.Enabled : ProtectedApplications.includes("Instagram");
@@ -319,6 +325,32 @@ function ControlExtendedScrubSensitiveContent(Application) {
   }
 }
 
+function ControlExtendedFilterSocialApp(Application, Rules) {
+  const Path = location.pathname.toLowerCase().replace(/\/+$/, "") || "/";
+  // These rules only target named routes and comment containers, never private messages.
+  if (Application !== "Reddit" || !Rules.Comments) document.querySelectorAll('[data-control-social-hidden]').forEach(Node => Node.removeAttribute('data-control-social-hidden'));
+  let Message = "";
+  if (Application === "Reddit") {
+    if (Rules.HomeFeed && Path === "/") Message = "Your Reddit home feed is paused";
+    if (Rules.Popular && /^\/r\/(popular|all)(\/|$)/.test(Path)) Message = "Discovery is paused on Reddit";
+    if (Rules.Comments) document.querySelectorAll('shreddit-comment:not([data-control-social-hidden]), .commentarea:not([data-control-social-hidden])').forEach(Node => Node.setAttribute('data-control-social-hidden','true'));
+  }
+  if (Application === "Threads") {
+    if (Rules.ForYou && Path === "/") Message = "Your Threads home feed is paused";
+    if (Rules.Activity && /^\/activity(\/|$)/.test(Path)) Message = "Threads activity is paused";
+  }
+  if (Application === "Facebook") {
+    const IsUseful = /^\/(messages|settings|login|recover|checkpoint)(\/|$)/.test(Path);
+    if (Rules.DMsOnly && !IsUseful) Message = "Facebook is in messages-only mode";
+    else if (Rules.HomeFeed && (Path === "/" || Path === "/home.php")) Message = "Your Facebook home feed is paused";
+    else if (Rules.Reels && /^\/reels?(\/|$)/.test(Path)) Message = "Facebook Reels are paused";
+    else if (Rules.Stories && /^\/stories(\/|$)/.test(Path)) Message = "Facebook Stories are paused";
+  }
+  if (!Message) return false;
+  ControlExtendedShowBlocker(Message, "Your chosen boundary is active. You can adjust it in Control at any time.", Application === "Facebook" ? "/messages/" : "__close__");
+  return true;
+}
+
 function ControlExtendedApplyFilters() {
   const Application = ControlExtendedGetApplication();
   if (!Application) {
@@ -334,6 +366,7 @@ function ControlExtendedApplyFilters() {
     return;
   }
   if (!Rules?.Enabled) {
+    document.querySelectorAll('[data-control-social-hidden]').forEach(Node => Node.removeAttribute('data-control-social-hidden'));
     ControlExtendedRemoveBlocker();
     if (Application === "Instagram") {
       document.documentElement.classList.remove("ControlInstagramHideFeed", "ControlInstagramHideStories", "ControlInstagramHideReels", "ControlInstagramFollowingOnly");
@@ -359,6 +392,8 @@ function ControlExtendedApplyFilters() {
     IsBlocked = ControlExtendedFilterYouTube(Rules);
   } else if (Application === "TikTok") {
     IsBlocked = ControlExtendedFilterTikTok(Rules);
+  } else if (["Reddit", "Threads", "Facebook"].includes(Application)) {
+    IsBlocked = ControlExtendedFilterSocialApp(Application, Rules);
   }
 
   if (!IsBlocked) {

@@ -9,8 +9,12 @@ html.ControlSensitiveProfileIsBlocked body > :not(#ControlSensitiveProfileBlocke
 
 #ControlSensitiveProfileBlocker {
   align-items: center;
-  background: #f7f8fa;
-  color: #111318;
+  --sensitive-ink: #241d36;
+  --sensitive-muted: #625674;
+  --sensitive-glass: linear-gradient(140deg,#ffffffe6,#ede4ffd1);
+  --sensitive-line: #ffffffbb;
+  background: radial-gradient(ellipse at 85% 15%,#c9b5e76b,transparent 65%),#eeeaf4;
+  color: var(--sensitive-ink);
   display: flex;
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   inset: 0;
@@ -21,7 +25,16 @@ html.ControlSensitiveProfileIsBlocked body > :not(#ControlSensitiveProfileBlocke
 }
 
 #ControlSensitiveProfileBlocker > div {
-  max-width: 430px;
+  box-sizing: border-box;
+  width: min(480px,100%);
+  padding: 32px;
+  border: 1px solid var(--sensitive-line);
+  border-radius: 28px;
+  background: var(--sensitive-glass);
+  backdrop-filter: blur(28px) saturate(115%);
+  -webkit-backdrop-filter: blur(28px) saturate(115%);
+  box-shadow: inset 0 1px 0 #ffffff18,0 24px 80px #24133824;
+  animation: sensitiveGlassEnter .3s ease both;
   text-align: center;
 }
 
@@ -33,22 +46,23 @@ html.ControlSensitiveProfileIsBlocked body > :not(#ControlSensitiveProfileBlocke
 }
 
 #ControlSensitiveProfileBlocker h1 {
-  font-size: 32px;
-  letter-spacing: 0;
+  color: var(--sensitive-ink);
+  font-size: clamp(23px,5vw,30px);
+  letter-spacing: -.035em;
   margin: 0 0 12px;
 }
 
 #ControlSensitiveProfileBlocker p {
-  color: #687080;
+  color: var(--sensitive-muted);
   font-size: 15px;
   line-height: 1.6;
   margin: 0;
 }
 
 #ControlSensitiveProfileBlocker button {
-  background: #111827;
+  background: linear-gradient(110deg,#6b51d2,#8061db);
   border: 0;
-  border-radius: 7px;
+  border-radius: 999px;
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -56,4 +70,13 @@ html.ControlSensitiveProfileIsBlocked body > :not(#ControlSensitiveProfileBlocke
   margin-top: 26px;
   min-height: 44px;
   padding: 0 24px;
+  transition: background .2s,transform .2s;
 }
+#ControlSensitiveProfileBlocker button:hover { background:linear-gradient(110deg,#765bdc,#8b6be6); transform:translateY(-1px); }
+#ControlSensitiveProfileBlocker button:focus-visible { outline:3px solid #a593eb; outline-offset:5px; }
+#ControlSensitiveProfileBlocker button:active { transform:scale(.98); }
+@media(prefers-color-scheme:dark) {
+  #ControlSensitiveProfileBlocker { --sensitive-ink:#f0ecfb; --sensitive-muted:#c3b9d5; --sensitive-glass:linear-gradient(140deg,#49375ba8,#211b30cf); --sensitive-line:#bda5dc38; background:radial-gradient(ellipse at 85% 15%,#5c447940,transparent 65%),#15111e; }
+}
+@keyframes sensitiveGlassEnter { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+@media(prefers-reduced-motion:reduce) { #ControlSensitiveProfileBlocker > div,#ControlSensitiveProfileBlocker button { animation:none; transition:none; } }

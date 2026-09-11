@@ -4,7 +4,10 @@
     { key:"X", name:"X", icon:"assets/X.svg", main:"ForYou", mainLabel:"Block For You feed" },
     { key:"Snapchat", name:"Snapchat", icon:"assets/Snapchat.svg", main:"Spotlight", mainLabel:"Block Spotlight" },
     { key:"YouTube", name:"YouTube", icon:"assets/YouTube.svg", main:"Shorts", mainLabel:"Block Shorts" },
-    { key:"TikTok", name:"TikTok", icon:"assets/TikTok.svg", main:"ForYou", mainLabel:"Block For You feed" }
+    { key:"TikTok", name:"TikTok", icon:"assets/TikTok.svg", main:"ForYou", mainLabel:"Block For You feed" },
+    { key:"Reddit", name:"Reddit", icon:"assets/Reddit.svg", main:"HomeFeed", mainLabel:"Block home feed" },
+    { key:"Threads", name:"Threads", icon:"assets/Threads.svg", main:"ForYou", mainLabel:"Block For You feed" },
+    { key:"Facebook", name:"Facebook", icon:"assets/Facebook.svg", main:"Reels", mainLabel:"Block Reels" }
   ];
   const TicketKey = "ControlSupportTickets.v1";
   let SelectedApp = "Instagram";
@@ -58,7 +61,7 @@
       { label:`Protection ${IsProtected ? "active" : "paused"}`, active:IsProtected },
       { label:MainIsBlocked ? App.mainLabel : `${App.mainLabel.replace(/^Block /, "")} available`, active:IsProtected && MainIsBlocked },
       { label:`Focus timer ${Rules.ShowUsageTimer ? "visible" : "hidden"}`, active:Boolean(Rules.ShowUsageTimer) },
-      { label:`Daily limit: ${Number(AppRules.DailyLimitMinutes) || 0} minutes`, active:IsProtected && Number(AppRules.DailyLimitMinutes) > 0 }
+      { label:`Daily limit: ${Number(AppRules.DailyLimitMinutes) > 0 ? Number(AppRules.DailyLimitMinutes) + ' minutes' : 'Unlimited'}`, active:IsProtected && Number(AppRules.DailyLimitMinutes) > 0 }
     ];
     List.replaceChildren(...Summary.map(Item => {
       const Row = document.createElement("li");

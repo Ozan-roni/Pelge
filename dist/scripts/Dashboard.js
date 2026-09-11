@@ -66,7 +66,7 @@ const DefaultRules = {
     HideFollowingPosts: false,
     FollowingUnlockAvailableAt: 0,
     DMsOnly: true,
-    DailyLimitMinutes: 45,
+    DailyLimitMinutes: 0,
   },
   X: {
     Enabled: true,
@@ -74,7 +74,7 @@ const DefaultRules = {
     ForYou: true,
     SearchProfilesOnly: true,
     Videos: true,
-    DailyLimitMinutes: 30,
+    DailyLimitMinutes: 0,
   },
   Snapchat: {
     Enabled: true,
@@ -84,9 +84,12 @@ const DefaultRules = {
     Map: true,
     Ads: true,
     DMsOnly: true,
-    DailyLimitMinutes: 30,
+    DailyLimitMinutes: 0,
   },
-  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 30 },
+  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
+  Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
   YouTube: {
     Enabled: true,
     VideoOnly: false,
@@ -95,7 +98,7 @@ const DefaultRules = {
     Recommendations: false,
     Comments: false,
     Ads: false,
-    DailyLimitMinutes: 60,
+    DailyLimitMinutes: 0,
   },
 };
 
@@ -175,6 +178,24 @@ const ApplicationDefinitions = [
     ],
   },
 ];
+
+ApplicationDefinitions.push(
+  { Key: "Reddit", Name: "Reddit", Description: "Choose your communities without endless discovery.", CompactDescription: "Home feed and Popular controls", Url: "https://www.reddit.com/", Rules: [
+    ["HomeFeed", "Block home feed", "Hide the personalized home feed"],
+    ["Popular", "Block Popular", "Remove Popular and All discovery feeds"],
+    ["Comments", "Hide comments", "Keep posts without their discussion threads"],
+  ] },
+  { Key: "Threads", Name: "Threads", Description: "Intentional conversations, without the For You feed.", CompactDescription: "For You and activity controls", Url: "https://www.threads.com/", Rules: [
+    ["ForYou", "Block For You", "Hide the recommended home feed"],
+    ["Activity", "Hide activity", "Remove the activity and notifications page"],
+  ] },
+  { Key: "Facebook", Name: "Facebook", Description: "Keep conversations and choose what stays in your feed.", CompactDescription: "Feed, Reels, Stories and messages", Url: "https://www.facebook.com/messages/", Rules: [
+    ["HomeFeed", "Block home feed", "Hide the home news feed"],
+    ["Reels", "Block Reels", "Remove short-video discovery"],
+    ["Stories", "Block Stories", "Hide story discovery"],
+    ["DMsOnly", "Messages only", "Keep messaging and account settings"],
+  ] }
+);
 
 const RequiredExtensionVersion = "0.31.8";
 let ActiveSession = null;
@@ -379,6 +400,9 @@ const ApplicationIconPaths = {
   Snapchat: "assets/Snapchat.svg",
   YouTube: "assets/YouTube.svg",
   TikTok: "assets/TikTok.svg",
+  Reddit: "assets/Reddit.svg",
+  Threads: "assets/Threads.svg",
+  Facebook: "assets/Facebook.svg",
 };
 
 function GetApplicationBadge(Application) {
@@ -2059,7 +2083,8 @@ async function Initialize() {
 
   document.getElementById("CurrentDate").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   for (const Application of ApplicationDefinitions) {
-    document.getElementById(`Open${Application.Key}Button`).onclick = () => LaunchApplication(Application);
+    const LaunchButton = document.getElementById(`Open${Application.Key}Button`);
+    if (LaunchButton) LaunchButton.onclick = () => LaunchApplication(Application);
   }
 
   document.getElementById("ResetButton").onclick = ResetRules;

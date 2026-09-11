@@ -76,6 +76,9 @@
 .ZipAppPicker button[data-app="X"],.ZipActiveAppIcon.X,.ZipAppPicker button[data-app="TikTok"],.ZipActiveAppIcon.TikTok { background:#07080a; }
 .ZipAppPicker button[data-app="Snapchat"],.ZipActiveAppIcon.Snapchat { background:#fffc00; }
 .ZipAppPicker button[data-app="YouTube"],.ZipActiveAppIcon.YouTube { background:#ff0033; }
+.ZipAppPicker button[data-app="Reddit"],.ZipActiveAppIcon.Reddit { background:#ffe4db; }
+.ZipAppPicker button[data-app="Threads"],.ZipActiveAppIcon.Threads { background:#eee8ff; }
+.ZipAppPicker button[data-app="Facebook"],.ZipActiveAppIcon.Facebook { background:#dce9ff; }
 .ZipActiveApp { align-items:center; background:linear-gradient(120deg,#f7f4ff,#fff8f6); border:1px solid rgba(117,91,210,.10); border-radius:16px; display:grid; gap:10px; grid-template-columns:auto 1fr auto; padding:12px; }
 .ZipActiveAppIcon { align-items:center; background:#fff; border-radius:10px; display:flex; height:36px; justify-content:center; width:36px; }
 .ZipActiveAppIcon img { height:22px; width:22px; }

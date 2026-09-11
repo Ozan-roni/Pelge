@@ -1,4 +1,4 @@
-const CACHE_NAME = "control-site-v4";
+const CACHE_NAME = "control-site-v5";
 const APP_SHELL = [
   "/",
   "/#Home",
@@ -9,16 +9,19 @@ const APP_SHELL = [
   "/styles/ZipControlApp.css",
   "/styles/ControlAuth.css?v=1.1.0",
   "/scripts/ControlAuth.js?v=1.0.0",
-  "/styles/ControlStudio.css?v=1.1.0",
+  "/styles/ControlStudio.css?v=1.2.0",
   "/assets/landing/ControlLoginBackground.png",
   "/assets/landing/ControlStudioBackground.png",
-  "/scripts/ControlStudio.js?v=1.0.0",
+  "/scripts/ControlStudio.js?v=1.1.0",
   "/scripts/Dashboard.js",
   "/scripts/HomeV2.js",
   "/scripts/ZipControlApp.js",
   "/assets/ControlSelectedBlack.png",
   "/assets/ControlUnifiedIcon128.png",
-  "/assets/ControlUnifiedIcon512.png"
+  "/assets/ControlUnifiedIcon512.png",
+  "/assets/Reddit.svg",
+  "/assets/Threads.svg",
+  "/assets/Facebook.svg"
 ];
 
 self.addEventListener("install", (event) => {

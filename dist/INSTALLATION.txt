@@ -1,6 +1,6 @@
 CONTROL - BROWSER EXTENSION INSTALLATION
 
-VERSION 0.31.8
+VERSION 0.32.1
 
 1. Open chrome://extensions in Chrome or edge://extensions in Edge.
 2. Enable Developer mode.
@@ -10,5 +10,9 @@ VERSION 0.31.8
 6. Pin Control to the browser toolbar.
 
 After every update, click Reload on the Control extension and refresh any protected tabs already open.
+
+Daily time limits are unlimited by default. Previously saved limits are preserved.
+Reddit, Threads and Facebook are available in Blocked Apps and require opt-in.
+The hosted website is a local-settings preview; use the extension's own dashboard to apply filters in your browser.
 
 Sensitive protection is disabled by default. Enable it in Control > Settings, then edit your private blacklist if needed. The bundled local snapshot contains 76,743 maintained adult domains. Detection and preferences stay on this device.

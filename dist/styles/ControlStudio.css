@@ -291,14 +291,52 @@ html[data-current-section="Studio"] :is(.Sidebar,.MobileTopbar,.MobileNavigation
 #Studio[data-accent="blue"] { --cs-accent:#5883df; --cs-soft:#edf2fd; }
 #Studio[data-accent="pink"] { --cs-accent:#cc65a2; --cs-soft:#fbedf5; }
 #Studio[data-accent="orange"] { --cs-accent:#d88955; --cs-soft:#fff1e8; }
-#Studio[data-studio-theme="Dark"] { --cs-ink:#e8e7f5; --cs-muted:#9d9bb6; --cs-line:#353248; --cs-card:#242132eb; --cs-base:#191722; --cs-soft:#373046; }
-#Studio[data-studio-theme="Dark"] :is(.CSSidebar,.CSTopbar) { background:#201d2e; border-color:var(--cs-line); }
-#Studio[data-studio-theme="Dark"] .CSMain::before { opacity:.22; }
-#Studio[data-studio-theme="Dark"] :is(.CSMetric,.CSMetric.Warm,.CSLimitSummary,.CSLimitTip,.CSChild,.CSSideNote,.CSQuote) { background:linear-gradient(140deg,#342b46,#282536); border-color:var(--cs-line); }
+#Studio[data-studio-theme="Dark"] { color-scheme:dark; --cs-ink:#efedf9; --cs-muted:#c0bbd3; --cs-line:#c1aee329; --cs-card:rgba(35,30,49,.68); --cs-base:#191722; --cs-soft:rgba(109,87,148,.18); --cs-accent:#baacff; --cs-hover:rgba(145,113,192,.25); }
+#Studio[data-studio-theme="Dark"][data-accent="blue"] { --cs-accent:#a4c3ff; }
+#Studio[data-studio-theme="Dark"][data-accent="pink"] { --cs-accent:#f4add4; }
+#Studio[data-studio-theme="Dark"][data-accent="orange"] { --cs-accent:#ffc39d; }
+#Studio[data-studio-theme="Dark"] :is(.CSSidebar,.CSTopbar) { background:linear-gradient(140deg,#30273dc2,#201c2ac9); border-color:var(--cs-line); backdrop-filter:blur(28px) saturate(115%); -webkit-backdrop-filter:blur(28px) saturate(115%); }
+#Studio[data-studio-theme="Dark"] .CSLayout { background:radial-gradient(ellipse at 90% 8%,#41314f66,transparent 48%),radial-gradient(ellipse at 10% 85%,#33275244,transparent 55%),var(--cs-base); }
+#Studio[data-studio-theme="Dark"] .CSMain::before { opacity:.18; }
+#Studio[data-studio-theme="Dark"] :is(.CSCard,.CSMetric,.CSMetric.Warm,.CSLimitSummary,.CSLimitTip,.CSChild,.CSSideNote,.CSQuote,.CSDialog,.CSToast,.CSSearchResults) { background:linear-gradient(140deg,rgba(69,54,88,.58),rgba(30,26,43,.74)); border-color:var(--cs-line); backdrop-filter:blur(24px) saturate(115%); -webkit-backdrop-filter:blur(24px) saturate(115%); box-shadow:inset 0 1px 0 #e9dfff0d,0 12px 36px #07040e24; }
+#Studio[data-studio-theme="Dark"] .CSMetric.Warm { background:linear-gradient(140deg,#63473f55,#251e32bd); }
+#Studio[data-studio-theme="Dark"] .CSDialog { background:linear-gradient(140deg,#40334edb,#201b2cde); }
 #Studio[data-studio-theme="Dark"] :is(.CSBrand strong,.CSSidebar nav button) { color:var(--cs-ink); }
 #Studio[data-studio-theme="Dark"] .CSLogo img { filter:invert(1); }
 #Studio[data-studio-theme="Dark"] :is(.CSSearch,.CSSegmented,.CSTableHead,.CSQuick button,.CSSidebar nav button.Active) { background:var(--cs-soft); }
 #Studio[data-studio-theme="Dark"] .CSQuote p { color:var(--cs-ink); }
+/* Every interaction uses the same dark surface, including dialogs and feedback. */
+#Studio[data-studio-theme="Dark"] :is(.CSButton,.CSSideNote .CSButton,.CSDataMode button,.CSCallout,.CSQuote b,.CSMetric .CSIcon) { background:var(--cs-soft); color:var(--cs-accent); border-color:var(--cs-line); box-shadow:none; }
+#Studio[data-studio-theme="Dark"] :is(.CSButton,.CSSidebar nav button,.CSIconButton,.CSQuick button,.CSSearchResults button,.CSPresets button,.CSDataMode button):hover { background:var(--cs-hover); color:var(--cs-ink); box-shadow:0 5px 18px #0002; }
+#Studio[data-studio-theme="Dark"] .CSSettingsGrid .CSCard > .CSButton { background:transparent; color:var(--cs-ink); }
+#Studio[data-studio-theme="Dark"] .CSSettingsGrid .CSCard > .CSButton:hover { background:var(--cs-soft); border-radius:10px; }
+#Studio[data-studio-theme="Dark"] .CSSegmented button:not(.Active):hover { background:var(--cs-hover); color:var(--cs-ink); }
+#Studio[data-studio-theme="Dark"] :is(.CSPresets button.Active,.CSSidebar nav button.Active) { color:var(--cs-accent); border-color:#776695; }
+#Studio[data-studio-theme="Dark"] :is(.CSSegmented button.Active,.CSSetupProgress span.Active) { background:#6b51d8; color:#fff; }
+#Studio[data-studio-theme="Dark"] .CSButton.CSPrimary,#Studio[data-studio-theme="Dark"] button[type="submit"].CSPrimary { background:linear-gradient(110deg,#6650ce,#785cd9) !important; color:#fff !important; }
+#Studio[data-studio-theme="Dark"] .CSPrimary:hover { filter:brightness(1.1); }
+#Studio[data-studio-theme="Dark"] :is(.CSIconButton,.CSSetting > svg,.CSEyebrow,.CSTableHead,.CSChartGrid span,.CSRangeLabels,.CSSearch,.CSInlineSearch) { color:var(--cs-muted); }
+#Studio[data-studio-theme="Dark"] .CSHero h1 em { color:var(--cs-accent); }
+#Studio[data-studio-theme="Dark"] .CSBadge.Green { color:#8be1b2; background:#23443a; }
+#Studio[data-studio-theme="Dark"] .CSBadge.Orange { color:#ffd0a0; background:#4c352a; }
+#Studio[data-studio-theme="Dark"] .CSMetric.Warm .CSIcon { color:#ffc797; background:#49362d; }
+#Studio[data-studio-theme="Dark"] .CSSwitch { background:#514d64; }
+#Studio[data-studio-theme="Dark"] .CSSwitch.IsOn { background:linear-gradient(110deg,#9d89f9,#735ad5); }
+#Studio[data-studio-theme="Dark"] .CSSwitch span { background:#eae6f8; }
+#Studio[data-studio-theme="Dark"] .CSSwitch:hover { box-shadow:0 0 0 4px #a18aef20; }
+#Studio[data-studio-theme="Dark"] .CSProgress { background:#443b57; }
+#Studio[data-studio-theme="Dark"] .CSFocusRing circle { stroke:#443b57; }
+#Studio[data-studio-theme="Dark"] :is(.CSAvatar,.CSSwatches button,.CSDialog) { border-color:var(--cs-line); }
+#Studio[data-studio-theme="Dark"] .CSSetupLogo img { filter:invert(1); }
+#Studio[data-studio-theme="Dark"] .CSSetupProgress span { color:var(--cs-muted); border-color:var(--cs-line); }
+#Studio[data-studio-theme="Dark"] .CSSetupDone { background:#23443a; color:#8be1b2; }
+#Studio[data-studio-theme="Dark"] .CSToast { background:linear-gradient(135deg,#443551bf,#262031d9); color:var(--cs-ink); border-color:var(--cs-line); box-shadow:inset 0 1px 0 #ffffff0d,0 16px 45px #0004; }
+#Studio[data-studio-theme="Dark"] .CSDialog::backdrop { background:#100c20a8; }
+#Studio[data-studio-theme="Dark"] select option { background:#242132; color:var(--cs-ink); }
+#Studio[data-studio-theme="Dark"] input::placeholder { color:#ada6c1; opacity:1; }
+#Studio .CSAppIcon:is([src$="Reddit.svg"],[src$="Threads.svg"],[src$="Facebook.svg"]) { background:#f5f1ff; padding:7px; }
+#Studio .CSAppIcon[src$="Reddit.svg"] { background:#ffe4db; }
+#Studio .CSAppIcon[src$="Facebook.svg"] { background:#dce9ff; }
 #Studio[data-reduce-motion="true"] *,#Studio[data-reduce-motion="true"] *::before,#Studio[data-reduce-motion="true"] *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 @media(min-height:1000px) { #Studio .CSSideNote { margin-top:45px; } }
 @media(max-width:1250px) {
@@ -438,3 +476,17 @@ html[data-current-section="Studio"] :is(.Sidebar,.MobileTopbar,.MobileNavigation
  #Studio .CSDialogFooter { flex-wrap:wrap; }
 }
 @media(prefers-reduced-motion:reduce) { #Studio *,#Studio *::before,#Studio *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+
+/* The support desk is mounted outside Studio, but follows its active theme. */
+html[data-current-section="Studio"]:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk { color-scheme:dark; --ZipInk:#efedf9; --ZipMuted:#b9b6cf; --ZipLine:#464158; color:var(--ZipInk); background:#100c2099; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk :is(.ZipDeskPanel,.ZipTicketForm,.ZipTicketListPanel,.ZipTicketItem) { background:linear-gradient(140deg,#493959a6,#251e31cf); border-color:#c1aee329; backdrop-filter:blur(26px) saturate(115%); -webkit-backdrop-filter:blur(26px) saturate(115%); box-shadow:inset 0 1px 0 #ffffff0d,0 18px 55px #0003; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk :is(label,p,small,.ZipTicketEmpty,#ZipTicketTotal) { color:#bdb4ce; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk :is(input,select,textarea,#ZipCloseSupportDesk) { background:#211a32a6 !important; color:#efedf9 !important; border-color:#b9a2db38 !important; box-shadow:inset 0 1px 0 #ffffff08 !important; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk :is(input,textarea)::placeholder { color:#b9aecb !important; opacity:1; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk select option { background:#242132; color:#efedf9; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk .ZipTicketForm > button { background:linear-gradient(110deg,#6650ce,#785cd9) !important; color:#fff !important; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipSupportDesk button:hover { background:#4c3f62 !important; color:#fff !important; }
+html:has(#Studio[data-studio-theme="Dark"]) #ZipTicketFormStatus { color:#8be1b2; }
+#ZipSupportDesk :is(label,small,p,.ZipTicketEmpty,#ZipTicketTotal),#ZipSupportDesk :is(input,select,textarea,button) { font-size:13px; }
+#Studio :is(.CSSetting,.CSAppRow,.CSAppListRow) strong { font-size:14px; }
+#Studio :is(.CSSetting,.CSAppRow,.CSAppListRow) small { font-size:12px; }

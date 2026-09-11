@@ -15,14 +15,17 @@ const DefaultRules = {
     BlockedKeywords: [],
     BlockedAccounts: [],
   },
-  Instagram: { Enabled: true, Reels: true, ForYou: true, Explore: true, Search: false, GridContent: false, SearchGridGuard: true, SearchScrollLock: true, AdsAndSuggested: true, SuggestedPosts: true, Stories: true, StoryAds: true, Live: true, Shopping: true, SavedPosts: true, HomeFeed: true, HideFollowingPosts: true, FollowingUnlockAvailableAt: 0, DMsOnly: true, DailyLimitMinutes: 45 },
-  X: { Enabled: true, DMsOnly: false, ForYou: true, SearchProfilesOnly: true, Videos: true, DailyLimitMinutes: 30 },
-  Snapchat: { Enabled: true, Spotlight: true, Stories: true, Discover: true, Map: true, Ads: true, DMsOnly: true, DailyLimitMinutes: 30 },
-  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 30 },
-  YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 60 },
+  Instagram: { Enabled: true, Reels: true, ForYou: true, Explore: true, Search: false, GridContent: false, SearchGridGuard: true, SearchScrollLock: true, AdsAndSuggested: true, SuggestedPosts: true, Stories: true, StoryAds: true, Live: true, Shopping: true, SavedPosts: true, HomeFeed: true, HideFollowingPosts: true, FollowingUnlockAvailableAt: 0, DMsOnly: true, DailyLimitMinutes: 0 },
+  X: { Enabled: true, DMsOnly: false, ForYou: true, SearchProfilesOnly: true, Videos: true, DailyLimitMinutes: 0 },
+  Snapchat: { Enabled: true, Spotlight: true, Stories: true, Discover: true, Map: true, Ads: true, DMsOnly: true, DailyLimitMinutes: 0 },
+  TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
+  YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
+  Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
 };
 
-const ApplicationKeys = ["Instagram", "X", "Snapchat", "YouTube", "TikTok"];
+const ApplicationKeys = ["Instagram", "X", "Snapchat", "YouTube", "TikTok", "Reddit", "Threads", "Facebook"];
 const ProtectedLaunchHosts = new Set([
   "www.instagram.com",
   "instagram.com",
@@ -33,6 +36,9 @@ const ProtectedLaunchHosts = new Set([
   "youtube.com",
   "www.tiktok.com",
   "tiktok.com",
+  "reddit.com", "www.reddit.com", "old.reddit.com",
+  "threads.com", "www.threads.com", "threads.net", "www.threads.net",
+  "facebook.com", "www.facebook.com", "m.facebook.com",
 ]);
 
 function IsProtectedLaunchUrl(UrlValue) {
@@ -155,6 +161,9 @@ function GetTrackedApplication(UrlValue) {
 
   try {
     const Hostname = new URL(UrlValue).hostname.toLowerCase();
+    for (const [App, Domains] of Object.entries({Reddit:["reddit.com"],Threads:["threads.com","threads.net"],Facebook:["facebook.com"]})) {
+      if (Domains.some(Domain => Hostname === Domain || Hostname.endsWith("." + Domain))) return App;
+    }
     if (Hostname === "instagram.com" || Hostname.endsWith(".instagram.com")) {
       return "Instagram";
     }

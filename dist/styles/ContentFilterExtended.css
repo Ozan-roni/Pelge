@@ -1,3 +1,4 @@
+[data-control-social-hidden="true"] { display:none !important; }
 #ControlExtendedBlocker {
   align-items: center !important;
   background: rgba(243, 243, 239, 0.985) !important;
@@ -1576,4 +1577,106 @@ html.ControlInstagramPolished [data-control-ig-post-header="true"] :is(img, canv
 html.ControlInstagramPolished [data-control-ig-post-header="true"] :is(button, [role="button"]) {
   align-self:center !important;
   margin-block:auto !important;
+}
+/* Control glass feedback: shared visual language, isolated from host-page styles. */
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) {
+  --cg-ink:#201c35; --cg-muted:#5e5577; --cg-accent:#6951cd;
+  --cg-panel:linear-gradient(140deg,rgba(255,255,255,.94),rgba(240,233,255,.88));
+  --cg-line:rgba(255,255,255,.8); --cg-soft:rgba(119,87,204,.12);
+  background:rgba(44,32,68,.28) !important;
+  backdrop-filter:blur(20px) saturate(110%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(110%) !important;
+  padding:24px !important; overflow:auto !important;
+  animation:controlGlassFade .28s ease both !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker)::before {
+  background:radial-gradient(ellipse at 70% 20%,#aa8beb28,transparent 65%) !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteCard {
+  background:var(--cg-panel) !important; color:var(--cg-ink) !important;
+  border:1px solid var(--cg-line) !important; border-radius:28px !important;
+  backdrop-filter:blur(32px) saturate(130%) !important;
+  -webkit-backdrop-filter:blur(32px) saturate(130%) !important;
+  box-shadow:0 24px 80px #24133830,inset 0 1px 0 #ffffff30 !important;
+  width:min(480px,100%) !important; padding:36px !important;
+  animation:controlGlassEnter .38s cubic-bezier(.2,.7,.2,1) both !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteMark {
+  background:var(--cg-soft) !important; border-color:var(--cg-line) !important;
+  width:68px !important; height:68px !important; box-shadow:none !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteMark > img {
+  filter:brightness(0) !important; width:43px !important; height:43px !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteLock {
+  background:#7459d9 !important; color:#fff !important; border-color:#f2ecff !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteEyebrow {
+  color:var(--cg-accent) !important; font:600 12px/1.5 Inter,system-ui,sans-serif !important; letter-spacing:.08em !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) h1 {
+  color:var(--cg-ink) !important; font:600 clamp(23px,5vw,30px)/1.2 Inter,system-ui,sans-serif !important;
+  letter-spacing:-.035em !important; text-wrap:balance !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) :is(#ControlRouteDescription,#ControlExtendedDescription) {
+  color:var(--cg-muted) !important; font:400 15px/1.65 Inter,system-ui,sans-serif !important;
+  margin:16px auto 26px !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) :is(#ControlRouteSafeButton,#ControlExtendedSafeButton) {
+  background:linear-gradient(105deg,#6b51d2,#8061db) !important; color:#fff !important;
+  border:1px solid #ffffff20 !important; border-radius:999px !important;
+  font:600 14px/1.5 Inter,system-ui,sans-serif !important;
+  min-height:48px !important; padding:12px 22px !important; width:100% !important;
+  transition:background .2s,box-shadow .2s,transform .2s !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) :is(#ControlRouteSafeButton,#ControlExtendedSafeButton):hover {
+  background:linear-gradient(105deg,#765bdc,#8b6be6) !important; color:#fff !important;
+  box-shadow:0 6px 24px #7050b633 !important; transform:translateY(-1px) !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) button:focus-visible {
+  outline:3px solid #a593eb !important; outline-offset:5px !important;
+}
+:is(#ControlRouteBlocker,#ControlExtendedBlocker) button:active { transform:translateY(0) scale(.98) !important; }
+html #ControlUsageTimer,html.ControlInstagramPolished #ControlInstagramStoryNotice {
+  background:linear-gradient(135deg,rgba(39,32,57,.78),rgba(52,41,73,.72)) !important;
+  border:1px solid #a493c54d !important; color:#f0ecfa !important;
+  box-shadow:0 12px 40px #1b102e30,inset 0 1px 0 #ffffff10 !important;
+  backdrop-filter:blur(24px) !important; -webkit-backdrop-filter:blur(24px) !important;
+  border-radius:18px !important; font-family:Inter,system-ui,sans-serif !important;
+}
+html #ControlUsageTimer span { font-size:12px !important; opacity:.8 !important; }
+html #ControlUsageTimer button:hover { background:#b29adc25 !important; }
+html #ControlUsageTimer.IsLight,html.ControlInstagramPolished.ControlInstagramLight #ControlInstagramStoryNotice {
+  background:linear-gradient(135deg,#fffffff0,#eee6fff0) !important;
+  color:#302744 !important; border-color:#ffffffc9 !important;
+}
+@media(prefers-color-scheme:dark) {
+  :is(#ControlRouteBlocker,#ControlExtendedBlocker) {
+    --cg-ink:#f0ecfb; --cg-muted:#c3b9d5; --cg-accent:#bca9f5;
+    --cg-panel:linear-gradient(140deg,rgba(53,40,73,.72),rgba(28,24,41,.82));
+    --cg-line:rgba(170,147,204,.26); --cg-soft:rgba(163,131,223,.14);
+    background:rgba(13,9,23,.55) !important;
+  }
+  :is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteMark > img { filter:none !important; }
+  :is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteLock { border-color:#30263f !important; }
+}
+html.ControlInstagramPolished:not(.ControlInstagramLight) :is(#ControlRouteBlocker,#ControlExtendedBlocker) {
+  --cg-ink:#f0ecfb; --cg-muted:#c3b9d5; --cg-accent:#bca9f5;
+  --cg-panel:linear-gradient(140deg,rgba(53,40,73,.72),rgba(28,24,41,.82));
+  --cg-line:rgba(170,147,204,.26); --cg-soft:rgba(163,131,223,.14);
+}
+html.ControlInstagramPolished:not(.ControlInstagramLight) :is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteMark > img { filter:none !important; }
+html.ControlInstagramPolished.ControlInstagramLight :is(#ControlRouteBlocker,#ControlExtendedBlocker) {
+  --cg-ink:#201c35; --cg-muted:#5e5577; --cg-accent:#6951cd;
+  --cg-panel:linear-gradient(140deg,rgba(255,255,255,.94),rgba(240,233,255,.88));
+  --cg-line:rgba(255,255,255,.8); --cg-soft:rgba(119,87,204,.12);
+  background:rgba(44,32,68,.28) !important;
+}
+html.ControlInstagramPolished.ControlInstagramLight :is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteMark > img { filter:brightness(0) !important; }
+@keyframes controlGlassFade { from { opacity:0; } to { opacity:1; } }
+@keyframes controlGlassEnter { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:none; } }
+@media(max-width:500px) { :is(#ControlRouteBlocker,#ControlExtendedBlocker) .ControlRouteCard { padding:28px 22px !important; } }
+@media(prefers-reduced-motion:reduce) {
+  :is(#ControlRouteBlocker,#ControlExtendedBlocker,#ControlUsageTimer,#ControlInstagramStoryNotice),
+  :is(#ControlRouteBlocker,#ControlExtendedBlocker) * { animation:none !important; transition:none !important; }
 }
