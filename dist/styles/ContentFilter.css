@@ -419,3 +419,4 @@ html.ControlInstagramPolished.ControlInstagramLight :is(#ControlRouteBlocker,#Co
   :is(#ControlRouteBlocker,#ControlExtendedBlocker,#ControlUsageTimer,#ControlInstagramStoryNotice),
   :is(#ControlRouteBlocker,#ControlExtendedBlocker) * { animation:none !important; transition:none !important; }
 }
+[data-control-filter-hidden="true"] { display:none !important; }

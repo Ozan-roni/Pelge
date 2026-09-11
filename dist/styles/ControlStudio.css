@@ -490,3 +490,35 @@ html:has(#Studio[data-studio-theme="Dark"]) #ZipTicketFormStatus { color:#8be1b2
 #ZipSupportDesk :is(label,small,p,.ZipTicketEmpty,#ZipTicketTotal),#ZipSupportDesk :is(input,select,textarea,button) { font-size:13px; }
 #Studio :is(.CSSetting,.CSAppRow,.CSAppListRow) strong { font-size:14px; }
 #Studio :is(.CSSetting,.CSAppRow,.CSAppListRow) small { font-size:12px; }
+/* Adjustable clock faces: same glass in both workspace themes. */
+#Studio .CSSyncStatus { display:flex; align-items:center; gap:9px; padding:10px 14px; margin-bottom:20px; border:1px solid var(--cs-line); border-radius:14px; background:var(--cs-card); backdrop-filter:blur(20px); }
+#Studio .CSSyncStatus > span { width:7px; height:7px; border-radius:50%; background:var(--cs-accent); flex-shrink:0; }
+#Studio .CSSyncStatus p { font-size:13px; }
+#Studio .CSSyncStatus[data-state="error"] > span { background:#e79c7f; }
+#Studio .CSSyncStatus[data-state="connected"] > span { background:#5bb891; }
+#Studio .CSLimitClock { width:min(230px,100%); aspect-ratio:1; position:relative; margin:26px auto 16px; touch-action:none; cursor:grab; user-select:none; border-radius:50%; }
+#Studio .CSLimitClock:active { cursor:grabbing; }
+#Studio .CSLimitClock:focus-visible { outline:3px solid var(--cs-accent); outline-offset:5px; }
+#Studio .CSLimitClock > svg { width:100%; height:100%; overflow:visible; }
+#Studio .CSClockTrack { fill:none; stroke:var(--cs-line); stroke-width:3; }
+#Studio .CSClockArc { fill:none; stroke:var(--cs-accent); stroke-width:4; stroke-linecap:round; }
+#Studio .CSClockTicks { stroke:var(--cs-muted); stroke-width:1; opacity:.38; }
+#Studio .CSClockTicks .Major { stroke-width:1.7; opacity:1; }
+#Studio .CSClockHand { stroke:var(--cs-accent); stroke-width:3; stroke-linecap:round; }
+#Studio .CSClockHand circle { fill:var(--cs-accent); stroke:var(--cs-base); stroke-width:2; }
+#Studio .CSClockValue { position:absolute; inset:32%; display:flex; flex-direction:column; align-items:center; justify-content:center; white-space:nowrap; pointer-events:none; }
+#Studio .CSClockValue small { font-size:10px; letter-spacing:.09em; }
+#Studio .CSClockValue strong { font-size:36px; line-height:1.4; letter-spacing:-.045em; color:var(--cs-ink); font-variant-numeric:tabular-nums; }
+#Studio .CSClockValue > span { font-size:13px; color:var(--cs-muted); }
+#Studio .CSLimitClock.Unlimited { cursor:default; }
+#Studio .CSLimitClock.Unlimited .CSClockHand { display:none; }
+#Studio .CSLimitClock.Unlimited .CSClockValue strong { font-size:58px; font-weight:400; color:var(--cs-accent); line-height:1.1; }
+#Studio .CSClockHint { font-size:12px; text-align:center; min-height:38px; }
+#Studio .CSClockAdjust { display:flex; align-items:center; justify-content:center; gap:18px; margin:12px 0; }
+#Studio .CSClockAdjust button { border:1px solid var(--cs-line); border-radius:50%; width:36px; height:36px; font-size:22px; background:var(--cs-soft); color:var(--cs-accent); }
+#Studio .CSClockAdjust button:hover { background:var(--cs-hover,var(--cs-soft)); }
+#Studio .CSClockAdjust > span { font-size:12px; color:var(--cs-muted); }
+#Studio .CSLimitCard :is(.CSRemoveLimit,.CSAddLimit) { width:100%; margin:16px 0 0; font-size:14px; min-height:44px; }
+#Studio .CSLimitCard .CSRemoveLimit { background:transparent; border:1px solid var(--cs-line); color:var(--cs-muted); }
+#Studio .CSLimitCard .CSRemoveLimit:hover { background:var(--cs-soft); color:var(--cs-ink); }
+#Studio .CSLimitCard footer { margin-top:20px; font-size:12px; }

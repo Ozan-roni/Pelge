@@ -18,6 +18,7 @@ const ControlExtendedDefaultRules = {
 let ControlExtendedRules = structuredClone(ControlExtendedDefaultRules);
 let ControlExtendedLimitReached = false;
 let ControlExtendedFilterTimer = null;
+let ControlExtendedRulesLoaded = false;
 
 function ControlExtendedGetApplication() {
   const Hostname = location.hostname.toLowerCase();
@@ -72,8 +73,6 @@ function ControlExtendedMergeRules(StoredRules) {
     : typeof StoredRules.Instagram?.HideFollowingPosts === "boolean"
       ? StoredRules.Instagram.HideFollowingPosts
       : StoredRules.Instagram?.FollowingOnly !== true;
-  ApplyControlExtendedInstagramDirectMessagesOnlyRules(Rules);
-  ApplyControlExtendedYouTubeShortsOnlyRules(Rules);
   Rules.X.Enabled = typeof StoredRules.X?.Enabled === "boolean" ? StoredRules.X.Enabled : ProtectedApplications.includes("X");
   Rules.Snapchat.Enabled = typeof StoredRules.Snapchat?.Enabled === "boolean" ? StoredRules.Snapchat.Enabled : ProtectedApplications.includes("Snapchat");
   Rules.YouTube.Enabled = typeof StoredRules.YouTube?.Enabled === "boolean" ? StoredRules.YouTube.Enabled : ProtectedApplications.includes("YouTube");
@@ -160,14 +159,25 @@ function ControlExtendedShowBlocker(Title, Description, SafeUrl = "__close__") {
   document.documentElement.classList.add("ControlExtendedRouteIsBlocked");
 }
 
-function ControlExtendedRemoveElement(Element) {
-  if (!(Element instanceof Element)) {
-    return;
+function ControlExtendedRemoveElement(Node) {
+  if (!(Node instanceof Element)) return;
+  // Keep the native node and accessibility attributes intact for immediate restoration.
+  Node.setAttribute("data-control-extended-hidden", "true");
+}
+
+function ControlExtendedRestorePage() {
+  document.querySelectorAll('[data-control-extended-hidden], [data-control-social-hidden]').forEach(Node => {
+    Node.removeAttribute('data-control-extended-hidden');
+    Node.removeAttribute('data-control-social-hidden');
+  });
+  for (const ClassName of [...document.documentElement.classList]) {
+    if (/^Control(?:X|YouTube|TikTok|GlobalGrayscale|SensitiveProtection)/.test(ClassName)) {
+      document.documentElement.classList.remove(ClassName);
+    }
   }
-  Element.setAttribute("data-control-hidden", "true");
-  Element.setAttribute("aria-hidden", "true");
-  Element.setAttribute("inert", "");
-  Element.remove();
+  ControlExtendedRemoveBlocker();
+  document.getElementById("ControlUsageTimer")?.remove();
+  window.clearInterval(ControlExtendedSessionTimer);
 }
 
 function ControlExtendedFilterInstagram(Rules) {
@@ -229,8 +239,13 @@ function ControlExtendedFilterInstagram(Rules) {
   return false;
 }
 function ControlExtendedFilterX(Rules) {
+  const SearchParameters = new URLSearchParams(location.search);
   const Path = location.pathname.toLowerCase();
   const IsAuthentication = Path.startsWith("/i/flow/") || Path.startsWith("/login") || Path.startsWith("/account/");
+  if (Rules.DMsOnly && !IsAuthentication && !Path.startsWith('/messages') && !Path.startsWith('/i/chat') && !Path.startsWith('/settings')) {
+    ControlExtendedShowBlocker('X is in messages-only mode', 'Your conversations remain available.', '/messages');
+    return true;
+  }
   if (Rules.ForYou && (Path === "/" || Path === "/home")) {
     ControlExtendedShowBlocker("The For You timeline is locked", "Search for a person, open a profile intentionally or continue to Messages.", "/messages");
     return true;
@@ -241,7 +256,8 @@ function ControlExtendedFilterX(Rules) {
     location.replace(ProfileSearch.toString());
     return true;
   }
-  document.documentElement.classList.toggle("ControlXIntentional", true);
+  document.documentElement.classList.toggle("ControlXIntentional", Rules.ForYou === true);
+  document.documentElement.classList.toggle("ControlXDMOnly", Rules.DMsOnly === true);
   document.documentElement.classList.toggle("ControlXSearchProfilesOnly", Rules.SearchProfilesOnly === true && (Path.startsWith("/search") || Path.startsWith("/explore")));
   document.documentElement.classList.toggle("ControlXHideVideos", Rules.Videos === true);
   if (!IsAuthentication && Rules.Videos) {
@@ -302,7 +318,9 @@ function ControlExtendedFilterTikTok(Rules) {
   document.documentElement.classList.toggle("ControlTikTokProtected", Rules.ForYou || Rules.FollowingFeed || Rules.Live);
   for (const Link of document.querySelectorAll('a[href="/"], a[href^="/foryou"], a[href^="/following"], a[href^="/live"]')) {
     const Label = `${Link.textContent ?? ""} ${Link.getAttribute("aria-label") ?? ""}`;
-    if (/for you|following|live/i.test(Label) || Link.getAttribute("href") !== "/") ControlExtendedRemoveElement(Link.closest("li, [role='listitem']") ?? Link);
+    const Href = Link.getAttribute("href") || "";
+    const Blocked = (Rules.ForYou && (Href === "/" || Href.startsWith("/foryou"))) || (Rules.FollowingFeed && Href.startsWith("/following")) || (Rules.Live && Href.startsWith("/live"));
+    if (Blocked) ControlExtendedRemoveElement(Link.closest("li, [role='listitem']") ?? Link);
   }
   return false;
 }
@@ -352,25 +370,22 @@ function ControlExtendedFilterSocialApp(Application, Rules) {
 }
 
 function ControlExtendedApplyFilters() {
+  if (!ControlExtendedRulesLoaded) return;
   const Application = ControlExtendedGetApplication();
   if (!Application) {
     return;
   }
 
   const Rules = ControlExtendedRules[Application];
-  /* SensitiveProtection.js owns high-confidence account and content detection. */
-  document.documentElement.classList.toggle("ControlGlobalGrayscale", ControlExtendedRules.GrayscaleMode === true);
-  /* Core distraction locks remain enforced during Post Mode. */
-  if (ControlExtendedRules.ShieldAll) {
-    ControlExtendedShowBlocker("Social shield is active", "Control is protecting this focus period across every configured network.");
+  // Per-application opt-out takes precedence over every global option.
+  if (!Rules?.Enabled) {
+    ControlExtendedLimitReached = false;
+    ControlExtendedRestorePage();
     return;
   }
-  if (!Rules?.Enabled) {
-    document.querySelectorAll('[data-control-social-hidden]').forEach(Node => Node.removeAttribute('data-control-social-hidden'));
-    ControlExtendedRemoveBlocker();
-    if (Application === "Instagram") {
-      document.documentElement.classList.remove("ControlInstagramHideFeed", "ControlInstagramHideStories", "ControlInstagramHideReels", "ControlInstagramFollowingOnly");
-    }
+  document.documentElement.classList.toggle("ControlGlobalGrayscale", ControlExtendedRules.GrayscaleMode === true);
+  if (ControlExtendedRules.ShieldAll) {
+    ControlExtendedShowBlocker("Social shield is active", "Control is protecting this focus period across every configured network.");
     return;
   }
 
@@ -412,7 +427,7 @@ async function ControlExtendedRefreshLimit() {
     return;
   }
   const LimitMinutes = Math.max(0, Number(ControlExtendedRules[Application]?.DailyLimitMinutes) || 0);
-  if (LimitMinutes === 0) {
+  if (!ControlExtendedRules[Application]?.Enabled || LimitMinutes === 0) {
     ControlExtendedLimitReached = false;
     ControlExtendedScheduleFilters();
     return;
@@ -420,7 +435,7 @@ async function ControlExtendedRefreshLimit() {
 
   const StoredData = await chrome.storage.local.get("UsageState");
   const UsedToday = Number(StoredData.UsageState?.Days?.[ControlExtendedGetLocalDateKey()]?.[Application]) || 0;
-  ControlExtendedLimitReached = UsedToday >= LimitMinutes * 60 * 1000;
+  ControlExtendedLimitReached = ControlExtendedRules[Application]?.Enabled === true && Number(ControlExtendedRules[Application]?.DailyLimitMinutes) === LimitMinutes && UsedToday >= LimitMinutes * 60 * 1000;
   ControlExtendedScheduleFilters();
 }
 
@@ -460,13 +475,14 @@ function ControlExtendedRenderUsageTimer() {
 
 async function ControlExtendedInitializeUsageTimer(Application) {
   const ExistingTimer = document.getElementById("ControlUsageTimer");
-  if (!ControlExtendedRules.ShowUsageTimer || sessionStorage.getItem("ControlUsageTimerDismissed") === "true") {
+  if (!ControlExtendedRules[Application]?.Enabled || !ControlExtendedRules.ShowUsageTimer || sessionStorage.getItem("ControlUsageTimerDismissed") === "true") {
     ExistingTimer?.remove();
     window.clearInterval(ControlExtendedSessionTimer);
     return;
   }
   if (ExistingTimer) return;
   const StoredSession = await chrome.storage.local.get("ControlLaunchedSession");
+  if (!ControlExtendedRules[Application]?.Enabled || !ControlExtendedRules.ShowUsageTimer || document.getElementById("ControlUsageTimer")) return;
   const Session = StoredSession.ControlLaunchedSession;
   if (Session?.ApplicationKey === Application && Date.now() - Number(Session.StartedAt) < 12 * 60 * 60 * 1000) {
     ControlExtendedSessionStartedAt = Number(Session.StartedAt);
@@ -489,6 +505,7 @@ async function ControlExtendedInitializeUsageTimer(Application) {
 async function ControlExtendedLoadRules() {
   const StoredData = await chrome.storage.sync.get("Rules");
   ControlExtendedRules = ControlExtendedMergeRules(StoredData.Rules);
+  ControlExtendedRulesLoaded = true;
   ControlExtendedScheduleFilters();
   await ControlExtendedRefreshLimit();
   const Application = ControlExtendedGetApplication();
@@ -503,7 +520,7 @@ document.addEventListener("click", (Event) => {
 
   const Application = ControlExtendedGetApplication();
   const Rules = ControlExtendedRules[Application];
-  if (!Rules?.Enabled) {
+  if (!ControlExtendedRulesLoaded || !Rules?.Enabled) {
     return;
   }
 
@@ -535,7 +552,10 @@ if (document.documentElement) {
 }
 chrome.storage.onChanged.addListener((Changes, AreaName) => {
   if (AreaName === "sync" && Changes.Rules?.newValue) {
+    ControlExtendedRestorePage();
     ControlExtendedRules = ControlExtendedMergeRules(Changes.Rules.newValue);
+    ControlExtendedRulesLoaded = true;
+    ControlExtendedApplyFilters();
     void ControlExtendedRefreshLimit();
     const Application = ControlExtendedGetApplication();
     if (Application) void ControlExtendedInitializeUsageTimer(Application);

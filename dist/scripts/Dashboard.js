@@ -197,7 +197,7 @@ ApplicationDefinitions.push(
   ] }
 );
 
-const RequiredExtensionVersion = "0.31.8";
+const RequiredExtensionVersion = "0.33.0";
 let ActiveSession = null;
 let SessionTimer = null;
 let ToastTimer = null;
@@ -206,6 +206,18 @@ const ApplicationKeys = ApplicationDefinitions.map((Application) => Application.
 let ActiveRules = structuredClone(DefaultRules);
 let SaveTimer = null;
 let BridgeRequestIndex = 0;
+let LastQueuedRules = null;
+let LastAcknowledgedRules = null;
+let SettingsWriteTask = Promise.resolve();
+let SettingsWritesPending = 0;
+let ControlSyncState = {state:'checking',message:'Connecting to the extension…'};
+function SetControlSyncState(state,message) {
+  ControlSyncState = {state,message};
+  window.dispatchEvent(new CustomEvent('control:sync-state',{detail:ControlSyncState}));
+}
+function PublishRulesUpdate() {
+  window.dispatchEvent(new CustomEvent('control:rules-updated'));
+}
 let ActiveApplicationKey = "Instagram";
 let LatestTodayUsage = {};
 let PendingSupportRulePath = null;
@@ -236,17 +248,17 @@ function SendBridgeRequest(Type, Payload = {}) {
     const TimeoutId = window.setTimeout(() => {
       window.removeEventListener("message", HandleResponse);
       Reject(new Error("Extension bridge unavailable"));
-    }, 1500);
+    }, 5000);
 
     function HandleResponse(Event) {
       const Response = Event.data;
-      if (Event.origin !== location.origin || Response?.Sender !== "ControlExtension" || Response.RequestId !== RequestId) {
+      if (Event.source !== window || Event.origin !== location.origin || Response?.Sender !== "ControlExtension" || Response.RequestId !== RequestId) {
         return;
       }
 
       window.clearTimeout(TimeoutId);
       window.removeEventListener("message", HandleResponse);
-      Resolve(Response);
+      if(Response.Error) Reject(new Error(Response.Error)); else Resolve(Response);
     }
 
     window.addEventListener("message", HandleResponse);
@@ -255,41 +267,80 @@ function SendBridgeRequest(Type, Payload = {}) {
 }
 
 async function ReadStoredRules() {
-  if (HasExtensionStorage) {
-    try {
-      const StoredData = await WithStorageTimeout(chrome.storage.sync.get("Rules"));
-      return StoredData.Rules ?? null;
-    } catch {
-      document.body.classList.add("PreviewMode");
-    }
+  try {
+    let rules;
+    if(HasExtensionStorage) rules=(await WithStorageTimeout(chrome.storage.sync.get('Rules'),3000)).Rules;
+    else if(HasExtensionBridge()) rules=(await SendBridgeRequest('ReadRules')).Rules;
+    else { rules=JSON.parse(localStorage.getItem('ControlRules')||'null'); }
+    LastAcknowledgedRules=LastQueuedRules=MergeRules(rules);
+    SetControlSyncState(HasControlExtension()?'connected':'local',HasControlExtension()?'Extension connected · settings apply in this browser':'Local preview · open in Chrome or Edge with Control installed');
+    return rules;
+  } catch {
+    SetControlSyncState('error','Extension unavailable · reload the page before changing settings');
+    const local=JSON.parse(localStorage.getItem('ControlRules')||'null');
+    LastAcknowledgedRules=LastQueuedRules=MergeRules(local);
+    return local;
   }
-
-  if (HasExtensionBridge()) {
-    const Response = await SendBridgeRequest("ReadRules");
-    return Response.Rules ?? null;
-  }
-
-  const StoredValue = window.localStorage.getItem("ControlRules");
-  return StoredValue ? JSON.parse(StoredValue) : null;
 }
 
-async function WriteStoredRules(Rules) {
-  if (HasExtensionStorage) {
-    try {
-      await WithStorageTimeout(chrome.storage.sync.set({ Rules }));
-      return;
-    } catch {
-      document.body.classList.add("PreviewMode");
+function WriteStoredRules(Rules) {
+  const Previous=LastQueuedRules||MergeRules(null);
+  const RawPatch=ControlRuleProtocol.diff(Previous,Rules);
+  const Patch=ControlRuleProtocol.validate(RawPatch,DefaultRules);
+  const Snapshot=ApplyCoreProtection(ControlRuleProtocol.apply(Rules,Patch));
+  // Include mode changes in this same application-scoped write.
+  const FinalPatch=ControlRuleProtocol.diff(Previous,Snapshot);
+  LastQueuedRules=structuredClone(Snapshot);
+  ActiveRules=structuredClone(Snapshot);
+  SettingsWritesPending++;
+  SetControlSyncState('saving','Saving your changes…');
+  const Task=SettingsWriteTask.catch(()=>{}).then(async()=>{
+    let Result;
+    if(HasExtensionStorage) {
+      Result=await WithStorageTimeout(chrome.runtime.sendMessage({Type:'UpdateRules',Patch:FinalPatch}),5000);
+      if(!Result?.Success)throw new Error('Update the Control extension and reload this page');
+    } else if(HasExtensionBridge()) {
+      if(document.documentElement.getAttribute('data-control-extension-protocol')!=='2')throw new Error('Update the Control extension and reload this page');
+      Result=await SendBridgeRequest('PatchRules',{Patch:FinalPatch});
+    } else {
+      const Latest=MergeRules(JSON.parse(localStorage.getItem('ControlRules')||'null'));
+      Result={Rules:ApplyCoreProtection(ControlRuleProtocol.apply(Latest,FinalPatch))};
+      localStorage.setItem('ControlRules',JSON.stringify(Result.Rules));
     }
-  }
-
-  if (HasExtensionBridge()) {
-    await SendBridgeRequest("WriteRules", { Rules });
-    return;
-  }
-
-  window.localStorage.setItem("ControlRules", JSON.stringify(Rules));
+    LastAcknowledgedRules=MergeRules(Result.Rules);
+    if(SettingsWritesPending===1) {
+      ActiveRules=structuredClone(LastAcknowledgedRules);
+      LastQueuedRules=structuredClone(LastAcknowledgedRules);
+    }
+    SetControlSyncState(HasControlExtension()?'connected':'local',HasControlExtension()?'Applied to your extension · open apps update automatically':'Saved locally · extension not connected in this browser');
+    return {connected:HasControlExtension()};
+  }).catch(error=>{
+    if(SettingsWritesPending===1) {
+      ActiveRules=structuredClone(LastAcknowledgedRules||Previous);
+      LastQueuedRules=structuredClone(ActiveRules);
+    }
+    SetControlSyncState('error',error.message||'Not applied · try again');
+    throw error;
+  }).finally(()=>{
+    SettingsWritesPending--;
+    if(!SettingsWritesPending)PublishRulesUpdate();
+  });
+  SettingsWriteTask=Task;
+  return Task;
 }
+
+function ReceiveRulesUpdate(Rules) {
+  if(SettingsWritesPending || !LastAcknowledgedRules) return;
+  ActiveRules=MergeRules(Rules);
+  LastQueuedRules=LastAcknowledgedRules=structuredClone(ActiveRules);
+  SetControlSyncState(HasControlExtension()?'connected':'local',HasControlExtension()?'Extension settings up to date':'Local preferences up to date');
+  PublishRulesUpdate();
+}
+window.addEventListener('message',event=>{
+  if(event.source===window && event.origin===location.origin && event.data?.Sender==='ControlExtension' && event.data.Type==='RulesChanged' && HasExtensionBridge()) ReceiveRulesUpdate(event.data.Rules);
+});
+if(HasExtensionStorage)chrome.storage.onChanged.addListener((changes,area)=>{if(area==='sync'&&changes.Rules?.newValue)ReceiveRulesUpdate(changes.Rules.newValue);});
+window.addEventListener('storage',event=>{if(!HasControlExtension()&&event.key==='ControlRules')try{ReceiveRulesUpdate(JSON.parse(event.newValue));}catch{}});
 
 async function ReadUsageStats() {
   if (globalThis.chrome?.runtime?.sendMessage && HasExtensionStorage) {
@@ -368,8 +419,6 @@ function MergeRules(StoredRules) {
   Rules.Instagram.FollowingUnlockAvailableAt = Rules.Instagram.HideFollowingPosts
     ? Number(StoredInstagram.FollowingUnlockAvailableAt) || 0
     : 0;
-  ApplyInstagramDirectMessagesOnlyRules(Rules);
-  ApplyYouTubeShortsOnlyRules(Rules);
   Rules.SchemaVersion = 14;
   return ApplyCoreProtection(Rules);
 }
@@ -885,7 +934,7 @@ function ApplyInstagramModeExclusivity(RulePath, IsChecked) {
   }
 
   if (RulePath === "Instagram.DMsOnly") {
-    ApplyInstagramDirectMessagesOnlyRules(ActiveRules);
+    ActiveRules.Instagram.DMsOnly = true;
     for (const Key of Object.keys(ActiveRules.Instagram)) {
       SynchronizeDuplicateSwitches(`Instagram.${Key}`, ActiveRules.Instagram[Key]);
     }
@@ -970,8 +1019,10 @@ function QueueSave() {
 
 async function SaveRules() {
   ApplyCoreProtection(ActiveRules);
-  await WriteStoredRules(ActiveRules);
-  document.getElementById("SavedState").textContent = "All changes saved";
+  try {
+    await WriteStoredRules(ActiveRules);
+    document.getElementById("SavedState").textContent = HasControlExtension() ? "Applied to extension" : "Saved locally";
+  } catch { document.getElementById("SavedState").textContent = "Not applied · try again"; }
   UpdateRuleStatistics();
 }
 

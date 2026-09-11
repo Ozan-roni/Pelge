@@ -1,6 +1,6 @@
 CONTROL - BROWSER EXTENSION INSTALLATION
 
-VERSION 0.32.1
+VERSION 0.33.0
 
 1. Open chrome://extensions in Chrome or edge://extensions in Edge.
 2. Enable Developer mode.
@@ -13,6 +13,8 @@ After every update, click Reload on the Control extension and refresh any protec
 
 Daily time limits are unlimited by default. Previously saved limits are preserved.
 Reddit, Threads and Facebook are available in Blocked Apps and require opt-in.
-The hosted website is a local-settings preview; use the extension's own dashboard to apply filters in your browser.
+The hosted Control website connects to this extension in the same Chrome/Edge browser. Check for "Extension connected". "Saved locally" means it is only a local preview, not synchronized with the extension.
+Disabling an application restores its native interface and suspends its filters, timer and daily-limit enforcement. Your choices remain saved for reactivation.
+After updating from an older version, refresh existing social tabs once to restore content removed by older scripts. Do not uninstall the extension if you want to keep its local data.
 
 Sensitive protection is disabled by default. Enable it in Control > Settings, then edit your private blacklist if needed. The bundled local snapshot contains 76,743 maintained adult domains. Detection and preferences stay on this device.

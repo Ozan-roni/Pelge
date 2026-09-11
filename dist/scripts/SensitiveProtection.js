@@ -97,11 +97,21 @@
     return false;
   }
 
-  function HideUnit(Element) {
-    if (!(Element instanceof Element) || Element.hasAttribute("data-control-sensitive-hidden")) return;
-    Element.setAttribute("data-control-sensitive-hidden", "true");
-    Element.setAttribute("aria-hidden", "true");
-    Element.setAttribute("inert", "");
+  function ProtectionEnabled() {
+    const Domains = {X:["x.com","twitter.com"],Instagram:["instagram.com"],Snapchat:["snapchat.com"],YouTube:["youtube.com","youtu.be"],TikTok:["tiktok.com"],Reddit:["reddit.com"],Threads:["threads.com","threads.net"],Facebook:["facebook.com"]};
+    const Application = Object.keys(Domains).find(Key => Domains[Key].some(Domain => location.hostname === Domain || location.hostname.endsWith("." + Domain)));
+    const Enabled = Application ? (Rules[Application]?.Enabled ?? (Array.isArray(Rules.ProtectedApplications) ? Rules.ProtectedApplications.includes(Application) : !["Reddit","Threads","Facebook"].includes(Application))) : true;
+    return Rules.SensitiveContentProtection === true && Enabled;
+  }
+
+  function RestoreSensitiveContent() {
+    document.querySelectorAll('[data-control-sensitive-hidden]').forEach(Node => Node.removeAttribute('data-control-sensitive-hidden'));
+    RemoveBlockedProfile();
+  }
+
+  function HideUnit(Node) {
+    if (!ProtectionEnabled() || !(Node instanceof Element)) return;
+    Node.setAttribute("data-control-sensitive-hidden", "true");
   }
 
   function GetClosestResultUnit(Element) {
@@ -126,7 +136,7 @@
   }
 
   async function ScanBundledLinkHosts() {
-    if (BundledScanRunning || !Rules.SensitiveContentProtection) return;
+    if (BundledScanRunning || !ProtectionEnabled()) return;
     const LinksByHost = new Map();
     for (const Link of document.querySelectorAll("a[href]")) {
       try {
@@ -179,8 +189,8 @@
 
   function Scan() {
     window.clearTimeout(ScanTimer);
-    if (!Rules.SensitiveContentProtection || !document.documentElement || /^(?:127\.0\.0\.1|localhost)$/.test(location.hostname)) {
-      RemoveBlockedProfile();
+    if (!ProtectionEnabled() || !document.documentElement || /^(?:127\.0\.0\.1|localhost)$/.test(location.hostname)) {
+      RestoreSensitiveContent();
       return;
     }
     const Config = GetConfig();
@@ -217,7 +227,7 @@
   }
 
   document.addEventListener("click", (Event) => {
-    if (!Rules.SensitiveContentProtection) return;
+    if (!ProtectionEnabled()) return;
     const Link = Event.target instanceof Element ? Event.target.closest("a[href]") : null;
     if (!(Link instanceof HTMLAnchorElement)) return;
     const Config = GetConfig();
@@ -247,6 +257,7 @@
   }
   chrome.storage.onChanged.addListener((Changes, AreaName) => {
     if (AreaName === "sync" && Changes.Rules?.newValue) {
+      RestoreSensitiveContent();
       Rules = { ...Rules, ...Changes.Rules.newValue };
       BundledHostVerdicts.clear();
       ScheduleScan();

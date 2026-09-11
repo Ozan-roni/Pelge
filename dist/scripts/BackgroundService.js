@@ -1,3 +1,4 @@
+import './RuleProtocol.js';
 const DefaultRules = {
   SchemaVersion: 14,
   ProtectedApplications: ["Instagram", "X", "Snapchat", "YouTube", "TikTok"],
@@ -94,8 +95,6 @@ function MergeRules(StoredRules) {
   Rules.Instagram.FollowingUnlockAvailableAt = Rules.Instagram.HideFollowingPosts
     ? Number(StoredRules.Instagram?.FollowingUnlockAvailableAt) || 0
     : 0;
-  ApplyInstagramDirectMessagesOnlyRules(Rules);
-  ApplyYouTubeShortsOnlyRules(Rules);
   Rules.SchemaVersion = 14;
   return Rules;
 }
@@ -320,7 +319,10 @@ async function UpdateSensitiveNetworkRules(RulesValue = null) {
   const Domains = [...new Set([
     ...SensitiveBlockedDomains,
     ...(Rules.SensitiveProtectionConfig.BlockedDomains ?? []).map(NormalizeSensitiveDomain).filter(Boolean),
-  ])].slice(0, 900);
+  ])].filter(Domain => {
+    const Application = GetTrackedApplication(`https://${Domain}/`);
+    return !Application || Rules[Application]?.Enabled === true;
+  }).slice(0, 900);
   const AddRules = Rules.SensitiveContentProtection && Rules.SensitiveProtectionConfig.BlockAdultSites !== false
     ? Domains.map((Domain, Index) => ({
         id: 6000 + Index,
@@ -339,6 +341,8 @@ async function ApplySensitiveNavigationProtection(TabId, Url) {
   if (!Rules.SensitiveContentProtection || Rules.SensitiveProtectionConfig.BlockAdultSites === false) return;
   try {
     const Target = new URL(Url);
+    const Application = GetTrackedApplication(Url);
+    if (Application && !Rules[Application]?.Enabled) return;
     if (!await IsSensitiveHostnameComplete(Target.hostname, Rules.SensitiveProtectionConfig.BlockedDomains)) return;
     await chrome.tabs.update(TabId, { url: chrome.runtime.getURL(`Blocked.html?host=${encodeURIComponent(Target.hostname)}`) });
   } catch { return; }
@@ -372,7 +376,27 @@ chrome.tabs.onUpdated.addListener((TabId, ChangeInfo) => {
 chrome.windows.onFocusChanged.addListener(() => void QueueUsageRefresh());
 chrome.idle.onStateChanged.addListener(() => void QueueUsageRefresh());
 
+let RuleWriteTask = Promise.resolve();
+function UpdateRulesPatch(Patch) {
+  const CleanPatch = ControlRuleProtocol.validate(Patch, DefaultRules);
+  const Task = RuleWriteTask.catch(() => {}).then(async () => {
+    const Stored = (await chrome.storage.sync.get('Rules')).Rules;
+    const Rules = MergeRules(ControlRuleProtocol.apply(MergeRules(Stored), CleanPatch));
+    await chrome.storage.sync.set({Rules});
+    return Rules;
+  });
+  RuleWriteTask = Task;
+  return Task;
+}
+
 chrome.runtime.onMessage.addListener((Message, Sender, SendResponse) => {
+  if(Message?.Type === 'UpdateRules') {
+    if(Sender.id !== chrome.runtime.id) { SendResponse({Success:false}); return false; }
+    try {
+      void UpdateRulesPatch(Message.Patch).then(Rules => SendResponse({Success:true,Rules})).catch(() => SendResponse({Success:false,Error:'Could not save settings'}));
+    } catch { SendResponse({Success:false,Error:'Invalid settings'}); }
+    return true;
+  }
   if (Message?.Type === "OpenDashboard") {
     chrome.runtime.openOptionsPage();
     SendResponse({ Success: true });

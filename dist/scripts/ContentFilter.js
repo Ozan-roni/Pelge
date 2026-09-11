@@ -29,8 +29,12 @@ let ActiveRules = structuredClone(DefaultRules);
 let CurrentUrl = location.href;
 let FilterScheduled = false;
 let InstagramRuleReloadTimer = null;
-const ForceInstagramDirectMessagesOnly = true;
+const ForceInstagramDirectMessagesOnly = false;
 let LastInstagramShareContext = null;
+const ControlOriginalStyles = new Map();
+const ControlOriginalLabels = new Map();
+let ControlCoreRulesLoaded = false;
+let ControlCoreRestored = true;
 
 const InstagramBlockedText = {
   SuggestedPosts: [
@@ -96,14 +100,11 @@ function RemoveElement(Element) {
     return;
   }
 
-  Element.dataset.ControlHidden = "true";
-  Element.setAttribute("aria-hidden", "true");
-  Element.setAttribute("inert", "");
-  Element.remove();
+  Element.setAttribute("data-control-filter-hidden", "true");
 }
 
 function GetElementSignature(Element) {
-  if (!(Element instanceof Element)) {
+  if (!(Element instanceof globalThis.Element)) {
     return "";
   }
 
@@ -354,6 +355,7 @@ function HideSnapchatEntertainmentPanel(ApplicationRoot) {
   });
 
   if (ConversationPanel instanceof HTMLElement) {
+    if (!ControlOriginalStyles.has(ConversationPanel)) ControlOriginalStyles.set(ConversationPanel, ConversationPanel.getAttribute("style"));
     ConversationPanel.style.setProperty("flex", "1 1 auto", "important");
     ConversationPanel.style.setProperty("max-width", "none", "important");
     ConversationPanel.style.setProperty("width", "100%", "important");
@@ -429,7 +431,7 @@ function HideMatchingLinks(PathFragments) {
 
 function GetSnapchatBlockingState() {
   const Rules = ActiveRules.Snapchat;
-  const IsStrict = ActiveRules.StrictMode === true;
+  const IsStrict = Rules.DMsOnly === true;
 
   return {
     Spotlight: IsStrict || Rules.Spotlight === true,
@@ -452,7 +454,7 @@ function IsBlockedSnapchatUrl(RawUrl) {
     const BlockingState = GetSnapchatBlockingState();
     const IsTargetPublicSite = TargetUrl.hostname === "www.snapchat.com" || TargetUrl.hostname === "snapchat.com";
 
-    if (ActiveRules.StrictMode === true && IsTargetPublicSite && !Path.startsWith("/web")) {
+    if (ActiveRules.Snapchat.DMsOnly === true && IsTargetPublicSite && !Path.startsWith("/web")) {
       return true;
     }
 
@@ -460,14 +462,14 @@ function IsBlockedSnapchatUrl(RawUrl) {
       (BlockingState.Stories && (Path.includes("stories") || Path.includes("story"))) ||
       (BlockingState.Discover && (Path.includes("discover") || Path.startsWith("/@"))) ||
       (BlockingState.Map && Path.includes("map")) ||
-      (ActiveRules.StrictMode === true && (Path.includes("lens") || Path.includes("plus")));
+      (ActiveRules.Snapchat.DMsOnly === true && (Path.includes("lens") || Path.includes("plus")));
   } catch {
     return false;
   }
 }
 
 function BlockSnapchatNavigation(Event) {
-  if (!IsSnapchat()) {
+  if (!IsSnapchat() || !ActiveRules.Snapchat?.Enabled) {
     return;
   }
 
@@ -487,7 +489,7 @@ function BlockSnapchatNavigation(Event) {
 }
 
 function RemoveSnapchatHardBlockedControls() {
-  if (!IsSnapchat()) {
+  if (!IsSnapchat() || !ActiveRules.Snapchat?.Enabled) {
     return;
   }
 
@@ -541,8 +543,6 @@ function UpdateInstagramHomeFeedGuard(ShouldHide) {
   for (const HiddenElement of document.querySelectorAll('[data-control-home-feed-post="true"], [data-control-home-feed-surface="true"]')) {
     HiddenElement.removeAttribute("data-control-home-feed-post");
     HiddenElement.removeAttribute("data-control-home-feed-surface");
-    HiddenElement.removeAttribute("aria-hidden");
-    HiddenElement.removeAttribute("inert");
   }
 
   if (!ShouldHide) {
@@ -560,15 +560,11 @@ function UpdateInstagramHomeFeedGuard(ShouldHide) {
     }
 
     Article.setAttribute("data-control-home-feed-post", "true");
-    Article.setAttribute("aria-hidden", "true");
-    Article.setAttribute("inert", "");
 
     const FeedSurface = Article.closest('[style*="--x-width"][style*="470px"]');
     if (FeedSurface instanceof HTMLElement && Main.contains(FeedSurface)) {
       FeedSurface.setAttribute("data-control-home-feed-surface", "true");
-      FeedSurface.setAttribute("aria-hidden", "true");
-      FeedSurface.setAttribute("inert", "");
-    }
+        }
   }
 
   for (const FeedSurface of Main.querySelectorAll('[style*="--x-width"][style*="470px"]')) {
@@ -580,8 +576,6 @@ function UpdateInstagramHomeFeedGuard(ShouldHide) {
     }
 
     FeedSurface.setAttribute("data-control-home-feed-surface", "true");
-    FeedSurface.setAttribute("aria-hidden", "true");
-    FeedSurface.setAttribute("inert", "");
   }
 }
 
@@ -708,23 +702,17 @@ function UpdateInstagramIdleDiscoveryGuard(ShouldHide) {
   if (!ShouldHide) return;
   for (const DiscoveryContainer of GetInstagramDiscoveryContainers()) {
     DiscoveryContainer.setAttribute("data-control-idle-explore", "true");
-    DiscoveryContainer.setAttribute("aria-hidden", "true");
-    DiscoveryContainer.setAttribute("inert", "");
   }
   const Scope = document.querySelector("main") ?? document.body;
   if (!Scope) return;
   for (const Link of Scope.querySelectorAll('a[href*="/p/"], a[href*="/reel/"], a[href*="/reels/"]')) {
     Link.setAttribute("data-control-idle-explore", "true");
-    Link.setAttribute("aria-hidden", "true");
-    Link.setAttribute("inert", "");
   }
   for (const Label of Scope.querySelectorAll("span, button, [role='tab']")) {
     const Text = (Label.textContent ?? "").trim().toLowerCase();
     if (!["for you", "not personalized", "pour vous", "non personnalis\u00e9"].includes(Text)) continue;
     const Control = Label.closest("button, [role='tab']") ?? Label;
     Control.setAttribute("data-control-idle-explore", "true");
-    Control.setAttribute("aria-hidden", "true");
-    Control.setAttribute("inert", "");
   }
 }
 
@@ -743,7 +731,7 @@ function RemoveInstagramContinuationControls() {
 }
 
 function BlockInstagramContinuation(Event) {
-  if (!IsInstagram() || !ActiveRules.Instagram?.SearchScrollLock || !IsInstagramIntentionalPostPath(NormalizePath())) return;
+  if (!IsInstagram() || !ActiveRules.Instagram?.Enabled || !ActiveRules.Instagram?.SearchScrollLock || !IsInstagramIntentionalPostPath(NormalizePath())) return;
   if (Event.type === "keydown" && !["ArrowLeft", "ArrowRight", "PageUp", "PageDown"].includes(Event.key)) return;
   if (Event.type === "wheel" || Event.type === "touchmove") {
     Event.preventDefault();
@@ -1305,6 +1293,7 @@ function EnsureInstagramPostStoryButtons() {
     if (!Context) continue;
     const StoryButton = document.createElement("button");
     StoryButton.type = "button";
+    if (!ControlOriginalLabels.has(StoryButton)) ControlOriginalLabels.set(StoryButton, StoryButton.getAttribute("aria-label"));
     StoryButton.setAttribute("data-control-post-story-direct", "true");
     StoryButton.setAttribute("aria-label", "Prévisualiser ce post dans ma Story avec Control");
     StoryButton.title = "Prévisualiser dans ma Story";
@@ -1944,13 +1933,37 @@ function EnsureInstagramFollowingRoute(IsHomeRoute, IsFollowingRoute, HideFollow
   return true;
 }
 
+function RestoreCorePage() {
+  if (ControlCoreRestored) return;
+  ControlCoreRestored = true;
+  RemoveBlocker();
+  UpdateInstagramHomeFeedGuard(false);
+  UpdateInstagramIdleDiscoveryGuard(false);
+  document.querySelectorAll('[data-control-filter-hidden]').forEach(Node => Node.removeAttribute('data-control-filter-hidden'));
+  for (const ClassName of [...document.documentElement.classList]) {
+    if (/^Control(?:Instagram|Snapchat)/.test(ClassName)) document.documentElement.classList.remove(ClassName);
+  }
+  document.querySelectorAll('[id^="ControlInstagram"]').forEach(Node => Node.remove());
+  document.querySelectorAll('*').forEach(Node => {
+    for (const Attribute of [...Node.attributes]) {
+      if (/^data-control-(?:ig-|instagram-|post-story-)/.test(Attribute.name)) Node.removeAttribute(Attribute.name);
+    }
+  });
+  for (const [Node, Style] of ControlOriginalStyles) {
+    if (Style === null) Node.removeAttribute('style'); else Node.setAttribute('style', Style);
+  }
+  ControlOriginalStyles.clear();
+  for (const [Node, Label] of ControlOriginalLabels) {
+    if (Label === null) Node.removeAttribute('aria-label'); else Node.setAttribute('aria-label', Label);
+  }
+  ControlOriginalLabels.clear();
+}
+
 function FilterInstagram() {
   const Rules = ActiveRules.Instagram;
 
   if (!Rules.Enabled) {
-    RemoveBlocker();
-    document.documentElement.classList.remove("ControlInstagramSearchOnly", "ControlInstagramHideFeed", "ControlInstagramPolished", "ControlInstagramLight");
-    delete document.documentElement.dataset.controlInstagramRoute;
+    RestoreCorePage();
     return;
   }
 
@@ -2040,15 +2053,13 @@ function FilterSnapchat() {
   const Rules = ActiveRules.Snapchat;
 
   if (!Rules.Enabled) {
-    RemoveBlocker();
-    document.documentElement.classList.remove("ControlSnapchatHidePublic");
-    document.documentElement.classList.remove("ControlSnapchatOnlyChat");
+    RestoreCorePage();
     return;
   }
 
   const Path = NormalizePath();
   const BlockingState = GetSnapchatBlockingState();
-  const IsStrictPublicPage = ActiveRules.StrictMode === true && IsPublicSnapchat();
+  const IsStrictPublicPage = Rules.DMsOnly === true && IsPublicSnapchat();
   document.documentElement.classList.toggle(
     "ControlSnapchatHidePublic",
     BlockingState.Spotlight || BlockingState.Stories || BlockingState.Discover || BlockingState.Map,
@@ -2108,11 +2119,13 @@ function FilterSnapchat() {
 
 function ApplyFilters() {
   FilterScheduled = false;
+  if (!ControlCoreRulesLoaded) return;
+  if ((IsInstagram() && ActiveRules.Instagram.Enabled) || (IsSnapchat() && ActiveRules.Snapchat.Enabled)) ControlCoreRestored = false;
 
   if (IsInstagram()) {
     FilterInstagram();
   } else if (IsSnapchat()) {
-    RemoveSnapchatHardBlockedControls();
+    if (ActiveRules.Snapchat.Enabled) RemoveSnapchatHardBlockedControls();
     FilterSnapchat();
   }
 }
@@ -2149,6 +2162,7 @@ async function LoadRules() {
   const StoredData = await chrome.storage.sync.get("Rules");
   const StoredRules = StoredData.Rules ?? {};
   ActiveRules = NormalizeActiveRules(StoredRules);
+  ControlCoreRulesLoaded = true;
   ScheduleFilters();
 }
 
@@ -2177,17 +2191,9 @@ if (document.documentElement) {
 
 chrome.storage.onChanged.addListener((Changes, AreaName) => {
   if (AreaName === "sync" && Changes.Rules?.newValue) {
-    const PreviousInstagramRules = ActiveRules.Instagram;
+    RestoreCorePage();
     ActiveRules = NormalizeActiveRules(Changes.Rules.newValue);
     sessionStorage.removeItem("ControlInstagramFollowingTarget");
-    const NeedsNativeRestore = (PreviousInstagramRules.Stories === true && ActiveRules.Instagram.Stories !== true) ||
-      (PreviousInstagramRules.Search === false && ActiveRules.Instagram.Search !== false) ||
-      (PreviousInstagramRules.AdsAndSuggested === true && ActiveRules.Instagram.AdsAndSuggested !== true);
-    if (IsInstagram() && NeedsNativeRestore) {
-      window.clearTimeout(InstagramRuleReloadTimer);
-      InstagramRuleReloadTimer = window.setTimeout(() => location.reload(), 240);
-      return;
-    }
     ScheduleFilters();
   }
 });
