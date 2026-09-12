@@ -2151,6 +2151,7 @@ function ApplyFilters() {
   if (IsInstagram()) {
     window.ControlInstagramVisuals?.update({enabled:ActiveRules.Instagram.Enabled});
     FilterInstagram();
+    window.ControlInstagramVisuals?.refresh();
   } else if (IsSnapchat()) {
     if (ActiveRules.Snapchat.Enabled) RemoveSnapchatHardBlockedControls();
     FilterSnapchat();

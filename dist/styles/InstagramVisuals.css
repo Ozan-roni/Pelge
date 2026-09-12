@@ -42,7 +42,7 @@ html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-contr
 html.ControlInstagramPolished [data-control-ig-notes="true"] {
   position:relative !important; inset:auto !important; transform:none !important;
   box-sizing:border-box !important; width:100% !important; max-width:100% !important;
-  margin:0 !important; padding:12px 20px 18px !important;
+  margin:0 0 32px !important; padding:12px 20px 18px !important;
   background:transparent !important; border:0 !important; border-radius:0 !important;
   box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
   overflow-x:auto !important; scrollbar-width:thin !important;
@@ -85,25 +85,55 @@ html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[hidden] { displ
 }
 #ControlInstagramLoading[data-theme="light"] { background:rgb(var(--ig-primary-background, 255,255,255)) !important; color:#25232d !important; }
 #ControlInstagramLoading[data-state="leaving"] { opacity:0 !important; animation:none !important; }
-#ControlInstagramLoading .ControlIgLoadingScene { width:104px; height:140px; position:relative; margin:0 0 12px; }
-#ControlInstagramLoading .ControlIgLoadingMark { position:relative; width:88px; height:88px; margin:0 auto; }
+#ControlInstagramLoading .ControlIgLoadingScene { width:104px; height:104px; position:relative; margin:0 0 12px; }
+#ControlInstagramLoading .ControlIgLoadingMark { position:relative; width:88px; height:88px; margin:0 auto; border-radius:23px; overflow:hidden; }
 #ControlInstagramLoading img { display:block !important; width:88px !important; height:88px !important; object-fit:contain !important; border:0 !important; background:transparent !important; }
-#ControlInstagramLoading[data-theme="light"] img { filter:brightness(0) !important; }
+#ControlInstagramLoading img { filter:none !important; }
 #ControlInstagramLoading .ControlIgLoadingMark i {
   position:absolute; inset:0; mask:var(--ControlIgLoadingLogo) center/contain no-repeat;
   -webkit-mask:var(--ControlIgLoadingLogo) center/contain no-repeat;
-  background:linear-gradient(110deg,transparent 25%,#c6b3ff 44%,#ffffff 50%,transparent 65%) -180px 0/260px 100% no-repeat;
-  opacity:.65; animation:ControlIgLogoShine 2.4s ease-in-out infinite;
-}
-#ControlInstagramLoading .ControlIgLoadingReflection {
-  position:absolute; top:96px; left:8px; transform:scaleY(-1); opacity:.16;
-  mask-image:linear-gradient(to top,#000,transparent 70%); -webkit-mask-image:linear-gradient(to top,#000,transparent 70%);
+  background:linear-gradient(110deg,transparent 36%,#ffffff10 44%,#ffffffb3 50%,#ffffff10 56%,transparent 64%) -180px 0/260px 100% no-repeat;
+  opacity:.7; animation:ControlIgLogoShine 2.6s ease-in-out infinite;
 }
 #ControlInstagramLoading > span { font-size:18px !important; line-height:1.4 !important; font-weight:600 !important; letter-spacing:-.02em !important; }
 #ControlInstagramLoading > small { color:inherit !important; opacity:.62 !important; font-size:13px !important; line-height:1.5 !important; text-align:center !important; }
 @keyframes ControlIgLoadingIn { from {opacity:0} to {opacity:1} }
 @keyframes ControlIgLogoShine { 0%,15% {background-position:-180px 0} 70%,100% {background-position:160px 0} }
 
+html.ControlInstagramPolished [data-control-ig-search-field] {
+  transition:background-color .28s ease, box-shadow .28s ease !important;
+}
+html.ControlInstagramPolished [data-control-ig-search-field]:focus-within {
+  box-shadow:0 0 0 1px var(--ControlIgBorder) !important;
+}
+
+/* Compact native voice recording UI: no replacement controls or synthetic waveform. */
+html.ControlInstagramPolished [data-control-ig-voice="true"] {
+  box-sizing:border-box !important; width:calc(100% - 32px) !important; max-width:680px !important;
+  margin-inline:auto !important; padding:8px 0 !important; gap:10px !important;
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  align-items:center !important;
+}
+html.ControlInstagramPolished [data-control-ig-voice-track="true"] {
+  box-sizing:border-box !important; flex:1 1 auto !important; min-width:0 !important; max-width:540px !important;
+  min-height:48px !important; padding:6px 10px !important; border-radius:24px !important;
+  background:var(--ControlIgCardStrong) !important; border:1px solid var(--ControlIgBorder) !important;
+  box-shadow:none !important; align-items:center !important; gap:10px !important;
+}
+html.ControlInstagramPolished [data-control-ig-voice-fill="true"] { background:var(--ControlIgAccentSoft) !important; border-radius:14px !important; }
+html.ControlInstagramPolished [data-control-ig-voice-action] {
+  box-sizing:border-box !important; flex:0 0 40px !important; width:40px !important; height:40px !important;
+  min-width:40px !important; min-height:40px !important; padding:8px !important;
+  display:inline-flex !important; justify-content:center !important; align-items:center !important;
+  border:0 !important; border-radius:50% !important; box-shadow:none !important;
+  background:transparent !important; color:var(--ControlIgText) !important;
+  transition:background-color .2s ease, opacity .2s ease !important;
+}
+html.ControlInstagramPolished [data-control-ig-voice-action="cancel"] { color:var(--ControlIgMuted) !important; }
+html.ControlInstagramPolished [data-control-ig-voice-action="send"] { background:var(--ControlIgAccent) !important; color:#fff !important; }
+html.ControlInstagramPolished [data-control-ig-voice-action]:hover { opacity:.8 !important; }
+html.ControlInstagramPolished [data-control-ig-voice-action]:focus-visible { outline:2px solid var(--ControlIgAccent) !important; outline-offset:3px !important; }
+
 @media(prefers-reduced-motion:reduce) {
-  #ControlInstagramLoading, #ControlInstagramLoading *, html[data-control-ig-loading] body, html.ControlInstagramRouteChanging [data-control-ig-main="true"] { animation:none !important; transition:none !important; }
+  #ControlInstagramLoading, #ControlInstagramLoading *, html[data-control-ig-loading] body, html.ControlInstagramRouteChanging [data-control-ig-main="true"], html.ControlInstagramPolished [data-control-ig-search-field], html.ControlInstagramPolished [data-control-ig-voice-action] { animation:none !important; transition:none !important; }
 }

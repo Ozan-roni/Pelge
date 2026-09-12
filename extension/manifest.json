@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Control",
-  "version": "0.34.2",
+  "version": "0.34.3",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv+VlE/c0BItdopTPCOx20QgmAq6PflCveCF/gLgA6oE7wkg3mOPkE+PNlobfLUkAO+c3WT9ivDKLbMSuB+nPQVXDePH98dBZD1U/RPh/id5Td2ur5QP4UU2D79HByGomCnWAblEUlZ0WAA+/7lkhp9GLhQ29tWiGhhyWwr2iTT9PwR797ad9ykSf1Nd19Mvv9T1PblkjlHwozJuYXoX/IFzO+sjXeFRpZlA/1WdtRyHZbTnY27JFYbkvru3vJ6ZZIVamqxZGE87ei4R9F4gJ/65C+/831rf0mWCIe+0PkaJORROjfB2MrlvM5h/LNMn4EgwZVCy5rPcSZogiqFyVZwIDAQAB",
   "description": "A private control panel for quieter social networks, focused video and daily time limits.",
   "permissions": [
@@ -128,7 +128,8 @@
     },
     {
       "resources": [
-        "assets/Instagram.svg"
+        "assets/Instagram.svg",
+        "assets/InstagramColor.svg"
       ],
       "matches": [
         "https://www.instagram.com/*",

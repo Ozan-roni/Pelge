@@ -30,6 +30,9 @@ async function run(){
    await page.addScriptTag({content:source('scripts/ExtendedFilters.js')});
    await page.locator('#ControlInstagramLoading').waitFor();
    assert.equal(await page.locator('#ControlInstagramLoading').getAttribute('data-theme'),theme);
+   assert.match(await page.locator('#ControlInstagramLoading img').getAttribute('src'),/InstagramColor\.svg$/);
+   assert.equal(await page.locator('#ControlInstagramLoading img').evaluate(e=>getComputedStyle(e).filter),'none');
+   assert.equal(await page.locator('.ControlIgLoadingReflection').count(),0);
    assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).opacity),'0');
    await page.screenshot({path:path.join(out,`loading-${theme}.png`),animations:'disabled'});
    await page.evaluate(html=>document.body.innerHTML=html,fixture);
@@ -53,6 +56,7 @@ async function run(){
    });
    assert.equal(report.nativeBubble,'rgb(70, 70, 75)');assert.equal(report.fieldBackground,'rgba(0, 0, 0, 0)');assert.equal(report.fieldBorder,'0px');assert.equal(report.notesShadow,'none');
    assert.equal(report.dockPosition,'relative');assert(report.notesTop>=report.dockBottom-1);assert.equal(report.toolMarkers,0);assert.equal(report.light,theme==='light');
+   assert.equal(await page.locator('.notes').evaluate(e=>getComputedStyle(e).marginBottom),'32px');
    assert.equal(await page.locator('.composer').evaluate(e=>getComputedStyle(e).borderTopWidth),'1px','Preserve the outer composer frame');
    for (const width of [1024,1280,1440]) {
     await page.setViewportSize({width,height:850});
@@ -64,8 +68,39 @@ async function run(){
    await page.setViewportSize({width:1280,height:850});
    await page.getByRole('textbox',{name:'Message',exact:true}).fill('Unsent fixture text');
    await page.evaluate(()=>{history.pushState({},'','/direct/t/test/');ScheduleFilters();});
+   await page.waitForFunction(()=>document.querySelector('.conversation').getAnimations().length>0);
+   assert.equal(await page.locator('.inbox').evaluate(e=>e.getAnimations().length),0,'Conversation switching leaves the list stable');
+   await page.locator('.conversation').evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
    assert.equal(await page.locator('#ControlInstagramLoading').count(),0);
    await page.screenshot({path:path.join(out,`messages-${theme}.png`)});
+   await page.evaluate(()=>{
+    const search=document.createElement('section');search.id='fixture-search';
+    search.innerHTML='<div><input type="search" aria-label="Search conversations" placeholder="Search"></div>';
+    document.querySelector('.inbox').prepend(search);
+   });
+   await page.locator('[data-control-ig-search-field]').waitFor();
+   await page.getByRole('searchbox').focus();
+   assert(await page.locator('#fixture-search').evaluate(e=>e.getAnimations().length>0),'Search opens with a fade');
+   await page.getByRole('searchbox').fill('Sample');
+   assert.equal(await page.getByRole('searchbox').inputValue(),'Sample');
+   await page.evaluate(()=>document.querySelector('#fixture-search').remove());
+   await page.evaluate(()=>{
+    const row=document.createElement('div');row.id='fixture-voice';
+    row.style.cssText='display:flex;align-items:center;width:100%;border:1px solid #8885;border-radius:40px;margin-bottom:12px';
+    row.innerHTML='<button aria-label="Cancel recording">×</button><div class="voice-track" style="display:flex;align-items:center;flex:1;background:rgb(72,86,255);border-radius:30px"><button aria-label="Stop recording">■</button><div role="progressbar" aria-label="Recording progress" aria-valuenow="5" style="flex:1;height:32px;background:rgb(110,120,255)"></div><span>0:05</span></div><button aria-label="Send voice message">➤</button>';
+    window.voiceClicks=[];row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>window.voiceClicks.push(button.getAttribute('aria-label'))));
+    document.querySelector('.conversation').append(row);
+   });
+   await page.locator('[data-control-ig-voice]').waitFor();
+   assert.equal(await page.locator('[data-control-ig-voice-action]').count(),3);
+   assert.notEqual(await page.locator('.voice-track').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(72, 86, 255)');
+   assert.equal(await page.getByRole('progressbar').getAttribute('aria-valuenow'),'5');
+   await page.screenshot({path:path.join(out,`voice-${theme}.png`)});
+   await page.getByRole('button',{name:'Stop recording',exact:true}).click();
+   await page.getByRole('button',{name:'Cancel recording',exact:true}).click();
+   await page.getByRole('button',{name:'Send voice message',exact:true}).click();
+   assert.deepEqual(await page.evaluate(()=>window.voiceClicks),['Stop recording','Cancel recording','Send voice message']);
+   await page.evaluate(()=>document.querySelector('#fixture-voice').remove());
    await page.setViewportSize({width:390,height:844});
    await page.waitForFunction(()=>!document.documentElement.classList.contains('ControlInstagramPolished'));
    assert.equal(await page.locator('#ControlInstagramMobileFeatureDock,[data-control-ig-notes]').count(),0);

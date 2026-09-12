@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <defs><radialGradient id="ig" cx=".25" cy="1" r="1.25"><stop stop-color="#ffdc80"/><stop offset=".27" stop-color="#fcaf45"/><stop offset=".5" stop-color="#f56040"/><stop offset=".72" stop-color="#dd2a7b"/><stop offset="1" stop-color="#8134af"/></radialGradient></defs>
+  <rect width="96" height="96" rx="25" fill="url(#ig)"/>
+  <rect x="22" y="22" width="52" height="52" rx="16" fill="none" stroke="white" stroke-width="6"/>
+  <circle cx="48" cy="48" r="13" fill="none" stroke="white" stroke-width="6"/>
+  <circle cx="65" cy="31" r="4" fill="white"/>
+</svg>

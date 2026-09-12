@@ -1,5 +1,13 @@
 # Reprise de Control dans VS Code
 
+## Finitions Instagram — 0.34.3
+
+L'utilisateur précise que le logo doit rester coloré et que le reflet doit le traverser. `InstagramColor.svg` sert désormais au chargement, dans les deux thèmes, avec un balayage lumineux et sans copie miroir. Ajout d'un fondu du panneau de conversation au changement de chemin `/direct/t/`, et d'un fondu de la recherche à son ouverture ou focus. Les animations n'interceptent pas les clics et respectent la réduction des mouvements. Une marge de 32 px sépare les notes/statuts du contenu suivant.
+
+Le compositeur vocal est reconnu prudemment par les commandes natives et leur position basse. Une capsule sobre remplace l'habillage bleu étiré ; les commandes, la durée et la progression restent celles d'Instagram. Aucun enregistrement réel ou envoi n'est fait pendant les tests : ils utilisent des fixtures. Vérifier le DOM du compte si Instagram emploie d'autres libellés (le composant reste natif lorsqu'il n'est pas reconnu). Le test couvre la couleur du logo, les fondus conversation/recherche, la marge et la conservation des commandes vocales en clair et sombre.
+
+Les cinq fichiers concernés ont été synchronisés dans la copie installée en 0.34.3, avec empreintes vérifiées et sauvegarde dans `build/installed-backup-before-0.34.3/`. Recharger l'extension puis l'onglet Instagram pour remplacer les scripts déjà injectés.
+
 ## Correction après capture utilisateur — 0.34.2
 
 La copie réellement chargée dans Chrome était encore en 0.34.0 ; sa règle `contenteditable` ajoutait le fond gris et une seconde bordure visibles dans la capture. La préparation d'un nouveau dossier 0.34.1 n'avait donc pas modifié l'extension utilisée. Pour les prochaines interventions : identifier et mettre à jour le dossier réellement installé, avec sauvegarde, au lieu de livrer uniquement un nouveau paquet. Ne pas modifier les profils Chrome ou désinstaller l'extension.

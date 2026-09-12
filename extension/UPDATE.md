@@ -1,4 +1,6 @@
-# Mise à jour Control 0.34.2
+# Mise à jour Control 0.34.3
+
+Logo Instagram coloré avec une lueur qui le traverse (sans reflet miroir). Fondu lors d'un changement de conversation et à l'ouverture/focus de la recherche, sans déplacer la liste. Marge supplémentaire de 32 px sous les statuts. Le compositeur vocal natif reconnu par ses commandes d'arrêt/annulation/envoi devient une capsule compacte, avec commandes rondes ; progression, durée et actions natives sont conservées. Aucun accès au microphone n'est ajouté. Les variantes de DOM Instagram non reconnues gardent leur apparence native.
 
 Le champ de message intérieur est explicitement transparent, sans seconde bordure ; le contour extérieur et les boutons natifs sont conservés. Toute l'interface apparaît en fondu pendant la disparition du loading (640 ms). La désactivation, la réduction des animations et la limite de chargement restaurent toujours la visibilité.
 
