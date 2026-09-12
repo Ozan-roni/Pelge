@@ -1,4 +1,6 @@
-# Mise à jour Control 0.33.0
+# Mise à jour Control 0.34.1
+
+Instagram : chargement avec logo, reflet discret et fondu ; fonds de messagerie unifiés ; suppression des cadres ajoutés aux champs et aux messages ; raccourcis Story/Note/Post intégrés au-dessus des statuts natifs lorsqu'ils sont identifiés. Les marges natives de la messagerie sont conservées pour éviter le chevauchement avec la navigation. Le compteur de temps reste inchangé.
 
 La mise à jour du site ne remplace pas les fichiers de l’extension déjà installée.
 
@@ -11,4 +13,5 @@ La mise à jour du site ne remplace pas les fichiers de l’extension déjà ins
 Après la mise à jour, désactiver une application retire les effets de Control, le minuteur et les blocages de limite/global sur cette application. Les réglages sont conservés pour une réactivation. Une limite de zéro signifie illimité.
 
 Vérifications locales : node extension/check.cjs et node extension/check-settings.cjs.
+`npm run test:instagram` vérifie les scripts sur une messagerie simulée, en clair/sombre, l'alignement à plusieurs largeurs, la saisie, le passage au mobile, le nettoyage à la désactivation et la réduction des animations. Il nécessite Playwright et un navigateur (voir README), mais aucun serveur ou compte Instagram.
 Les tests simulés ne remplacent pas une vérification sur un compte connecté au réseau social.

@@ -962,13 +962,23 @@ function MarkInstagramSearchExperience(SearchInput, SearchPanel) {
 }
 function MarkInstagramDirectExperience(Main) {
   if (!(Main instanceof HTMLElement)) return;
-  Main.setAttribute("data-control-ig-direct", "true");
-  for (const Action of Main.querySelectorAll('button, [role="button"], a')) {
-    const Label = GetInstagramSurfaceLabel(Action);
-    if (["map", "carte", "music", "musique", "note", "color", "couleur"].some((Text) => Label.includes(Text))) {
-      Action.setAttribute("data-control-ig-direct-tool", "true");
-    }
+  Main.setAttribute('data-control-ig-direct', 'true');
+  // Old text-based matching framed entire message rows mentioning "note" or "music".
+  document.querySelectorAll('[data-control-ig-direct-tool]').forEach(Node => Node.removeAttribute('data-control-ig-direct-tool'));
+  document.querySelectorAll('[data-control-ig-notes]').forEach(Node => Node.removeAttribute('data-control-ig-notes'));
+  const OwnNote = [...Main.querySelectorAll('button, [role="button"]')].find(Node => {
+    if (Node.closest('[role="log"], #ControlInstagramMobileFeatureDock')) return false;
+    const Label = (Node.getAttribute('aria-label') || Node.getAttribute('title') || Node.textContent || '').trim();
+    return /^(your note|leave a note|votre note|laisser une note|your status|votre statut)$/i.test(Label) && Node.querySelector('img,svg');
+  });
+  if (!OwnNote) return;
+  let Row = OwnNote.parentElement, Candidate = null;
+  for (let Depth=0; Row && Row!==Main && Depth<5; Depth++, Row=Row.parentElement) {
+    const Bounds=Row.getBoundingClientRect();
+    if(Bounds.height>240 || Bounds.width>600 || Row.querySelector('textarea,[contenteditable="true"],a[href^="/direct/t/"]')) break;
+    if(Bounds.height>=70 && Bounds.width>=180) Candidate=Row;
   }
+  Candidate?.setAttribute('data-control-ig-notes','true');
 }
 
 function GetInstagramOwnProfileImageSource() {
@@ -1708,6 +1718,16 @@ function EnsureInstagramMobileFeatureDock(RouteKind) {
     document.documentElement.append(Dock);
   }
   Dock.dataset.route = RouteKind;
+  const Notes = RouteKind==='direct' ? document.querySelector('[data-control-ig-notes="true"]') : null;
+  Dock.hidden = RouteKind==='direct' && !Notes;
+  // Join the existing notes area in normal flow instead of floating over the inbox header.
+  if (Notes?.parentElement) {
+    if (Notes.previousElementSibling!==Dock) Notes.before(Dock);
+    Dock.dataset.placement='notes';
+  } else {
+    if (Dock.parentElement!==document.documentElement) document.documentElement.append(Dock);
+    Dock.removeAttribute('data-placement');
+  }
 }
 
 function EnsureInstagramStoryLauncher(Host, Placement) {
@@ -1745,7 +1765,7 @@ function ApplyInstagramDesktopExperience() {
   const RouteKind = GetInstagramRouteKind(Path);
   const IsDesktop = window.innerWidth >= 860;
   const PreviousRouteKind = Root.dataset.controlInstagramRoute;
-  Root.classList.toggle("ControlInstagramPolished", IsDesktop);
+
   Root.dataset.controlInstagramRoute = RouteKind;
   Root.removeAttribute("data--control-instagram-route" );
   if (PreviousRouteKind && PreviousRouteKind !== RouteKind) {
@@ -1758,10 +1778,11 @@ function ApplyInstagramDesktopExperience() {
 
   const BackgroundColor = document.body ? getComputedStyle(document.body).backgroundColor : "";
   const ColorMatch = BackgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  const IsLight = ColorMatch
+  const IsLight = window.ControlInstagramVisuals ? window.ControlInstagramVisuals.lightTheme() : ColorMatch
     ? Number(ColorMatch[1]) + Number(ColorMatch[2]) + Number(ColorMatch[3]) > 420
     : !matchMedia("(prefers-color-scheme: dark)").matches;
   Root.classList.toggle("ControlInstagramLight", IsLight);
+  Root.classList.toggle("ControlInstagramPolished", IsDesktop);
 
   if (RouteKind !== "story") {
     document.querySelector("[data-control-ig-story-viewer]")?.removeAttribute("data-control-ig-story-viewer");
@@ -1790,7 +1811,11 @@ function ApplyInstagramDesktopExperience() {
     document.getElementById("ControlInstagramOwnStoryItem")?.remove();
   }
 
-  if (!IsDesktop) return;
+  if (!IsDesktop) {
+    document.getElementById("ControlInstagramMobileFeatureDock")?.remove();
+    document.querySelectorAll('[data-control-ig-notes]').forEach(Node => Node.removeAttribute('data-control-ig-notes'));
+    return;
+  }
 
   const Navigation = FindInstagramPrimaryNavigation();
   Navigation?.setAttribute("data-control-ig-rail", "true");
@@ -2124,6 +2149,7 @@ function ApplyFilters() {
   if ((IsInstagram() && ActiveRules.Instagram.Enabled) || (IsSnapchat() && ActiveRules.Snapchat.Enabled)) ControlCoreRestored = false;
 
   if (IsInstagram()) {
+    window.ControlInstagramVisuals?.update({enabled:ActiveRules.Instagram.Enabled});
     FilterInstagram();
   } else if (IsSnapchat()) {
     if (ActiveRules.Snapchat.Enabled) RemoveSnapchatHardBlockedControls();

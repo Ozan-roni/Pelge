@@ -455,22 +455,8 @@ html.ControlInstagramPolished[data-control-instagram-route="home"] main article 
 
 
 
-html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-main="true"] {
-  background: var(--ControlIgCard) !important;
-  border: 1px solid var(--ControlIgBorder) !important;
-  border-radius: 28px 0 0 28px !important;
-  box-shadow: var(--ControlIgShadow), inset 0 1px 0 rgba(255, 255, 255, .06) !important;
-  margin: 14px 14px 14px 0 !important;
-  min-height: calc(100vh - 28px) !important;
-  overflow: hidden !important;
-}
 
-html.ControlInstagramPolished[data-control-instagram-route="direct"] :is(textarea, [contenteditable="true"]) {
-  background: var(--ControlIgCardStrong) !important;
-  border: 1px solid var(--ControlIgBorder) !important;
-  border-radius: 18px !important;
-  color: var(--ControlIgText) !important;
-}
+
 
 html.ControlInstagramPolished[data-control-instagram-route="story"] body {
   background: #050507 !important;
@@ -698,35 +684,17 @@ html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-contr
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  margin: 0 !important;
   min-height: 100vh !important;
   outline: 0 !important;
-  width: 100% !important;
 }
 
-html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-main="true"] :is(section, div, article) {
-  outline-color: transparent !important;
-}
 
-html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-main="true"] > :is(section, div, article) {
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
 
-html.ControlInstagramPolished [data-control-ig-direct-tool="true"] {
-  backdrop-filter: blur(22px) saturate(155%) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(155%) !important;
-  background: linear-gradient(145deg, rgba(129,111,246,.16), rgba(90,180,255,.07)) !important;
-  border: 1px solid rgba(139,124,246,.2) !important;
-  border-radius: 18px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 12px 32px rgba(0,0,0,.1) !important;
-  transition: box-shadow .2s ease, transform .22s cubic-bezier(.2,.8,.2,1) !important;
-}
 
-html.ControlInstagramPolished [data-control-ig-direct-tool="true"]:hover {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 16px 38px rgba(101,88,217,.16) !important;
-  transform: translateY(-2px) scale(1.012) !important;
-}
+
+
+
+
 
 html.ControlInstagramPolished [role="presentation"]:has(> [data-control-ig-sheet="true"]),
 html.ControlInstagramPolished [role="presentation"]:has([data-control-ig-sheet="true"]) {

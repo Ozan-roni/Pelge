@@ -1,0 +1,100 @@
+/* Loaded last. Keep Instagram's message bubbles and composer surfaces native. */
+html.ControlInstagramPolished[data-control-instagram-route="direct"] body,
+html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-main="true"] {
+  background:rgb(var(--ig-primary-background, 0,0,0)) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+html.ControlInstagramPolished.ControlInstagramLight[data-control-instagram-route="direct"] body,
+html.ControlInstagramPolished.ControlInstagramLight[data-control-instagram-route="direct"] [data-control-ig-main="true"] {
+  background:rgb(var(--ig-primary-background, 255,255,255)) !important;
+}
+/* Fade the page without transforming its fixed headers, menus or composer. */
+html.ControlInstagramRouteChanging [data-control-ig-main="true"] {
+  animation:ControlIgRouteFade .28s ease-out both !important;
+}
+@keyframes ControlIgRouteFade { from {opacity:.7} to {opacity:1} }
+
+/* A single flat rail, rather than a rounded card over another background. */
+html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-rail="true"] {
+  background:var(--ControlIgBackground) !important; border:0 !important;
+  border-inline-end:1px solid var(--ControlIgBorder) !important;
+  border-radius:0 !important; box-shadow:none !important; backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important; margin:0 !important; padding:8px !important;
+}
+html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-rail="true"] :is(a,button,[role="button"],[role="link"]) {
+  background:transparent !important; border:0 !important;
+  backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  transform:none !important; box-shadow:none !important;
+}
+html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-control-ig-rail="true"] :is(a,button,[role="button"],[role="link"]):hover {
+  background:var(--ControlIgAccentSoft) !important;
+}
+html.ControlInstagramPolished [data-control-ig-notes="true"] {
+  position:relative !important; inset:auto !important; transform:none !important;
+  box-sizing:border-box !important; width:100% !important; max-width:100% !important;
+  margin:0 !important; padding:12px 20px 18px !important;
+  background:transparent !important; border:0 !important; border-radius:0 !important;
+  box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  overflow-x:auto !important; scrollbar-width:thin !important;
+}
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] {
+  top:auto !important; bottom:24px !important; left:50% !important; transform:translateX(-50%) !important;
+  background:var(--ControlIgCardStrong) !important; color:var(--ControlIgText) !important;
+  border:1px solid var(--ControlIgBorder) !important; border-radius:16px !important;
+  box-shadow:0 6px 20px #0002 !important; max-width:calc(100vw - 32px) !important;
+}
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"][data-placement="notes"] {
+  position:relative !important; inset:auto !important; transform:none !important;
+  display:flex !important; justify-content:flex-start !important; flex-shrink:0 !important;
+  box-sizing:border-box !important; width:100% !important; max-width:100% !important;
+  margin:0 !important; padding:8px 20px 0 !important;
+  border:0 !important; border-radius:0 !important; box-shadow:none !important;
+  background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  z-index:auto !important;
+}
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] button {
+  background:transparent !important; color:var(--ControlIgText) !important;
+  border:0 !important; box-shadow:none !important; border-radius:10px !important;
+  width:auto !important; min-width:44px !important; height:44px !important; padding:0 10px !important; gap:7px !important;
+}
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] button b { display:block !important; font-size:12px !important; }
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] button span { background:transparent !important; color:var(--ControlIgAccent) !important; }
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] button:hover { background:var(--ControlIgAccentSoft) !important; transform:none !important; }
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[data-route="direct"] button:focus-visible { outline:2px solid var(--ControlIgAccent) !important; outline-offset:1px !important; }
+html.ControlInstagramPolished #ControlInstagramMobileFeatureDock[hidden] { display:none !important; }
+
+#ControlInstagramLoading {
+  position:fixed !important; inset:0 !important; z-index:2147483645 !important;
+  display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important;
+  box-sizing:border-box !important; gap:12px !important; padding:24px !important;
+  background:rgb(var(--ig-primary-background, 0,0,0)) !important; color:#f5f5f7 !important;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+  opacity:1; pointer-events:none !important;
+  transition:opacity .52s cubic-bezier(.22,.68,.25,1) !important;
+  animation:ControlIgLoadingIn .28s ease-out both;
+}
+#ControlInstagramLoading[data-theme="light"] { background:rgb(var(--ig-primary-background, 255,255,255)) !important; color:#25232d !important; }
+#ControlInstagramLoading[data-state="leaving"] { opacity:0 !important; animation:none !important; }
+#ControlInstagramLoading .ControlIgLoadingScene { width:104px; height:140px; position:relative; margin:0 0 12px; }
+#ControlInstagramLoading .ControlIgLoadingMark { position:relative; width:88px; height:88px; margin:0 auto; }
+#ControlInstagramLoading img { display:block !important; width:88px !important; height:88px !important; object-fit:contain !important; border:0 !important; background:transparent !important; }
+#ControlInstagramLoading[data-theme="light"] img { filter:brightness(0) !important; }
+#ControlInstagramLoading .ControlIgLoadingMark i {
+  position:absolute; inset:0; mask:var(--ControlIgLoadingLogo) center/contain no-repeat;
+  -webkit-mask:var(--ControlIgLoadingLogo) center/contain no-repeat;
+  background:linear-gradient(110deg,transparent 25%,#c6b3ff 44%,#ffffff 50%,transparent 65%) -180px 0/260px 100% no-repeat;
+  opacity:.65; animation:ControlIgLogoShine 2.4s ease-in-out infinite;
+}
+#ControlInstagramLoading .ControlIgLoadingReflection {
+  position:absolute; top:96px; left:8px; transform:scaleY(-1); opacity:.16;
+  mask-image:linear-gradient(to top,#000,transparent 70%); -webkit-mask-image:linear-gradient(to top,#000,transparent 70%);
+}
+#ControlInstagramLoading > span { font-size:18px !important; line-height:1.4 !important; font-weight:600 !important; letter-spacing:-.02em !important; }
+#ControlInstagramLoading > small { color:inherit !important; opacity:.62 !important; font-size:13px !important; line-height:1.5 !important; text-align:center !important; }
+@keyframes ControlIgLoadingIn { from {opacity:0} to {opacity:1} }
+@keyframes ControlIgLogoShine { 0%,15% {background-position:-180px 0} 70%,100% {background-position:160px 0} }
+
+@media(prefers-reduced-motion:reduce) {
+  #ControlInstagramLoading, #ControlInstagramLoading *, html.ControlInstagramRouteChanging [data-control-ig-main="true"] { animation:none !important; transition:none !important; }
+}

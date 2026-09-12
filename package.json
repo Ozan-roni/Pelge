@@ -1,6 +1,6 @@
 {
   "name": "control-focus",
-  "version": "0.34.0",
+  "version": "0.34.1",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -9,7 +9,8 @@
     "dev": "node scripts/serve.cjs",
     "test": "node extension/check.cjs && node extension/check-settings.cjs",
     "package:extension": "node scripts/package-extension.cjs",
-    "test:ui": "node scripts/check-workspace.cjs"
+    "test:ui": "node scripts/check-workspace.cjs",
+    "test:instagram": "node scripts/check-instagram.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

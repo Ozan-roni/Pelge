@@ -1,5 +1,13 @@
 # Reprise de Control dans VS Code
 
+## Interface Instagram — 0.34.1
+
+La clarification utilisateur concerne les statuts/notes au-dessus des messages, pas le compteur de temps Control. Les raccourcis flottants sont désormais intégrés dans cette zone lorsqu'elle est reconnue ; aucun panneau supplémentaire n'est affiché par-dessus l'en-tête sinon. Les anciennes marges forcées, cadres de champs et décorations fondées sur les mots des messages ont été retirés. Les fonds de messagerie sont unifiés avec le thème natif. Le compteur reste inchangé.
+
+`dist/scripts/InstagramVisuals.js` et `dist/styles/InstagramVisuals.css` ajoutent le chargement avec logo embarqué, reflet et fondus, sans répétition pendant la navigation interne. Le chargement disparaît dès que la page est prête, avec une limite de six secondes, et respecte la réduction des animations. Le manifeste charge ces fichiers.
+
+`npm run test:instagram` fonctionne sans serveur, avec toutes les requêtes Instagram interceptées par une fixture locale. Il couvre les thèmes, les surfaces natives des messages et de la saisie, l'absence de chevauchement avec la navigation à 1024/1280/1440 px, le retour au mobile, les transitions et la désactivation. Captures dans `build/instagram-verification/`. Aucun navigateur utilisateur connecté n'était disponible pour vérifier le véritable DOM Instagram : une vérification après mise à jour de l'extension reste nécessaire. Voir `extension/UPDATE.md`.
+
 ## Demande reprise et implémentée le 12 septembre 2026
 
 - Adapter toutes les interfaces au mobile : navigation inférieure flottante glass, zones tactiles confortables, lisibilité en modes clair et nocturne, transitions douces et beau chargement respectant la réduction des animations.
