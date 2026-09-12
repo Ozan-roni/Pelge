@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs><radialGradient id="ig" gradientUnits="userSpaceOnUse" cx="4" cy="24" r="28"><stop stop-color="#ffdc80"/><stop offset=".27" stop-color="#fcaf45"/><stop offset=".5" stop-color="#f56040"/><stop offset=".72" stop-color="#dd2a7b"/><stop offset="1" stop-color="#8134af"/></radialGradient></defs>
+  <defs><radialGradient id="ig" gradientUnits="userSpaceOnUse" cx="4" cy="24" r="28"><stop stop-color="#ffdf00"/><stop offset=".25" stop-color="#ff8500"/><stop offset=".46" stop-color="#ff3500"/><stop offset=".66" stop-color="#ff007f"/><stop offset=".84" stop-color="#ec00ff"/><stop offset="1" stop-color="#743cff"/></radialGradient></defs>
   <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" fill="none" stroke="url(#ig)" stroke-width="1.8"/>
   <circle cx="12" cy="12" r="4.1" fill="none" stroke="url(#ig)" stroke-width="1.8"/>
   <circle cx="17.8" cy="6.4" r="1.15" fill="url(#ig)"/>
