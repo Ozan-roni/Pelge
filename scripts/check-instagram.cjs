@@ -30,16 +30,30 @@ async function run(){
    await page.addScriptTag({content:source('scripts/ExtendedFilters.js')});
    await page.locator('#ControlInstagramLoading').waitFor();
    assert.equal(await page.locator('#ControlInstagramLoading').getAttribute('data-theme'),theme);
+   assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).opacity),'0');
    await page.screenshot({path:path.join(out,`loading-${theme}.png`),animations:'disabled'});
    await page.evaluate(html=>document.body.innerHTML=html,fixture);
+   await page.waitForFunction(()=>document.documentElement.dataset.controlIgLoading==='revealing');
+   const fade=await page.evaluate(()=>{
+    const animation=document.body.getAnimations().find(a=>a.animationName==='ControlIgAppReveal');
+    animation.pause();animation.currentTime=320;
+    const opacity=Number(getComputedStyle(document.body).opacity);
+    animation.play();return opacity;
+   });
+   assert(fade>0 && fade<1,'The entire app must fade through an intermediate opacity');
    await page.locator('#ControlInstagramLoading').waitFor({state:'detached'});
+   assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).opacity),'1');
+   assert.equal(await page.locator('html').getAttribute('data-control-ig-loading'),null);
    await page.locator('[data-control-ig-notes]').waitFor();
+   // Reproduce the nested grey pill from the reported screenshot.
+   await page.locator('[contenteditable]').evaluate(e=>{e.style.background='rgb(31,32,37)';e.style.border='1px solid rgb(54,54,58)';e.style.borderRadius='18px';});
    const report=await page.evaluate(()=>{
     const notes=document.querySelector('.notes'),dock=document.querySelector('#ControlInstagramMobileFeatureDock'),bubble=document.querySelector('.bubble'),field=document.querySelector('[contenteditable]');
     return {nativeBubble:getComputedStyle(bubble).backgroundColor,fieldBackground:getComputedStyle(field).backgroundColor,fieldBorder:getComputedStyle(field).borderTopWidth,notesShadow:getComputedStyle(notes).boxShadow,notesTop:notes.getBoundingClientRect().top,dockBottom:dock.getBoundingClientRect().bottom,dockPosition:getComputedStyle(dock).position,toolMarkers:document.querySelectorAll('[data-control-ig-direct-tool]').length,light:document.documentElement.classList.contains('ControlInstagramLight')};
    });
    assert.equal(report.nativeBubble,'rgb(70, 70, 75)');assert.equal(report.fieldBackground,'rgba(0, 0, 0, 0)');assert.equal(report.fieldBorder,'0px');assert.equal(report.notesShadow,'none');
    assert.equal(report.dockPosition,'relative');assert(report.notesTop>=report.dockBottom-1);assert.equal(report.toolMarkers,0);assert.equal(report.light,theme==='light');
+   assert.equal(await page.locator('.composer').evaluate(e=>getComputedStyle(e).borderTopWidth),'1px','Preserve the outer composer frame');
    for (const width of [1024,1280,1440]) {
     await page.setViewportSize({width,height:850});
     const geometry=await page.evaluate(()=>({railRight:document.querySelector('nav').getBoundingClientRect().right,mainLeft:document.querySelector('main').getBoundingClientRect().left,overflow:document.documentElement.scrollWidth>innerWidth,notesLeft:document.querySelector('.notes').getBoundingClientRect().left}));
@@ -62,6 +76,7 @@ async function run(){
    await page.evaluate(()=>{window.testRules.Instagram.Enabled=false;window.ruleListeners.forEach(fn=>fn({Rules:{newValue:window.testRules}},'sync'));});
    await page.waitForFunction(()=>!document.documentElement.classList.contains('ControlInstagramPolished'));
    assert.equal(await page.locator('[data-control-ig-notes],#ControlInstagramLoading,#ControlInstagramMobileFeatureDock').count(),0);
+   assert.equal(await page.locator('[contenteditable]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(31, 32, 37)','Restore the original field when Control is disabled');
    assert.deepEqual(errors,[]);console.log('PASS:',theme,'messaging surfaces, notes alignment, no splash replay, native composer and disable cleanup');
    await context.close();
   }
@@ -73,6 +88,7 @@ async function run(){
   await page.evaluate(()=>ControlInstagramVisuals.update({enabled:true}));
   assert.equal(await page.locator('#ControlInstagramLoading').evaluate(e=>getComputedStyle(e).animationName),'none');
   await page.evaluate(()=>ControlInstagramVisuals.update({enabled:false}));assert.equal(await page.locator('#ControlInstagramLoading').count(),0);
+  assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).opacity),'1');
   await context.close();console.log('PASS: reduced motion and immediate loader cleanup');
  } finally {await browser.close();}
 }

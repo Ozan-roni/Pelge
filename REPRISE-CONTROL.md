@@ -1,5 +1,13 @@
 # Reprise de Control dans VS Code
 
+## Correction après capture utilisateur — 0.34.2
+
+La copie réellement chargée dans Chrome était encore en 0.34.0 ; sa règle `contenteditable` ajoutait le fond gris et une seconde bordure visibles dans la capture. La préparation d'un nouveau dossier 0.34.1 n'avait donc pas modifié l'extension utilisée. Pour les prochaines interventions : identifier et mettre à jour le dossier réellement installé, avec sauvegarde, au lieu de livrer uniquement un nouveau paquet. Ne pas modifier les profils Chrome ou désinstaller l'extension.
+
+Le champ de saisie intérieur devient explicitement transparent et sans bordure ; le contour extérieur natif reste intact. Le loading masque le contenu en attente, puis toute la page (navigation incluse) apparaît pendant son fondu de sortie de 640 ms. La visibilité est restaurée aussi à la désactivation, au délai maximal et à la réduction des animations. Le test Instagram reproduit maintenant un champ gris avec bordure, vérifie son nettoyage, la conservation du contour extérieur et une opacité intermédiaire sur le corps de page.
+
+La copie installée de Chrome a été mise à jour en 0.34.2 : les six fichiers livrés ont les mêmes empreintes que le paquet testé, clé et permissions inchangées. Sauvegarde des anciens fichiers dans `build/installed-backup-before-0.34.2/`. Le navigateur Chrome utilisateur n'est pas connecté au contrôle UI ; le rechargement effectif de l'extension et de l'onglet Instagram reste à effectuer par l'utilisateur.
+
 ## Interface Instagram — 0.34.1
 
 La clarification utilisateur concerne les statuts/notes au-dessus des messages, pas le compteur de temps Control. Les raccourcis flottants sont désormais intégrés dans cette zone lorsqu'elle est reconnue ; aucun panneau supplémentaire n'est affiché par-dessus l'en-tête sinon. Les anciennes marges forcées, cadres de champs et décorations fondées sur les mots des messages ont été retirés. Les fonds de messagerie sont unifiés avec le thème natif. Le compteur reste inchangé.

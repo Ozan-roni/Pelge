@@ -1,4 +1,8 @@
-# Mise à jour Control 0.34.1
+# Mise à jour Control 0.34.2
+
+Le champ de message intérieur est explicitement transparent, sans seconde bordure ; le contour extérieur et les boutons natifs sont conservés. Toute l'interface apparaît en fondu pendant la disparition du loading (640 ms). La désactivation, la réduction des animations et la limite de chargement restaurent toujours la visibilité.
+
+Une copie préparée dans `build/` ne suffit pas à mettre à jour une extension installée ailleurs. Avant de livrer une correction, identifier le chemin réellement chargé par Chrome, sauvegarder les fichiers concernés et y synchroniser les modifications. Garder la même clé et les mêmes permissions. Recharger l'extension lit ce dossier ; actualiser ensuite les onglets déjà ouverts remplace leurs anciens scripts.
 
 Instagram : chargement avec logo, reflet discret et fondu ; fonds de messagerie unifiés ; suppression des cadres ajoutés aux champs et aux messages ; raccourcis Story/Note/Post intégrés au-dessus des statuts natifs lorsqu'ils sont identifiés. Les marges natives de la messagerie sont conservées pour éviter le chevauchement avec la navigation. Le compteur de temps reste inchangé.
 

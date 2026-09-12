@@ -18,17 +18,30 @@
   }
 
   function finishLoading(immediate = false) {
-    if (!loader) return;
+    if (!loader) {
+      if (immediate) {
+        clearTimeout(exitTimer);
+        document.getElementById('ControlInstagramLoading')?.remove();
+        document.documentElement.removeAttribute('data-control-ig-loading');
+      }
+      return;
+    }
     const current = loader;
     loader = null;
     clearTimeout(deadline);
     current.dataset.state = 'leaving';
     current.setAttribute('aria-hidden', 'true');
-    const remove = () => current.remove();
+    const remove = () => {
+      current.remove();
+      document.documentElement.removeAttribute('data-control-ig-loading');
+      clearTimeout(exitTimer);
+    };
     if (immediate || reduced()) remove();
     else {
+      // Reveal the complete native app (including navigation and headers) under the fading splash.
+      document.documentElement.setAttribute('data-control-ig-loading', 'revealing');
       current.addEventListener('transitionend', event => { if (event.target === current && event.propertyName === 'opacity') remove(); });
-      exitTimer = setTimeout(remove, 650);
+      exitTimer = setTimeout(remove, 800);
     }
   }
 
@@ -57,6 +70,7 @@
         loader.innerHTML = '<div class="ControlIgLoadingScene" aria-hidden="true"><div class="ControlIgLoadingMark"><img alt=""><i></i></div><img class="ControlIgLoadingReflection" alt=""></div><span>Instagram</span><small>A little space for your conversations</small>';
         loader.querySelectorAll('img').forEach(img => { img.src = logo; });
         loader.style.setProperty('--ControlIgLoadingLogo', `url("${logo}")`);
+        document.documentElement.setAttribute('data-control-ig-loading', 'pending');
         document.documentElement.append(loader);
         // Slow or failed Instagram requests must never leave the page covered.
         deadline = setTimeout(() => finishLoading(), 6000);
