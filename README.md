@@ -30,6 +30,10 @@ La seconde commande crée un nouveau dossier `build/extension-...` et affiche so
 
 Le site seul ne filtre pas les autres sites : l'extension doit être installée dans le navigateur utilisé. Les réglages et sessions locaux ne sont pas transférés par GitHub. La synchronisation de compte/base de données n'est pas encore une garantie de ce prototype.
 
+## iPhone : édition Safari autonome
+
+Après avoir installé l'application gratuite Userscripts, suivre [le guide iPhone](mobile/README.md). Le fichier [Control-iPhone.user.js](mobile/Control-iPhone.user.js) embarque un menu et les blocages des fils Instagram, Facebook, Reddit et X/Twitter. Aucun PC allumé ni serveur Control n'est requis à l'usage. Cette édition n'inclut pas les limites de temps, les réglages/synchronisation PC ou les autres réseaux ; elle ne modifie pas les applications natives. `npm run test:iphone` vérifie les parcours sur des sites simulés en taille mobile avec Playwright, sans valider l'intégration sur un iPhone physique.
+
 ## Interfaces et administration locale
 
 Les pages `#Apps`, `#Admin`, `#Contact` et `#Donation` sont accessibles directement, y compris après actualisation. Sur mobile, la barre inférieure flottante et son bouton **More** donnent accès aux pages de l'espace Control. L'accueil possède son propre sélecteur clair/sombre.

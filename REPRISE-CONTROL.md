@@ -1,5 +1,13 @@
 # Reprise de Control dans VS Code
 
+## iPhone avec Userscripts — édition 1.0.0
+
+L'utilisateur a installé Userscripts gratuit sur son iPhone et demande la suite. Une édition autonome est fournie dans `mobile/Control-iPhone.user.js`, avec guide dans `mobile/README.md`. Installation depuis le lien raw GitHub `.user.js` via le menu Userscripts de Safari. Le script ne dépend d'aucun serveur Control, PC allumé, API Chrome, ressource distante ou stockage synchronisé.
+
+Périmètre : menu Control intégré dans Safari, messageries Instagram/Facebook/Reddit/X et blocage des fils/profils/découverte par URL et navigation interne. Le favori `https://www.instagram.com/direct/inbox/?control=home` ouvre le menu. Les connexions et médias privés restent natifs. Ne pas promettre les minuteurs, limites, pause de cinq minutes, réglages PC, autres réseaux ou intégration aux apps natives. Si un réseau exige son app pour sa messagerie, ce script ne contourne pas cette restriction.
+
+`npm run test:iphone` vérifie quatre sites simulés en 390 px, le menu, la saisie, les médias privés, les routes, le retour arrière et les injections multiples ; un contrôle complémentaire couvre 320 px et la réduction des animations. L'intégration Userscripts/Safari et les véritables comptes restent à vérifier sur l'iPhone utilisateur. Le dépôt étant public, vérifier que le lien raw délivre exactement le fichier après le push. Aucune modification de la copie Chrome installée pour cette édition indépendante.
+
 ## Fenêtres Instagram et réseaux sans fils — 0.34.4
 
 Suppression des fonds/cadres/ombres/flous et dimensions ajoutés aux enveloppes des fenêtres natives Instagram : conserver leur carte native et un simple fondu, sans double cadre comme dans la capture « New message ».
