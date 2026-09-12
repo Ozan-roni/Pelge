@@ -1,4 +1,5 @@
 [data-control-social-hidden="true"] { display:none !important; }
+[data-control-focus-hidden="true"] { display:none !important; }
 #ControlExtendedBlocker {
   align-items: center !important;
   background: rgba(243, 243, 239, 0.985) !important;
@@ -86,12 +87,6 @@
 .ControlInstagramHideStories a[href^="/stories/"],
 .ControlInstagramHideStories [aria-label*="story" i],
 .ControlInstagramHideStories [aria-label*="stories" i] {
-  display: none !important;
-  pointer-events: none !important;
-}
-
-.ControlXDMOnly nav a[href]:not([href^="/messages"]):not([href*="/settings"]),
-.ControlXDMOnly header a[href]:not([href^="/messages"]):not([href*="/settings"]) {
   display: none !important;
   pointer-events: none !important;
 }
@@ -550,23 +545,18 @@ html.ControlInstagramPolished [data-control-ig-create="true"]:hover {
 }
 
 html.ControlInstagramPolished [data-control-ig-sheet="true"] {
-  animation: ControlInstagramSheetIn .3s cubic-bezier(.2,.82,.2,1) both !important;
-  backdrop-filter: blur(34px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(150%) !important;
-  background: var(--ControlIgCardStrong) !important;
-  border: 1px solid var(--ControlIgBorder) !important;
-  border-radius: 26px !important;
-  box-shadow: 0 34px 100px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08) !important;
-  overflow: hidden !important;
+  animation: ControlInstagramDialogFade .26s ease-out both !important;
+}
+
+@keyframes ControlInstagramDialogFade { from { opacity:0; } to { opacity:1; } }
+@media (prefers-reduced-motion: reduce) {
+  html.ControlInstagramPolished [data-control-ig-sheet="true"] { animation:none !important; }
 }
 
 html.ControlInstagramPolished [data-control-ig-sheet="true"] :is(button, [role="button"], a) {
   transition: background-color .18s ease, color .18s ease, opacity .18s ease, transform .18s ease !important;
 }
 
-html.ControlInstagramPolished [data-control-ig-sheet="true"] :is(button, [role="button"], a):hover {
-  background: var(--ControlIgAccentSoft) !important;
-}
 
 html.ControlInstagramPolished [data-control-ig-story-action="true"] {
   background: linear-gradient(135deg, #7164e8, #aa6fd7) !important;
@@ -696,30 +686,13 @@ html.ControlInstagramPolished[data-control-instagram-route="direct"] [data-contr
 
 
 
-html.ControlInstagramPolished [role="presentation"]:has(> [data-control-ig-sheet="true"]),
-html.ControlInstagramPolished [role="presentation"]:has([data-control-ig-sheet="true"]) {
-  backdrop-filter: blur(14px) saturate(110%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(110%) !important;
-  background: rgba(4,5,8,.34) !important;
-}
 
-html.ControlInstagramPolished [data-control-ig-share-sheet="true"] {
-  border-radius: 30px !important;
-  max-height: min(82vh, 820px) !important;
-  max-width: min(92vw, 760px) !important;
-  min-width: min(680px, 90vw) !important;
-}
 
 html.ControlInstagramPolished [data-control-ig-share-sheet="true"] :is([aria-checked="true"], [aria-selected="true"], [data-state="checked"]) {
   background: var(--ControlIgAccentSoft) !important;
   box-shadow: inset 0 0 0 1px rgba(139,124,246,.28), 0 10px 24px rgba(101,88,217,.12) !important;
 }
 
-html.ControlInstagramPolished [data-control-ig-composer="true"] {
-  border-radius: 32px !important;
-  max-height: min(88vh, 900px) !important;
-  max-width: min(94vw, 1040px) !important;
-}
 
 html.ControlInstagramPolished [data-control-ig-composer-action="true"] {
   backdrop-filter: blur(24px) saturate(155%) !important;

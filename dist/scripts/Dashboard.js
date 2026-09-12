@@ -87,7 +87,7 @@ const DefaultRules = {
     DailyLimitMinutes: 0,
   },
   TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
-  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, DMsOnly: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
   Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
   Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
   YouTube: {
@@ -133,6 +133,7 @@ const ApplicationDefinitions = [
     CompactDescription: "Profiles + messages \u00B7 no For You or video discovery",
     Url: "https://x.com/messages",
     Rules: [
+      ["DMsOnly", "Messages only", "Block all timelines, profiles and discovery; keep messages and account access"],
       ["ForYou", "Block For You", "Remove the algorithmic home timeline"],
       ["SearchProfilesOnly", "Profile search only", "Search returns people, never posts, trends or media"],
       ["Videos", "Block videos", "Remove video players and video discovery"],
@@ -180,7 +181,8 @@ const ApplicationDefinitions = [
 ];
 
 ApplicationDefinitions.push(
-  { Key: "Reddit", Name: "Reddit", Description: "Choose your communities without endless discovery.", CompactDescription: "Home feed and Popular controls", Url: "https://www.reddit.com/", Rules: [
+  { Key: "Reddit", Name: "Reddit", Description: "Keep conversations without endless discovery.", CompactDescription: "Messages and feed controls", Url: "https://www.reddit.com/message/inbox/", Rules: [
+    ["DMsOnly", "Messages only", "Block feeds, communities, posts and discovery; keep messages, chat and account access"],
     ["HomeFeed", "Block home feed", "Hide the personalized home feed"],
     ["Popular", "Block Popular", "Remove Popular and All discovery feeds"],
     ["Comments", "Hide comments", "Keep posts without their discussion threads"],

@@ -48,6 +48,13 @@ async function test(){
   listeners[0]({Rules:{newValue:{...initial,X:{...initial.X,Videos:false}}}},'sync');
   vm.runInContext('ControlExtendedApplyFilters()',context);
   assert(!tweet.hasAttribute('data-control-extended-hidden'),'Individual video toggle restores content');
+  context.location.pathname='/messages';
+  listeners[0]({Rules:{newValue:{...initial,X:{...initial.X,DMsOnly:true,Videos:true}}}},'sync');
+  vm.runInContext('ControlExtendedApplyFilters()',context);
+  assert(!tweet.hasAttribute('data-control-extended-hidden'),'Messages-only mode preserves private video attachments');
+  assert(!root.classList.has('ControlXHideVideos'));
+  context.location.pathname='/person';
+  listeners[0]({Rules:{newValue:initial}},'sync');
   // An older async usage read must never win after a newer allowance.
   vm.runInContext('ControlExtendedShowBlocker = () => {};',context);
   context.chrome.storage.local.get=async()=>({UsageState:{Days:{[vm.runInContext('ControlExtendedGetLocalDateKey()',context)]:{X:45*60*1000}}}});

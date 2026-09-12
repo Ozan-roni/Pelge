@@ -84,6 +84,22 @@ async function run(){
    await page.getByRole('searchbox').fill('Sample');
    assert.equal(await page.getByRole('searchbox').inputValue(),'Sample');
    await page.evaluate(()=>document.querySelector('#fixture-search').remove());
+   await page.evaluate(theme=>{
+    const overlay=document.createElement('div');overlay.id='fixture-dialog-overlay';overlay.setAttribute('role','presentation');
+    overlay.style.cssText='position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.5);z-index:10000';
+    overlay.innerHTML='<div role="dialog" aria-label="New message" style="padding:28px"><section id="fixture-dialog-card" style="width:420px;border-radius:24px;padding:24px;background:'+(theme==='dark'?'rgb(32,33,38)':'rgb(255,255,255)')+'"><h2>New message</h2><label>To: <input aria-label="Recipient" placeholder="Recipient"></label><p>Choose a conversation</p><button id="fixture-dialog-close">Close</button></section></div>';
+    overlay.querySelector('button').onclick=()=>overlay.remove();document.body.append(overlay);
+   },theme);
+   await page.locator('[data-control-ig-sheet]').waitFor();
+   const dialog=await page.getByRole('dialog',{name:'New message'}).evaluate(e=>({background:getComputedStyle(e).backgroundColor,border:getComputedStyle(e).borderTopWidth,shadow:getComputedStyle(e).boxShadow,blur:getComputedStyle(e).backdropFilter}));
+   assert.deepEqual(dialog,{background:'rgba(0, 0, 0, 0)',border:'0px',shadow:'none',blur:'none'},'No second frame behind the native interaction');
+   assert.equal(await page.locator('#fixture-dialog-card').evaluate(e=>getComputedStyle(e).backgroundColor),theme==='dark'?'rgb(32, 33, 38)':'rgb(255, 255, 255)');
+   await page.getByRole('textbox',{name:'Recipient',exact:true}).fill('Sample');
+   await page.getByRole('dialog',{name:'New message'}).evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
+   assert.equal(await page.getByRole('dialog',{name:'New message'}).evaluate(e=>getComputedStyle(e).opacity),'1');
+   await page.screenshot({path:path.join(out,`dialog-${theme}.png`)});
+   await page.getByRole('button',{name:'Close',exact:true}).click();
+   assert.equal(await page.getByRole('dialog',{name:'New message'}).count(),0);
    await page.evaluate(()=>{
     const row=document.createElement('div');row.id='fixture-voice';
     row.style.cssText='display:flex;align-items:center;width:100%;border:1px solid #8885;border-radius:40px;margin-bottom:12px';

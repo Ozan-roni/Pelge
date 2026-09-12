@@ -10,7 +10,7 @@ const ControlExtendedDefaultRules = {
   Snapchat: { Enabled: true, DMsOnly: true, DailyLimitMinutes: 0 },
   TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
   YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 0 },
-  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, DMsOnly: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
   Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
   Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
 };
@@ -170,6 +170,7 @@ function ControlExtendedRemoveElement(Node) {
 }
 
 function ControlExtendedRestorePage() {
+  document.querySelectorAll('[data-control-focus-hidden]').forEach(Node => Node.removeAttribute('data-control-focus-hidden'));
   document.querySelectorAll('[data-control-extended-hidden], [data-control-social-hidden]').forEach(Node => {
     Node.removeAttribute('data-control-extended-hidden');
     Node.removeAttribute('data-control-social-hidden');
@@ -243,13 +244,14 @@ function ControlExtendedFilterInstagram(Rules) {
   return false;
 }
 function ControlExtendedFilterX(Rules) {
+  if (Rules.DMsOnly) {
+    document.documentElement.classList.toggle('ControlXDMOnly', ControlExtendedFocusRoute('X') === 'messages');
+    for (const name of ['ControlXIntentional','ControlXSearchProfilesOnly','ControlXHideVideos']) document.documentElement.classList.remove(name);
+    return ControlExtendedApplyMessagesOnly('X');
+  }
   const SearchParameters = new URLSearchParams(location.search);
   const Path = location.pathname.toLowerCase();
   const IsAuthentication = Path.startsWith("/i/flow/") || Path.startsWith("/login") || Path.startsWith("/account/");
-  if (Rules.DMsOnly && !IsAuthentication && !Path.startsWith('/messages') && !Path.startsWith('/i/chat') && !Path.startsWith('/settings')) {
-    ControlExtendedShowBlocker('X is in messages-only mode', 'Your conversations remain available.', '/messages');
-    return true;
-  }
   if (Rules.ForYou && (Path === "/" || Path === "/home")) {
     ControlExtendedShowBlocker("The For You timeline is locked", "Search for a person, open a profile intentionally or continue to Messages.", "/messages");
     return true;
@@ -347,7 +349,48 @@ function ControlExtendedScrubSensitiveContent(Application) {
   }
 }
 
+function ControlExtendedFocusRoute(Application, Path = location.pathname, Host = location.hostname) {
+  Path = Path.toLowerCase();
+  Host = Host.toLowerCase();
+  if (Application === 'X') {
+    if (/^\/(messages|i\/chat)(\/|$)/.test(Path)) return 'messages';
+    if (/^\/(settings|login|logout|account|i\/flow)(\/|$)/.test(Path)) return 'account';
+  }
+  if (Application === 'Reddit') {
+    if (Host === 'chat.reddit.com' || /^\/(message|chat)(\/|$)/.test(Path)) return 'messages';
+    if (/^\/(settings|prefs|account|login|logout|register|password|verify|verification|auth)(\/|$)/.test(Path)) return 'account';
+  }
+  if (Application === 'Facebook') {
+    if (/^\/messages(\/|$)/.test(Path)) return 'messages';
+    if (/^\/(settings|login|logout|recover|checkpoint|two_step_verification|confirmemail|privacy|help|reg)(\.php)?(\/|$)/.test(Path)) return 'account';
+  }
+  return 'blocked';
+}
+
+function ControlExtendedApplyMessagesOnly(Application) {
+  const Route = ControlExtendedFocusRoute(Application);
+  document.querySelectorAll('[data-control-focus-hidden]').forEach(Node => Node.removeAttribute('data-control-focus-hidden'));
+  if (Route === 'blocked') {
+    const SafeUrl = {X:'/messages', Reddit:'https://www.reddit.com/message/inbox/', Facebook:'/messages/'}[Application];
+    ControlExtendedShowBlocker(`${Application} is in messages-only mode`, 'Feeds, videos, communities and discovery are paused. Your conversations and account settings remain available.', SafeUrl);
+    return true;
+  }
+  if (Route === 'messages') {
+    for (const Link of document.querySelectorAll('nav a[href], [role="navigation"] a[href]')) {
+      try {
+        const Url = new URL(Link.getAttribute('href'), location.href);
+        // Leave external links and message contents untouched.
+        const Host = Url.hostname.toLowerCase();
+        const IsSameApp = Application === 'X' ? /(^|\.)(x|twitter)\.com$/.test(Host) : Host === `${Application.toLowerCase()}.com` || Host.endsWith(`.${Application.toLowerCase()}.com`);
+        if (IsSameApp && ControlExtendedFocusRoute(Application, Url.pathname, Host) === 'blocked') Link.setAttribute('data-control-focus-hidden','true');
+      } catch { /* Native non-URL controls remain available. */ }
+    }
+  }
+  return false;
+}
+
 function ControlExtendedFilterSocialApp(Application, Rules) {
+  if (Rules.DMsOnly && ['Reddit','Facebook'].includes(Application)) return ControlExtendedApplyMessagesOnly(Application);
   const Path = location.pathname.toLowerCase().replace(/\/+$/, "") || "/";
   // These rules only target named routes and comment containers, never private messages.
   if (Application !== "Reddit" || !Rules.Comments) document.querySelectorAll('[data-control-social-hidden]').forEach(Node => Node.removeAttribute('data-control-social-hidden'));
@@ -362,9 +405,7 @@ function ControlExtendedFilterSocialApp(Application, Rules) {
     if (Rules.Activity && /^\/activity(\/|$)/.test(Path)) Message = "Threads activity is paused";
   }
   if (Application === "Facebook") {
-    const IsUseful = /^\/(messages|settings|login|recover|checkpoint)(\/|$)/.test(Path);
-    if (Rules.DMsOnly && !IsUseful) Message = "Facebook is in messages-only mode";
-    else if (Rules.HomeFeed && (Path === "/" || Path === "/home.php")) Message = "Your Facebook home feed is paused";
+    if (Rules.HomeFeed && (Path === "/" || Path === "/home.php")) Message = "Your Facebook home feed is paused";
     else if (Rules.Reels && /^\/reels?(\/|$)/.test(Path)) Message = "Facebook Reels are paused";
     else if (Rules.Stories && /^\/stories(\/|$)/.test(Path)) Message = "Facebook Stories are paused";
   }
@@ -594,5 +635,13 @@ async function ControlExtendedReconcileRules() {
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) void ControlExtendedReconcileRules(); });
 window.addEventListener("focus", () => void ControlExtendedReconcileRules());
+window.addEventListener('popstate', ControlExtendedScheduleFilters);
+// Some SPA routes change history before they mutate the DOM. Check only the URL here.
+let ControlExtendedObservedUrl = location.href;
+window.setInterval(() => {
+  if (ControlExtendedObservedUrl === location.href) return;
+  ControlExtendedObservedUrl = location.href;
+  ControlExtendedApplyFilters();
+}, 200);
 window.setInterval(() => void ControlExtendedReconcileRules(), 5000);
 void ControlExtendedLoadRules();

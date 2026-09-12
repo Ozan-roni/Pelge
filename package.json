@@ -1,13 +1,13 @@
 {
   "name": "control-focus",
-  "version": "0.34.3",
+  "version": "0.34.4",
   "private": true,
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "dev": "node scripts/serve.cjs",
-    "test": "node extension/check.cjs && node extension/check-settings.cjs",
+    "test": "node extension/check.cjs && node extension/check-settings.cjs && node extension/check-social-focus.cjs",
     "package:extension": "node scripts/package-extension.cjs",
     "test:ui": "node scripts/check-workspace.cjs",
     "test:instagram": "node scripts/check-instagram.cjs"

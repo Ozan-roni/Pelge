@@ -21,7 +21,7 @@ const DefaultRules = {
   Snapchat: { Enabled: true, Spotlight: true, Stories: true, Discover: true, Map: true, Ads: true, DMsOnly: true, DailyLimitMinutes: 0 },
   TikTok: { Enabled: true, ForYou: true, FollowingFeed: true, Live: true, Suggested: true, DailyLimitMinutes: 0 },
   YouTube: { Enabled: true, VideoOnly: false, Shorts: true, HomeFeed: false, Recommendations: false, Comments: false, Ads: false, DailyLimitMinutes: 0 },
-  Reddit: { Enabled: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
+  Reddit: { Enabled: false, DMsOnly: false, HomeFeed: true, Popular: true, Comments: false, DailyLimitMinutes: 0 },
   Threads: { Enabled: false, ForYou: true, Activity: false, DailyLimitMinutes: 0 },
   Facebook: { Enabled: false, HomeFeed: true, Reels: true, Stories: false, DMsOnly: false, DailyLimitMinutes: 0 },
 };
@@ -132,10 +132,33 @@ function ApplyYouTubeShortsOnlyRules(Rules) {
   Rules.YouTube.Ads = false;
 }
 
+function ApplyRequestedSocialFocus(Rules) {
+  // This release applies the user's requested preset once, never on subsequent edits.
+  for (const App of ['X','Reddit','Facebook']) {
+    Rules[App].Enabled = true;
+    Rules[App].DMsOnly = true;
+  }
+  Rules.X.ForYou = true;
+  Rules.X.SearchProfilesOnly = true;
+  Rules.X.Videos = true;
+  Rules.Reddit.HomeFeed = true;
+  Rules.Reddit.Popular = true;
+  Rules.Facebook.HomeFeed = true;
+  Rules.Facebook.Reels = true;
+  Rules.Facebook.Stories = true;
+  Rules.ProtectedApplications = ApplicationKeys.filter(App => Rules[App].Enabled);
+}
+
+let ControlRulesInitialization = null;
 async function EnsureDefaultRules() {
-  const StoredData = await chrome.storage.sync.get("Rules");
-  const Rules = [8, 9, 10, 11, 12, 13, 14].includes(StoredData.Rules?.SchemaVersion) ? MergeRules(StoredData.Rules) : structuredClone(DefaultRules);
-  await chrome.storage.sync.set({ Rules });
+  if (!ControlRulesInitialization) ControlRulesInitialization = (async () => {
+    const StoredData = await chrome.storage.sync.get(['Rules','ControlSocialFocusApplied']);
+    const Rules = [8, 9, 10, 11, 12, 13, 14].includes(StoredData.Rules?.SchemaVersion) ? MergeRules(StoredData.Rules) : structuredClone(DefaultRules);
+    const ApplyFocus = StoredData.ControlSocialFocusApplied !== 1;
+    if (ApplyFocus) ApplyRequestedSocialFocus(Rules);
+    await chrome.storage.sync.set({ Rules, ...(ApplyFocus ? {ControlSocialFocusApplied:1} : {}) });
+  })().catch(Error => { ControlRulesInitialization = null; throw Error; });
+  return ControlRulesInitialization;
 }
 
 function CreateApplicationCounter() {
@@ -372,7 +395,7 @@ chrome.tabs.onUpdated.addListener((TabId, ChangeInfo) => {
 chrome.windows.onFocusChanged.addListener(() => void QueueUsageRefresh());
 chrome.idle.onStateChanged.addListener(() => void QueueUsageRefresh());
 
-let RuleWriteTask = Promise.resolve();
+let RuleWriteTask = EnsureDefaultRules();
 function UpdateRulesPatch(Patch) {
   const CleanPatch = ControlRuleProtocol.validate(Patch, DefaultRules);
   const Task = RuleWriteTask.catch(() => {}).then(async () => {

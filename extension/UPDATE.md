@@ -1,4 +1,8 @@
-# Mise à jour Control 0.34.3
+# Mise à jour Control 0.34.4
+
+Les fenêtres natives Instagram (nouveau message, partage, etc.) conservent leur seul fond natif, sans cadre, ombre ou flou ajoutés sur les conteneurs parents. Leur ouverture reste en fondu.
+
+À la demande de l'utilisateur, cette version active X/Twitter, Reddit et Facebook en mode messages uniquement au premier rechargement. Elle bloque aussi les accès directs aux fils, profils, communautés, vidéos et pages de découverte ; les messages, chats et pages de connexion/réglages restent accessibles. Les médias privés de X sont conservés. Le marqueur synchronisé `ControlSocialFocusApplied: 1` empêche de réappliquer le choix à chaque démarrage : les changements ultérieurs restent respectés. Les limites existantes et les autres applications restent inchangées. Les réglages X et Reddit affichent désormais Messages only.
 
 Logo Instagram coloré avec une lueur qui le traverse (sans reflet miroir). Fondu lors d'un changement de conversation et à l'ouverture/focus de la recherche, sans déplacer la liste. Marge supplémentaire de 32 px sous les statuts. Le compositeur vocal natif reconnu par ses commandes d'arrêt/annulation/envoi devient une capsule compacte, avec commandes rondes ; progression, durée et actions natives sont conservées. Aucun accès au microphone n'est ajouté. Les variantes de DOM Instagram non reconnues gardent leur apparence native.
 

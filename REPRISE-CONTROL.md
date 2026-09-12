@@ -1,5 +1,17 @@
 # Reprise de Control dans VS Code
 
+## Fenêtres Instagram et réseaux sans fils — 0.34.4
+
+Suppression des fonds/cadres/ombres/flous et dimensions ajoutés aux enveloppes des fenêtres natives Instagram : conserver leur carte native et un simple fondu, sans double cadre comme dans la capture « New message ».
+
+Demande explicite d'activer Facebook, Reddit et Twitter/X sans surfaces à faire défiler : mode messages uniquement, y compris blocage des profils, communautés, découverte et vidéos accessibles par URL. Messages, chats et accès au compte restent ouverts ; les pièces jointes vidéo dans les messages X restent visibles. Le mode DMsOnly de Reddit est ajouté aux trois jeux de règles et à l'interface. Les entrées de navigation vers les fils sont masquées, sans retirer les liens dans les messages ni leur en-tête.
+
+Le service worker applique ce choix UNE fois, lors du prochain rechargement de l'extension, avec `ControlSocialFocusApplied: 1` enregistré en même temps que Rules dans storage.sync. Préserver ce marqueur et les changements ultérieurs ; ne pas réactiver les applications à chaque démarrage. L'initialisation est partagée entre les événements de démarrage pour éviter les écritures concurrentes, et précède les modifications de réglages. Les limites et réglages des autres applications sont conservés.
+
+`npm test` couvre les routes (y compris anciens domaines et connexion), la navigation, les médias privés, l'activation unique et le respect des désactivations ultérieures. Le test Instagram vérifie la fenêtre native sans second fond, la saisie et la fermeture. Tests simulés uniquement ; les pages connectées des réseaux sociaux ne sont pas inspectées.
+
+Les cinq fichiers concernés ont été synchronisés dans la copie installée en 0.34.4, avec empreintes vérifiées et sauvegarde dans `build/installed-backup-before-0.34.4/`. Le service worker utilisateur n'a pas été rechargé par l'agent : l'activation sera effective lorsque l'utilisateur rechargera l'extension, puis actualisera les onglets existants.
+
 ## Finitions Instagram — 0.34.3
 
 L'utilisateur précise que le logo doit rester coloré et que le reflet doit le traverser. `InstagramColor.svg` sert désormais au chargement, dans les deux thèmes, avec un balayage lumineux et sans copie miroir. Ajout d'un fondu du panneau de conversation au changement de chemin `/direct/t/`, et d'un fondu de la recherche à son ouverture ou focus. Les animations n'interceptent pas les clics et respectent la réduction des mouvements. Une marge de 32 px sépare les notes/statuts du contenu suivant.
