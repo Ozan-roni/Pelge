@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — Safari (extension PC adaptée)
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      0.34.4.2
+// @version      0.34.4.3
 // @description  Styles, filtres et tableau de bord originaux de Control, avec adaptation Userscripts. Safari uniquement ; aucun service Chrome en arrière-plan.
 // @match        https://*/*
 // @match        http://*/*
@@ -672,6 +672,8 @@ function startInstagramVisuals(chrome){
 }
 
 function startContentFilter(chrome){
+let mobileInitialRoute=location.pathname, mobileIntent=false, mobileRedirecting=false;
+document.addEventListener('click',()=>{mobileIntent=true;},{capture:true});
 const DefaultRules = {
   StrictMode: true,
   Instagram: {
@@ -1277,6 +1279,11 @@ function RemoveBlocker() {
 }
 
 function ShowBlocker(Title, Description, SafeUrl) {
+  if(matchMedia('(max-width:859px)').matches && /(^|\.)instagram\.com$/.test(location.hostname) && !mobileIntent && location.pathname===mobileInitialRoute){
+    if(!mobileRedirecting){mobileRedirecting=true;location.replace(SafeUrl);}
+    return;
+  }
+
   document.getElementById("ControlExtendedBlocker")?.remove();
   let Blocker = document.getElementById("ControlRouteBlocker");
 
@@ -7258,7 +7265,47 @@ if(application){
  launcher=document.createElement('button');launcher.id='ControlSafariLauncher';launcher.type='button';launcher.textContent='Control';launcher.setAttribute('aria-label','Ouvrir le tableau de bord Control');
  launcher.style.cssText='all:initial!important;position:fixed!important;left:12px!important;top:max(12px,env(safe-area-inset-top))!important;z-index:2147483647!important;box-sizing:border-box!important;display:block!important;padding:10px 16px!important;border-radius:22px!important;background:#eee9faf0!important;color:#352b52!important;box-shadow:0 3px 18px #20123833!important;font:600 14px system-ui!important;cursor:pointer!important;';
  launcher.onclick=()=>void openDashboard('Dashboard');document.documentElement.append(launcher);
- if(new URL(location.href).searchParams.get('control')==='home')await openDashboard('Dashboard');
+
 }
+
+// Mobile-only presentation. Keep native message nodes and event handlers intact.
+if(application==='Instagram' && (matchMedia('(max-width:859px)').matches || screen.width<=859)){
+ launcher?.style.setProperty('display','none','important');
+ const paths={home:'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',control:'M5 4v16M12 4v16M19 4v16M2 8h6M9 16h6M16 9h6',messages:'m3 3 19 7-9 4-4 8-6-19Zm10 11 9-4',search:'M21 21l-6-6M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0',profile:'M20 21v-2a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0'};
+ const dock=document.createElement('nav');dock.id='ControlSafariBottomNav';dock.setAttribute('aria-label','Navigation Instagram');
+ const items=[['home','Accueil','/'],['control','Ouvrir Control',null],['messages','Messages','/direct/inbox/'],['search','Rechercher','/explore/'],['profile','Profil',null]];
+ for(const [key,label,href] of items){const button=document.createElement('button');button.type='button';button.setAttribute('aria-label',label);button.dataset.destination=key;button.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[key]}"/></svg>`;button.onclick=()=>{if(key==='control'){void openDashboard('Dashboard');return;}let target=href;if(key==='profile'){const native=document.querySelector('[data-control-ig-rail] a:has(svg[aria-label*="Profile" i]),[data-control-ig-rail] a:has(svg[aria-label*="Profil" i]),[data-control-ig-rail] a:has(img)');target=native?.getAttribute('href');}if(!target)return;const native=[...document.querySelectorAll('a[href]')].find(a=>a.getAttribute('href')===target&&!dock.contains(a));if(native)native.click();else location.assign(target);};dock.append(button);}
+ document.documentElement.append(dock);
+ addStyle(`@media(max-width:859px){
+ #ControlSafariLauncher,#ControlUsageTimer{display:none!important}
+ #ControlInstagramLoading>span,#ControlInstagramLoading>small,#ControlInstagramLoading .ControlIgLoadingMark i{display:none!important}
+ html.ControlInstagramPolished [data-control-ig-rail]{display:none!important}
+ #ControlInstagramMobileFeatureDock{display:none!important}
+ html.ControlInstagramPolished [data-control-ig-notes="true"]{position:relative!important;top:auto!important;inset:auto!important;transform:none!important;flex-shrink:0!important}
+ [data-control-mobile-notes-parent]{position:static!important;top:auto!important;transform:none!important}
+ #ControlSafariBottomNav{box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:2147483600;height:calc(54px + env(safe-area-inset-bottom));padding:0 8px env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:space-around;background:rgb(var(--ig-primary-background,12,16,20));color:rgb(var(--ig-primary-text,245,245,245));border-top:1px solid #8883}
+ #ControlSafariBottomNav button{all:unset;box-sizing:border-box;display:grid;place-items:center;width:20%;height:50px;cursor:pointer;color:inherit}
+ #ControlSafariBottomNav button:focus-visible{outline:2px solid currentColor;outline-offset:-5px;border-radius:8px}
+ #ControlSafariBottomNav svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ html[data-control-mobile-thread] #ControlSafariBottomNav{display:none!important}
+ html:not([data-control-mobile-thread]) body{padding-bottom:calc(54px + env(safe-area-inset-bottom))!important}
+ html[data-control-ig-loading] #ControlSafariBottomNav{visibility:hidden}
+ }`);
+ function updateMobile(){
+  const thread=/^\/direct\/(t|new)\//.test(location.pathname);
+  document.documentElement.toggleAttribute('data-control-mobile-thread',thread);
+  dock.hidden=/^\/(accounts|challenge)\//.test(location.pathname);
+  dock.style.visibility=dock.hidden?'hidden':'';
+  const notes=document.querySelector('[data-control-ig-notes="true"]');
+  for(let node=notes?.parentElement,depth=0;node&&node!==document.body&&depth<4;node=node.parentElement,depth++){
+   if(node.querySelector('a[href^="/direct/t/"],[role="log"]'))break;
+   if(['sticky','fixed'].includes(getComputedStyle(node).position))node.setAttribute('data-control-mobile-notes-parent','');
+  }
+ }
+ let queued=false;new MutationObserver(()=>{if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;updateMobile();});}}).observe(document.body||document.documentElement,{childList:true,subtree:true});
+ window.addEventListener('popstate',updateMobile);setInterval(updateMobile,700);updateMobile();
+}
+
+if(application && new URL(location.href).searchParams.get('control')==='home')await openDashboard('Dashboard');
 
 })().catch(error=>console.error("Control Safari",error));

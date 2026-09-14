@@ -1,6 +1,6 @@
 # Control : sources PC adaptées à Userscripts sur iPhone
 
-Version 0.34.4.2 — fichier autonome de 4,9 Mo. Images optimisées en WebP ; modules et réglages conservés.
+Version 0.34.4.3 — fichier autonome de 4,9 Mo. Images optimisées en WebP ; modules et réglages conservés.
 
 ## Installation dans Safari
 
@@ -31,3 +31,7 @@ Tests effectués avec Chromium et WebKit sur des pages simulées à des largeurs
 Le fichier `Control-iPhone.user.js` reste disponible séparément comme ancienne édition simplifiée.
 
 [Documentation officielle Userscripts](https://github.com/quoid/userscripts#ios-ipados).
+
+## Instagram mobile — 0.34.4.3
+Navigation en bas avec Control à la place de Reels, sans bouton flottant ni timer. Barre masquée dans les conversations pour préserver la saisie. Chargement avec logo seul et fondu ; redirection initiale des routes bloquées vers les messages. Notes non collantes. Désactiver impérativement l’ancien script Control — iPhone, qui ajoute son propre bouton et ses blocages.
+Tests WebKit sur pages simulées ; validation sur iPhone réel encore nécessaire.
