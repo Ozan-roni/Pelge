@@ -1,6 +1,6 @@
 # Control : sources PC adaptées à Userscripts sur iPhone
 
-Version 0.34.4.1 — fichier autonome d’environ 36 Mo.
+Version 0.34.4.2 — fichier autonome de 4,9 Mo. Images optimisées en WebP ; modules et réglages conservés.
 
 ## Installation dans Safari
 
