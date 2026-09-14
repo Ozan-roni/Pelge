@@ -5,7 +5,7 @@ Version 0.34.4.1 — fichier autonome d’environ 36 Mo.
 ## Installation dans Safari
 
 1. Activer l’extension Userscripts dans les réglages de Safari.
-2. Ouvrir [Control-Safari.user.js](https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-Safari.user.js) **dans Safari**. Le chargement peut prendre un moment.
+2. Ouvrir [Control-Safari.user.js](https://raw.githubusercontent.com/Ozan-roni/Pelge/control-safari-iphone-download/mobile/Control-Safari.user.js) **dans Safari**. Le chargement peut prendre un moment.
 3. Ouvrir le menu de la page → Userscripts → **Install** pour « Control — Safari (extension PC adaptée) ».
 4. **Désactiver l’ancien script « Control — iPhone »** : ne pas faire fonctionner les deux versions ensemble.
 5. Ouvrir [Control](https://www.instagram.com/direct/inbox/?control=home), autoriser Userscripts sur Instagram et recharger la page.
