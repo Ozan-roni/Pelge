@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.3.0
+// @version      1.4.0
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -138,6 +138,22 @@
       #control-snap-tabs button:disabled{opacity:.4!important;cursor:default!important}
       #control-snap-tabs button:focus-visible{outline:2px solid #0084ff!important;outline-offset:-2px!important}
       #control-snap-tabs svg{height:25px!important;width:25px!important;fill:none!important;stroke:currentColor!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+      #control-snap-tabs button>span{display:none!important}
+      html[data-control-snap-view="conversation"]{--control-snap-bottom:0px;color-scheme:normal!important}
+      html[data-control-snap-view="conversation"] #control-snap-tabs{display:none!important}
+      html[data-control-snap-view="conversation"],html[data-control-snap-view="conversation"] body,html[data-control-snap-view="conversation"] [data-control-snap-shell],html[data-control-snap-view="conversation"] [data-control-snap-conversation]{background:var(--control-chat-background,#1e1e1e)!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-conversation]{padding:0!important;margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-frame]{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:100%!important;min-height:0!important;max-height:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;flex:1 1 auto!important;background:var(--control-chat-background,#1e1e1e)!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-log]{flex:1 1 0%!important;min-height:0!important;max-height:none!important;height:auto!important;overflow-y:auto!important;border-radius:0!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-composer]{flex:0 0 auto!important;margin-bottom:0!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-frame]{align-items:stretch!important;justify-content:flex-start!important}
+      [data-control-snap-name-line]{display:block!important;order:-1!important;flex:0 0 auto!important;position:static!important;inset:auto!important;transform:none!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:20px!important;max-height:40px!important;width:100%!important;min-width:0!important;max-width:none!important;font:600 17px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;white-space:normal!important;overflow:hidden!important;overflow-wrap:anywhere!important;color:#17191c!important;margin:0!important;padding:0!important}
+      [data-control-snap-status-line],[data-control-snap-status-line] [data-control-snap-text-flow]{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;position:static!important;inset:auto!important;transform:none!important;flex:0 1 auto!important;min-height:18px!important;max-height:20px!important;height:20px!important;min-width:0!important;width:auto!important;overflow:hidden!important;font:400 13px/18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;white-space:nowrap!important;color:#747b84!important;margin:0!important;padding:0!important}
+      [data-control-snap-status-line] svg{width:15px!important;height:15px!important;flex:0 0 15px!important}
+      html[data-control-snap-view="snap"] [data-control-snap-camera],html[data-control-snap-view="snap"] [data-control-snap-camera-fill]{background:#09090b!important;background-image:none!important}
+      [data-control-snap-camera-start]{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;border:0!important;border-radius:0!important;background:#09090b!important;color:#fff!important;padding:0!important;margin:0!important}
+      [data-control-snap-camera-start]>*{display:none!important}
+      [data-control-snap-camera-start]::before{content:"Activer la caméra";font:500 16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:16px 24px;border:1px solid #fff5;border-radius:999px;background:#ffffff14;color:#fff}
     }
     @media(prefers-reduced-motion:reduce){html[data-control-snap] body,#control-snap-tabs button,#control-snap-tabs svg{transition:none!important}[data-control-snap-enter]{animation:none!important}}`;
   const visible=el=>el instanceof HTMLElement && el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden';
@@ -197,8 +213,13 @@
     snapTabs.addEventListener('click',event=>{
       const button=event.target.closest('button[data-view]');if(!button||button.disabled)return;
       snapView=button.dataset.view;snapForceInbox=snapView==='messages';
-      // Reveal the native camera only. Never trigger permission, capture or sending automatically.
       refresh();
+      // Only a deliberate tap on Snap may invoke the native camera START prompt.
+      // Shutter, recording and send buttons are never invoked here.
+      if(snapView==='snap'&&innerWidth<=700&&event.isTrusted){
+        const start=snapCamera?.querySelector('[data-control-snap-camera-start]');
+        if(start&&!start.disabled)start.click();
+      }
     });
     document.documentElement.append(snapTabs);
   }
@@ -215,16 +236,18 @@
       }
       row.setAttribute('data-control-snap-row','');
       for(let parent=row.parentElement;parent&&parent!==contacts;parent=parent.parentElement)parent.setAttribute('data-control-snap-list-flow','');
-      for(const element of [row,...row.querySelectorAll('*')])for(const attr of ['data-control-snap-row-layout','data-control-snap-row-shell','data-control-snap-avatar-slot','data-control-snap-avatar-wrap','data-control-snap-text-slot','data-control-snap-text-flow'])element.removeAttribute(attr);
+      for(const element of [row,...row.querySelectorAll('*')])for(const attr of ['data-control-snap-row-layout','data-control-snap-row-shell','data-control-snap-avatar-slot','data-control-snap-avatar-wrap','data-control-snap-text-slot','data-control-snap-text-flow','data-control-snap-name-line','data-control-snap-status-line'])element.removeAttribute(attr);
       const avatar=row.querySelector('img')||row.querySelector('[data-testid*="avatar" i],[class*="avatar" i],svg');
       let avatarGroup=avatar;
       while(avatarGroup?.parentElement&&avatarGroup.parentElement!==row&&!words(avatarGroup.parentElement.textContent))avatarGroup=avatarGroup.parentElement;
-      const leaves=[...row.querySelectorAll('span,div,p,strong,small,time')].filter(el=>!avatarGroup?.contains(el)&&!el.closest('svg')&&[...el.childNodes].some(n=>n.nodeType===3&&words(n.textContent)));
-      let name=leaves.find(el=>!el.matches('small,time,[data-testid*="status"]')&&!el.hasAttribute('data-control-snap-name'))||leaves.find(el=>!el.hasAttribute('data-control-snap-name'));
+      const leaves=[...row.querySelectorAll('*')].filter(el=>!avatarGroup?.contains(el)&&!el.closest('svg,script,style')&&[...el.childNodes].some(n=>n.nodeType===3&&words(n.textContent)));
+      const isStatus=el=>el.matches('small,time,[data-testid*="status"]')||/^(reçu|reçue|ouvert|ouverte|remis|envoyé|vous avez|a réagi|received|opened|delivered|sent|you |tap to|appuyez|\d+\s*(min|h|j|d|s)\b)/i.test(el.textContent.trim());
+      const names=leaves.filter(el=>!isStatus(el)&&!el.hasAttribute('data-control-snap-name'));
+      let name=names.find(el=>el.matches('h1,h2,h3,h4,[data-testid*="name"],[data-display-name]'))||names[0];
       let fallback=row.querySelector('[data-control-snap-name]');
       if(name){fallback?.remove();}
       else{
-        const label=row.getAttribute('title')||row.getAttribute('aria-label');
+        const label=row.getAttribute('data-display-name')||row.getAttribute('title')||row.getAttribute('aria-label');
         if(label&&!unwanted.test(label)){
           fallback=fallback||document.createElement('span');fallback.setAttribute('data-control-snap-name','');
           if(fallback.textContent!==label)fallback.textContent=label;
@@ -251,6 +274,28 @@
         for(let node=leaf;node&&node!==slot;node=node.parentElement)node.setAttribute('data-control-snap-text-flow','');
         if(leaf===slot)leaf.setAttribute('data-control-snap-text-flow','');
       }
+      // Keep the whole status (icon, label, separator, timestamp) on ONE line.
+      name.setAttribute('data-control-snap-name-line','');
+      const nameSlot=childOf(name,layout);
+      for(const leaf of leaves.filter(isStatus)){
+        let line=leaf;
+        while(line.parentElement&&line.parentElement!==layout&&line.parentElement!==nameSlot&&!line.parentElement.contains(name))line=line.parentElement;
+        if(!line.contains(name))line.setAttribute('data-control-snap-status-line','');
+      }
+    }
+  }
+  function snapConversationLayout(pane,composer){
+    if(!pane||!composer)return;
+    let log=pane.querySelector('[role="log"],[data-testid="message-list"],[data-testid="chat-history"]');
+    if(!log)log=[...pane.querySelectorAll('div,section')].find(el=>!el.contains(composer)&&/auto|scroll/.test(getComputedStyle(el).overflowY));
+    let footer=composer.closest('form,footer,[data-testid*="composer"]')||composer.parentElement;
+    if(footer===pane)footer=composer;
+    footer.setAttribute('data-control-snap-chat-composer','');
+    for(let node=footer.parentElement;node&&node!==pane;node=node.parentElement)node.setAttribute('data-control-snap-chat-frame','');
+    if(log){
+      log.setAttribute('data-control-snap-chat-log','');
+      const bg=getComputedStyle(log).backgroundColor;
+      if(bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent')document.documentElement.style.setProperty('--control-chat-background',bg);
     }
   }
   function snapCameraLayout(pane){
@@ -261,6 +306,11 @@
       if(control.matches('button,[role="button"]')){
         control.setAttribute('data-control-snap-camera-trigger','');
         const css=getComputedStyle(control),bounds=control.getBoundingClientRect();
+        const initial=/cliquez sur l.appareil photo|click.*camera.*send.*snaps|ouvrir la cam[eé]ra|open camera|start camera|activer la cam[eé]ra/i.test(control.textContent);
+        if(initial&&!pane.querySelector('video,canvas')){
+          control.setAttribute('data-control-snap-camera-start','');
+          control.setAttribute('data-control-snap-camera-large-trigger','');
+        }else control.removeAttribute('data-control-snap-camera-start');
         if((bounds.height>180||parseFloat(css.height)>180)&&/envoyer des snaps|send (?:a )?snaps/i.test(control.textContent))control.setAttribute('data-control-snap-camera-large-trigger','');
       }
       // Only resize wrappers on the path to the actual camera, not every div/icon/control.
@@ -299,7 +349,11 @@
     const composer=conversation?.querySelector('textarea,[contenteditable="true"],[role="textbox"]');
     const paneFor=el=>panes.find(p=>p===el||p.contains(el));
     for(const pane of panes){pane.removeAttribute('data-control-snap-conversation');pane.removeAttribute('data-control-snap-camera');}
-    if(conversation){conversation.removeAttribute(hiddenAttr);paneFor(conversation)?.setAttribute('data-control-snap-conversation','');}
+    if(conversation){
+      conversation.removeAttribute(hiddenAttr);
+      const pane=paneFor(conversation);pane?.setAttribute('data-control-snap-conversation','');
+      snapConversationLayout(pane,composer);
+    }
     const previousCamera=snapCamera;
     snapCamera=panes.find(el=>el.matches('[data-testid="camera-panel"],[data-testid="camera-view"]')||el.querySelector('[data-testid="camera-panel"],[data-testid="camera-view"],button[aria-label*="camera" i],button[aria-label*="appareil photo" i]')||/send (?:a )?snaps|envoyer des snaps|cliquez sur l.appareil photo/i.test(el.textContent));
     // Capture/preview replaces the initial camera prompt; do not bounce back to the contacts.
@@ -347,6 +401,12 @@
     if(app.id==='Instagram'&&mode==='messages')instagramInbox();
   }
   document.addEventListener('click',event=>{
+    if(app.id==='Snapchat'&&event.target instanceof Element){
+      const back=event.target.closest('button,[role="button"],a');
+      if(back?.closest('[data-control-snap-conversation]')&&/^(back|retour|revenir|close conversation|fermer la conversation)(\b|$)/i.test(signature(back).trim()||back.textContent.trim())){
+        snapForceInbox=true;snapView='messages';schedule();
+      }
+    }
     const link=event.target instanceof Element?event.target.closest('a[href]'):null;if(!link)return;
     let url;try{url=new URL(link.href,location.href);}catch{return;}
     if(networkFor(url.hostname)?.id!==app.id)return;

@@ -32,13 +32,38 @@ async function run(){
    for(const selector of ['.camera','.frame','.surface','.camera-start']){
     const box=await page.locator(selector).boundingBox();assert(box.x<=1&&box.width>=width-1,selector+' width '+JSON.stringify(box));assert(box.y<=1&&box.y+box.height>=nav.y-1,selector+' height '+JSON.stringify(box));
    }
-   assert.equal(await page.evaluate(()=>window.nativeClicks),0);await page.locator('.camera-start').click();assert.equal(await page.evaluate(()=>window.nativeClicks),1);
+   assert.equal(await page.evaluate(()=>window.nativeClicks),1,'Snap opens the native start prompt on an explicit tap');await page.locator('.camera-start').click();assert.equal(await page.evaluate(()=>window.nativeClicks),2);
    await page.locator('.surface').evaluate(e=>e.innerHTML='<video class="preview" aria-label="Camera preview"></video>');
    await page.getByRole('button',{name:'Messages',exact:true}).click();await page.getByRole('button',{name:'Snap',exact:true}).click();
    const preview=await page.locator('.preview').boundingBox();assert(preview.width>=width-1,'Live camera uses available width');
    for(let i=0;i<4;i++){await page.getByRole('button',{name:'Messages',exact:true}).click();await page.getByRole('button',{name:'Snap',exact:true}).click();}
    assert.equal(await page.locator('#control-native-loading').count(),0,'No repeated loader');assert.equal(await page.locator('#control-snap-tabs button').count(),2);
    assert.deepEqual(errors,[]);await context.close();console.log('PASS nested avatars, text alignment, native camera, transitions',width,'virtual:',virtual);
+  }
+  for(const width of [320,390,430]){
+   const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true}),page=await context.newPage();
+   // Name headings and fragmented statuses were absent from the earlier simple fixtures.
+   const html=pageHTML(false).replaceAll('<span class="name">','<h3 class="name" style="opacity:0;max-height:0">').replaceAll('</span><small>Reçu · 8 min</small>','</h3><div class="status"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M3 3h18v16H3Z" fill="none" stroke="#00adf0"/></svg><span>Reçu</span><span>·</span><time>8 min</time></div>');
+   await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:html}));await context.addInitScript({content:source});
+   await page.goto('https://web.snapchat.com/');await page.locator('#control-snap-tabs').waitFor();await page.locator('#control-native-loading').waitFor({state:'detached'});
+   assert.equal(await page.locator('#control-snap-tabs').innerText(),'','Icon-only navigation');
+   const rows=await page.locator('.row').evaluateAll(items=>items.map(row=>{const name=row.querySelector('.name'),status=row.querySelector('.status'),n=name.getBoundingClientRect(),s=status.getBoundingClientRect(),r=row.getBoundingClientRect();return {name:name.textContent,y:n.y,bottom:n.bottom,opacity:getComputedStyle(name).opacity,statusTop:s.y,statusBottom:s.bottom,rowBottom:r.bottom};}));
+   for(const row of rows){assert.equal(row.opacity,'1');assert(row.bottom>row.y);assert(row.statusTop>=row.bottom-1);assert(row.statusBottom<=row.rowBottom+1,JSON.stringify(row));}
+   await page.screenshot({path:path.join(out,'snap-names-icons-'+width+'.png'),animations:'disabled'});
+   await page.evaluate(()=>{
+    document.querySelector('.camera').innerHTML='<div class="dialog-shell" style="height:640px;width:700px;padding:20px;border:1px solid white;border-radius:30px"><header style="background:#101010;color:white"><button aria-label="Back">←</button> Camille</header><div role="log" style="background:#202124;color:white;overflow-y:auto;height:400px;padding:16px"><p>Conversation de test</p><p>Contenu natif conservé</p></div><footer><textarea aria-label="Chat" style="width:100%;height:64px"></textarea></footer></div>';
+    document.querySelector('[aria-label="Back"]').onclick=()=>document.querySelector('.camera').replaceChildren();
+   });
+   await page.waitForFunction(()=>document.documentElement.getAttribute('data-control-snap-view')==='conversation');
+   assert.equal(await page.locator('#control-snap-tabs').isVisible(),false);
+   const pane=await page.locator('.camera').boundingBox(),frame=await page.locator('.dialog-shell').boundingBox();
+   assert(pane.x<=1&&pane.y<=1&&pane.width>=width-1&&pane.height>=843,JSON.stringify(pane));
+   assert(frame.width>=width-1&&frame.height>=843,JSON.stringify(frame));
+   assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(32, 33, 36)');
+   await page.getByRole('textbox',{name:'Chat'}).fill('Not sent');
+   await page.screenshot({path:path.join(out,'snap-full-conversation-'+width+'.png'),animations:'disabled'});
+   await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('#control-snap-tabs').waitFor({state:'visible'});
+   await context.close();console.log('PASS headings visible, compact status, icon-only tabs, edge-to-edge conversation and native back',width);
   }
   for(const reducedMotion of ['reduce','no-preference']){
    const context=await browser.newContext({viewport:{width:390,height:844},colorScheme:'dark',reducedMotion}),page=await context.newPage();
