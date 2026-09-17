@@ -1,64 +1,101 @@
-/* Simulated mobile websites only. No real login, messages, microphone or social requests. */
-const {chromium}=require(process.env.CONTROL_PLAYWRIGHT_MODULE || 'playwright');
+/* Isolated fixtures only: no real account, message, login or network request. */
+const {chromium,webkit}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8');
+const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{recursive:true});
 const cases=[
- {name:'Instagram',host:'www.instagram.com',messages:'/direct/inbox/',login:'/accounts/login/',blocked:['/','/explore/','/reels/','/person/']},
- {name:'Facebook',host:'www.facebook.com',messages:'/messages/',login:'/login.php',blocked:['/','/watch/','/reels/','/groups/test/']},
- {name:'Reddit',host:'www.reddit.com',messages:'/message/inbox/',login:'/login/',blocked:['/','/r/popular/','/r/test/','/search/']},
- {name:'X / Twitter',host:'x.com',messages:'/messages',login:'/i/flow/login',blocked:['/','/home','/explore','/person/status/1']}
+ {host:'www.instagram.com',dm:'/direct/inbox/',login:'/accounts/login/',blocked:['/','/reels/','/reel/not-received/','/explore/']},
+ {host:'www.facebook.com',dm:'/messages/',login:'/login.php',blocked:['/','/watch/']},
+ {host:'www.reddit.com',dm:'/message/inbox/',login:'/login/',blocked:['/','/r/popular/']},
+ {host:'x.com',dm:'/messages',login:'/i/flow/login',blocked:['/','/explore']},
+ {host:'web.snapchat.com',dm:'/',login:'/login/',blocked:['/spotlight','/stories','/discover','/map']}
 ];
+const base='<meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;font:16px system-ui}nav{padding:12px}nav a{margin-right:18px}main{padding:16px}video{background:#292b36;width:100%;height:230px}textarea{width:100%;height:60px}</style>';
+const fixture=app=>`${base}<nav><a id="feed" href="${app.host==='web.snapchat.com'?'/spotlight':'/explore/'}">Discovery</a><a id="messages" href="${app.dm}">Messages</a></nav><main><h1>Native conversation</h1><video controls aria-label="Private attachment"></video><textarea aria-label="Message"></textarea><input aria-label="Username"><a id="received" href="/reel/AbC123/" target="_blank">Received video</a></main>`;
+const media=`${base}<main><a href="/direct/inbox/">Back to messages</a><div><article><h1>Received video</h1><video id="received-video"></video></article><article id="recommendation"><h2>Another Reel</h2><video></video></article></div><button aria-label="Next reel">Next</button><a id="other-reel" href="/reel/Other123/">Another Reel</a></main>`;
+const snap=`${base}<style>main{padding:0}main>div{display:flex}.contacts{width:320px;height:100vh;flex-shrink:0}.contact{display:flex;align-items:center;gap:16px;padding:16px;border-bottom:1px solid #ddd}.avatar{width:48px;height:48px;border-radius:50%;background:#ffef61}.conversation{width:600px}aside{width:300px}header{padding:16px}h1{font-size:24px}</style><main><div><section class="contacts" aria-label="Conversations"><header><h1>Chat</h1></header><nav><button aria-label="Spotlight">Spotlight</button><a href="/gallery">Gallery</a><a href="/camera">Camera</a></nav><div role="list">${Array.from({length:8},(_,i)=>`<a class="contact" role="listitem" href="/chat/${i}"><span class="avatar" aria-hidden="true"></span><span>Contact ${i+1}<small style="display:block;color:#68717e">Received · 8 min</small></span></a>`).join('')}</div></section><section class="conversation" data-testid="chat-placeholder">Choose a conversation</section><aside aria-label="Spotlight">Public video</aside></div></main>`;
 async function run(){
- const browser=await chromium.launch({channel:process.env.CONTROL_BROWSER_CHANNEL||undefined,headless:true});
+ const engine=process.env.CONTROL_TEST_WEBKIT?webkit:chromium;
+ const browser=await engine.launch({headless:true,channel:process.env.CONTROL_BROWSER_CHANNEL||undefined});
  try{
   for(const app of cases){
-   const errors=[],context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),page=await context.newPage();
-   page.on('pageerror',error=>errors.push(error.message));
-   await context.route('**/*',route=>route.fulfill({contentType:'text/html',body:`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font:16px system-ui}nav a{display:inline-block;padding:12px}main{padding:20px}textarea{width:100%;min-height:60px}</style></head><body><nav><a id="feed" href="/">Feed</a><a id="messages" href="${app.messages}">Messages</a></nav><main><h1>Native app fixture</h1><p>Native conversation</p><video controls aria-label="Private attachment"></video><textarea aria-label="Message"></textarea><input aria-label="Username"></main></body></html>`}));
+   const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),page=await context.newPage(),errors=[];
+   page.on('pageerror',e=>errors.push(e.message));
+   await context.route('**/*',route=>route.fulfill({contentType:'text/html',body:/\/reel\//.test(new URL(route.request().url()).pathname)?media:fixture(app)}));
    await context.addInitScript({content:source});
-   await page.goto(`https://${app.host}/`);
-   await page.getByRole('heading',{name:'Le fil fait une pause.'}).waitFor();
-   assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).visibility),'hidden');
-   await page.getByRole('link',{name:`Ouvrir les messages ${app.name}`,exact:true}).click();
-   await page.getByRole('button',{name:'Ouvrir Control',exact:true}).waitFor();
-   assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).visibility),'visible');
+   for(const route of app.blocked){await page.goto(`https://${app.host}${route}`);await page.waitForURL(`https://${app.host}${app.dm}`);}
+   assert.equal(await page.locator('#control-iphone').count(),0,'No Control screen or launcher');
    assert.equal(await page.locator('#feed').isVisible(),false);
-   assert.equal(await page.locator('#messages').isVisible(),true);
-   assert.equal(await page.locator('video').isVisible(),true);
-   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Unsent fixture text');
-   await page.getByRole('button',{name:'Ouvrir Control',exact:true}).click();
-   assert.equal(await page.getByRole('navigation',{name:'Choisir un réseau'}).getByRole('link').count(),4);
-   await page.getByRole('button',{name:'Fermer Control',exact:true}).click();
-   assert.equal(await page.getByRole('textbox',{name:'Message',exact:true}).inputValue(),'Unsent fixture text');
-   // A history-only route change must be caught even without native DOM changes.
-   for(const route of app.blocked){
-    await page.evaluate(route=>history.pushState({},'',route),route);
-    await page.getByRole('heading',{name:'Le fil fait une pause.'}).waitFor();
-    assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).visibility),'hidden');
+   assert.equal(await page.locator('video').isVisible(),true,'Private media remains native');
+   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Not sent');
+   assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).overflowY),'hidden','Chats remain scrollable');
+   if(app.host==='www.instagram.com'){
+    await page.locator('#received').click();await page.waitForURL('**/reel/AbC123/');
+    await page.waitForFunction(()=>document.documentElement.hasAttribute('data-control-single-media'));
+    assert.equal(await page.locator('#received-video').isVisible(),true);
+    assert.equal(await page.locator('#received-video').evaluate(v=>v.controls),true);
+    assert.equal(await page.locator('#recommendation').isVisible(),false);
+    assert.equal(await page.getByRole('button',{name:'Next reel'}).isVisible(),false);
+    assert.equal(await page.locator('#other-reel').isVisible(),false);
+    assert.equal(await page.evaluate(()=>{const e=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaY:500});return document.body.dispatchEvent(e);}),false);
+    assert.equal(await page.evaluate(()=>{const e=new Event('touchmove',{bubbles:true,cancelable:true});return document.body.dispatchEvent(e);}),false);
+    await page.reload();await page.waitForFunction(()=>document.documentElement.hasAttribute('data-control-single-media'));
+    await page.screenshot({path:path.join(out,'instagram-single.png')});
+    await page.evaluate(()=>history.pushState({},'','/reel/Other123/'));await page.waitForURL(`https://${app.host}${app.dm}`);
+    assert.equal(await page.locator('html').getAttribute('data-control-single-media'),null);
+    await page.locator('#received').click();await page.waitForURL('**/reel/AbC123/');
+    await page.getByRole('link',{name:'Back to messages'}).click();await page.waitForURL(`https://${app.host}${app.dm}`);
+    assert.equal(await page.evaluate(()=>{const a=document.querySelector('#received');a.href='/reel/NotClicked/';return a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));}),false,'Synthetic clicks cannot authorize another video');
    }
-   await page.evaluate(route=>history.pushState({},'',route),app.login);
-   await page.getByRole('button',{name:'Ouvrir Control',exact:true}).waitFor();
-   await page.getByRole('textbox',{name:'Username',exact:true}).fill('Fixture account');
-   await page.goBack();
-   await page.getByRole('heading',{name:'Le fil fait une pause.'}).waitFor();
-   await page.goto(`https://${app.host}${app.messages}?control=home`);
-   await page.getByRole('heading',{name:'Tes conversations, simplement.'}).waitFor();
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-   await page.getByRole('button',{name:'Fermer Control',exact:true}).click();
-   assert.equal(await page.getByRole('textbox',{name:'Message',exact:true}).isVisible(),true);
-   await page.addScriptTag({content:source});
-   assert.equal(await page.locator('#control-iphone').count(),1,'Duplicate injection is harmless');
-   assert.deepEqual(errors,[]);
-   await context.close();console.log('PASS:',app.name,'mobile launcher, route gates, login, private media, native typing and back navigation');
+   await page.goto(`https://${app.host}${app.login}`);await page.getByRole('textbox',{name:'Username'}).fill('Test only');
+   assert.equal(await page.locator('html').getAttribute('data-control-redirecting'),null);
+   assert.deepEqual(errors,[]);await context.close();console.log('PASS',app.host,'quiet redirect, native messages, no Control UI, login preserved');
   }
-  const context=await browser.newContext({viewport:{width:320,height:640},reducedMotion:'reduce',colorScheme:'dark'}),page=await context.newPage();
-  await context.route('**/*',route=>route.fulfill({contentType:'text/html',body:'<html><body>Fixture</body></html>'}));
-  await context.addInitScript({content:source});
-  await page.goto('https://www.instagram.com/direct/inbox/?control=home');
-  assert.equal(await page.getByRole('dialog').evaluate(e=>getComputedStyle(e).animationName),'none');
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-  await page.goto('https://example.com/');assert.equal(await page.locator('#control-iphone').count(),0);
-  await context.close();console.log('PASS: small viewport, reduced motion and unrelated-domain exclusion');
+  for(const width of [320,390,700,1280]){
+   const context=await browser.newContext({viewport:{width,height:844}}),page=await context.newPage();
+   await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:snap}));await context.addInitScript({content:source});
+   await page.goto('https://web.snapchat.com/');await page.locator('[data-control-snap-contacts]').waitFor();
+   assert.equal(await page.getByRole('complementary',{name:'Spotlight'}).isVisible(),false);
+   assert.equal(await page.getByRole('button',{name:'Spotlight'}).isVisible(),false);
+   assert.equal(await page.getByRole('link',{name:'Gallery'}).isVisible(),true);
+   assert.equal(await page.getByRole('link',{name:'Camera'}).isVisible(),true);
+   assert.equal(await page.locator('.contact').count(),8);
+   if(width<=700){assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert((await page.locator('[data-control-snap-contacts]').boundingBox()).width>=width-2);}
+   await page.screenshot({path:path.join(out,`snapchat-${width}.png`)});
+   await page.evaluate(()=>{const pane=document.querySelector('.conversation');pane.removeAttribute('data-testid');pane.setAttribute('data-testid','conversation-panel');pane.innerHTML='<button id="back">Back</button><textarea aria-label="Message"></textarea>';});
+   await page.waitForFunction(()=>document.documentElement.hasAttribute('data-control-snap-conversation-open'));
+   if(width<=700)assert.equal(await page.locator('[data-control-snap-contacts]').isVisible(),false);
+   await page.getByRole('textbox',{name:'Message'}).fill('Not sent');
+   await page.evaluate(()=>{const p=document.querySelector('.conversation');p.setAttribute('data-testid','chat-placeholder');p.innerHTML='Choose a conversation';});
+   await page.locator('[data-control-snap-contacts]').waitFor({state:'visible'});
+   await context.close();console.log('PASS Snapchat native contacts/gallery/conversation at',width);
+  }
+  for(const theme of ['light','dark']){
+   const context=await browser.newContext({viewport:{width:390,height:844},colorScheme:theme}),page=await context.newPage();
+   await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:`${base}<style>body{background:${theme==='dark'?'#111':'#fff'};color:${theme==='dark'?'#eee':'#111'}}#inbox{height:100vh;overflow:hidden}.search{position:sticky;top:0;padding:16px}input{width:100%;padding:14px;border-radius:12px;border:1px solid #8885;background:transparent;color:inherit}.notes{display:flex;gap:16px;padding:16px}.notes button{border:0;background:transparent;color:inherit;min-width:64px}.notes i{display:block;margin:auto auto 6px;width:52px;height:52px;border-radius:50%;background:#bf99d9}#list{height:600px;overflow-y:auto}#list a{display:block;padding:24px;color:inherit;text-decoration:none;border-bottom:1px solid #8883}</style><main id="inbox"><div class="search"><input type="search" placeholder="Search"></div><section class="notes" aria-label="Notes">${['Your note','Alex','Sam','Charlie'].map(x=>`<button><i></i>${x}</button>`).join('')}</section><div id="list">${Array.from({length:24},(_,i)=>`<a href="/direct/t/${i}/">Conversation ${i+1}</a>`).join('')}</div></main>`}));
+   await context.addInitScript({content:source});await page.goto('https://www.instagram.com/direct/inbox/');
+   await page.locator('[data-control-inbox-scroll]').waitFor();
+   assert.equal(await page.locator('.search').evaluate(e=>getComputedStyle(e).position),'relative');
+   assert.equal(await page.locator('#list').evaluate(e=>getComputedStyle(e).overflowY),'visible');
+   const before=await page.locator('.notes').boundingBox();await page.locator('#inbox').evaluate(e=>e.scrollTop=240);const after=await page.locator('.notes').boundingBox();assert(after.y<before.y-200,'Notes scroll together with the inbox');
+   assert((await page.locator('.search').boundingBox()).y<0,'Search scrolls with notes and messages');
+   await page.locator('#inbox').evaluate(e=>e.scrollTop=0);
+   await page.screenshot({path:path.join(out,`instagram-inbox-${theme}.png`)});
+   await page.addScriptTag({content:source});assert.equal(await page.locator('#control-iphone-rules').count(),1);
+   await context.close();console.log('PASS unified Instagram search/notes/inbox scrolling',theme);
+  }
+  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),p=await ctx.newPage();
+  await ctx.route('**/*',r=>r.fulfill({contentType:'text/html',body:`${base}<body></body>`}));await ctx.addInitScript({content:source});
+  await p.goto('https://www.instagram.com/direct/inbox/');await p.locator('#control-native-loading').waitFor();
+  assert.equal(await p.locator('#control-native-loading').innerText(),'');
+  assert.equal(await p.locator('#control-native-loading i').evaluate(e=>getComputedStyle(e).animationName),'none');
+  await p.screenshot({path:path.join(out,'loading-logo.png')});
+  await p.evaluate(()=>document.body.innerHTML='<main><textarea aria-label="Message"></textarea></main>');
+  await p.locator('#control-native-loading').waitFor({state:'detached'});
+  assert.equal(await p.locator('html').getAttribute('data-control-mobile-loading'),null);
+  await p.evaluate(()=>{document.body.innerHTML='';history.pushState({},'','/direct/t/example/');});
+  assert.equal(await p.locator('#control-native-loading').count(),0,'Never replay the loading screen');
+  await ctx.close();console.log('PASS logo-only single loading and reduced motion');
  }finally{await browser.close();}
 }
-run().catch(error=>{console.error(error);process.exitCode=1;});
+run().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,38 +1,43 @@
-# Control sur iPhone avec Userscripts
+# Control iPhone — Safari 1.1.0
 
-Version Safari autonome pour Instagram, Facebook, Reddit et X/Twitter. Aucun PC allumé ni serveur Control nécessaire après installation. Le fichier contient le menu et les règles ; il ne télécharge pas de code supplémentaire et ne transmet pas de messages ou de données à Control.
+Cette édition complète remplace le script 1.0.0. Aucun menu, bouton flottant Control ou page de remplacement : seuls les sites natifs restent affichés. Aucun serveur Control ni PC allumé n'est nécessaire.
 
-## Installation depuis l'iPhone
+## Installation / mise à jour
 
-1. Ouvrir Userscripts une fois. Conserver le dossier local proposé automatiquement.
-2. Dans Réglages → Apps → Safari → Extensions → Userscripts, activer l'extension (sur d'anciennes versions d'iOS : Réglages → Safari → Extensions).
-3. Ouvrir ce lien **dans Safari** : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
-4. Sur cette page, ouvrir le menu de page Safari, puis Extensions → Userscripts. Autoriser temporairement l'accès à cette page si demandé, puis choisir **Install** pour le script « Control — iPhone ». Vérifier qu'il est activé.
-5. Ouvrir https://www.instagram.com/direct/inbox/?control=home. Dans le menu Safari → Userscripts, autoriser l'accès à Instagram, puis recharger la page. Le menu **CONTROL · SAFARI** doit apparaître.
-6. Choisir un réseau dans Control. Autoriser Userscripts sur ce réseau la première fois, puis actualiser. Cela concerne instagram.com, facebook.com, reddit.com, x.com/twitter.com et messenger.com si Facebook y redirige.
+1. Décompresser l'archive dans Fichiers sur l'iPhone.
+2. Dans Userscripts, repérer son dossier de scripts. Y remplacer l'ancien fichier `Control-iPhone.user.js` par celui fourni ici. Ne pas garder deux versions actives. Ne pas renommer le fichier en `.txt`.
+3. Dans Réglages → Apps → Safari → Extensions → Userscripts, activer l'extension et autoriser son accès aux réseaux utilisés, notamment Instagram et Snapchat.
+4. Fermer puis rouvrir les onglets Instagram et Snapchat : un ancien script reste actif jusqu'au rechargement de la page.
+5. Ouvrir directement https://www.instagram.com/direct/inbox/ ou https://web.snapchat.com/ dans Safari. L'ancien favori avec `?control=home` n'affiche plus de menu.
 
-L'autorisation sur la page de téléchargement ne remplace pas celle sur chaque réseau. Le menu de l'application Userscripts peut continuer à afficher une invitation à activer l'extension même lorsqu'elle est active : vérifier son état dans Safari.
+## Instagram
 
-Si l'installation depuis le lien ne propose rien, enregistrer **Control-iPhone.user.js** avec l'app Fichiers dans le dossier affiché par Userscripts. Garder le suffixe `.user.js` (pas `.txt`). Rouvrir le menu Userscripts dans Safari pour actualiser la liste, puis recharger le réseau.
+- Les pièces jointes vidéo affichées dans les messages restent natives et lisibles.
+- Un clic sur un lien de publication/Reel dans une conversation autorise seulement cet élément, dans le même onglet, pendant dix minutes.
+- Dans ce lecteur isolé : défilement tactile/molette/clavier, contrôles suivant/précédent et autres vidéos détectées sont bloqués. Retour aux messages avec le retour Safari ou le bouton natif d'Instagram.
+- Le défilement des conversations reste possible pour lire les messages. Aucun fil de découverte n'est autorisé.
+- Un lien Reel ouvert directement, sans passer par une conversation, renvoie aux messages.
+- Quand les conteneurs natifs sont reconnus, recherche, statuts/Notes et liste des conversations défilent dans une seule zone ; aucun contenu n'est cloné ni déplacé.
 
-## Utilisation
+## Chargement
 
-Garder le lien Instagram avec `?control=home` dans les **favoris Safari**, nommé Control. Utiliser Safari directement : une app web ajoutée à l'écran d'accueil peut avoir un comportement différent pour les extensions.
+Un seul logo du réseau avec un reflet discret peut apparaître au premier chargement. Les logos sont inclus dans le fichier : aucun asset Control à télécharger. Le site charge normalement derrière ce masque, qui disparaît dès que la messagerie est détectée, et au plus tard après six secondes pour ne jamais emprisonner l'utilisateur. Pas de chargement Control rejoué à chaque conversation. L'animation respecte le réglage de réduction des mouvements. Les temps de chargement des serveurs Instagram/Snapchat ne peuvent pas être supprimés par ce script.
 
-Sur les messageries, le bouton **Control** rouvre le choix des réseaux. La croix revient à la conversation. Sur un fil bloqué, les boutons permettent d'ouvrir les messages ou un autre réseau ; fermer Control ne permet pas de révéler le fil.
+## Snapchat
 
-## Vérifier sur l'iPhone
+- Accès aux conversations, caméra et galerie/Memories lorsque Snapchat Web les propose.
+- Masquage de Spotlight, Stories, Discover, carte et panneaux publics détectés.
+- Sur petit écran, la liste native des contacts occupe la largeur ; les noms, avatars et messages restent ceux de Snapchat, sans réplique ni collecte par Control.
+- La présentation s'adapte aux conteneurs reconnus. Si Snapchat change sa structure, certains ajustements peuvent nécessiter une mise à jour.
 
-- Le lien Control affiche le menu, puis Instagram ouvre les messages ou la connexion.
-- Le bouton Control permet de changer de réseau et de revenir à la conversation.
-- Ouvrir l'accueil, les Reels ou un profil Instagram doit afficher « Le fil fait une pause ».
-- Même vérification sur un fil Facebook, une communauté Reddit et l'accueil X.
-- Les formulaires de connexion, la saisie de messages et leurs pièces jointes restent natifs. Aucun envoi ou enregistrement audio n'est nécessaire pour cette vérification.
+## Autres réseaux conservés
 
-## Limites de cette édition
+Facebook/Messenger, Reddit et X/Twitter restent en mode messages. Leurs pages de connexion restent accessibles. Les pages de découverte redirigent directement vers leur messagerie.
 
-Cette première édition n'inclut pas les minuteurs, les limites quotidiennes, la pause de cinq minutes, les réglages/synchronisation du PC, les styles Instagram desktop ou les autres réseaux. Elle applique un mode fixe : messages et accès au compte uniquement. Désactiver Userscripts ou utiliser les applications natives contourne ces protections.
+## Limites importantes
 
-Elle ne crée pas les fonctions qu'un réseau refuse dans Safari mobile. Si une messagerie exige son application, Control ne peut pas lever cette restriction. La disponibilité réelle des messageries et l'intégration Userscripts doivent être vérifiées sur l'iPhone ; les tests du projet utilisent des pages simulées.
+Ce fichier est un userscript pour l'extension Userscripts dans Safari, pas une application iOS ni une extension Chrome. Il ne modifie PAS les applications natives Instagram ou Snapchat. Si Snapchat refuse Safari sur votre iPhone, ce script ne peut pas activer un service indisponible. Il ne supprime pas des messages privés ni n'analyse leur contenu et ne garantit pas de filtrer tout contenu nocif.
 
-Sources : [installation Userscripts](https://github.com/quoid/userscripts#ios-ipados), [extensions Safari sur iPhone](https://support.apple.com/fr-fr/guide/iphone/iphab0432bf6/ios).
+Les règles sont fixes dans cette édition : pas de synchronisation PC, de limites quotidiennes ni d'authentification Control. La désactivation de Userscripts contourne le filtrage. La lecture vidéo dépend aussi des fonctions natives du réseau.
+
+Validation : tests automatisés sur pages simulées, sans accès à un compte réel. Une vérification sur un vrai iPhone reste nécessaire ; aucune modification des applications iOS natives n'est annoncée.
