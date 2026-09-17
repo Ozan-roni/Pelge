@@ -102,7 +102,7 @@ async function run(){
    await page.goto('https://web.snapchat.com/');await page.locator('#control-native-loading').waitFor();
    assert.equal(await page.locator('#control-native-loading').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
    assert.equal(await page.locator('#control-native-loading rect').count(),0,'No square behind the ghost');
-   assert.equal(await page.locator('#control-native-loading path').getAttribute('fill'),'#fffc00');
+   assert.equal(await page.locator('#control-native-loading path').getAttribute('fill'),'#e1dc00');
    assert.match(await page.locator('#control-native-loading i').evaluate(e=>getComputedStyle(e).webkitMaskImage),/data:image/);
    assert.equal(await page.locator('#control-native-loading i').evaluate(e=>getComputedStyle(e).animationName),reducedMotion==='reduce'?'none':'control-outline-reflection');
    await page.screenshot({path:path.join(out,`snap-yellow-loader-${reducedMotion}.png`)});

@@ -1,12 +1,14 @@
-# Control iPhone — Safari 1.4.1
+# Control iPhone — Safari 1.5.0
 
-Cette édition complète remplace les versions précédentes. Aucun menu, bouton flottant Control ou page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
+Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Fichier complet en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
+La version **1.5.0** est disponible dans le fichier complet ci-dessous.
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.4.1**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
+
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.5.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
 
 Alternative avec l'archive :
 
@@ -31,7 +33,21 @@ Un seul logo du réseau avec un reflet discret peut apparaître au premier charg
 
 Le logo Instagram est en **contour multicolore, sans carré plein**. Son reflet est masqué sur le tracé du logo pour ne pas balayer le reste de l'écran.
 
-Sur Snapchat : silhouette vectorielle jaune sur fond blanc, même en mode sombre, reflet limité au logo et disparition en fondu. Le tracé vient de [Simple Icons — Snapchat](https://github.com/simple-icons/simple-icons/blob/develop/icons/snapchat.svg) ; il est embarqué dans le script, sans requête externe au chargement.
+Sur Snapchat : silhouette vectorielle jaune assombrie sur fond blanc, même en mode sombre, reflet limité au logo et disparition en fondu. Le tracé vient de [Simple Icons — Snapchat](https://github.com/simple-icons/simple-icons/blob/develop/icons/snapchat.svg) ; il est embarqué dans le script, sans requête externe au chargement.
+
+## Correctifs 1.5.0
+
+- Échelle adaptée à la largeur de l’iPhone, y compris quand Safari charge la version pour ordinateur. Pleine largeur utile pour Snapchat et Instagram sur grand écran, sans étirer les fenêtres de connexion. Les barres Safari restent gérées par iOS ; le script ne peut pas imposer le plein écran système.
+- Blocage du débordement horizontal de la page, défilement vertical conservé. Glissement horizontal entre Messages et caméra, sans déclencher la prise de vue. Les champs, menus, lecteurs et zones natives défilant horizontalement ne sont pas interceptés. Portrait et paysage sont pris en charge ; le zoom tactile reste autorisé.
+- Logo Snapchat un peu plus sombre et reflet atténué. Les transitions de navigation restent en fondu et respectent la réduction des animations.
+- Barre inférieure : contours noirs, icône pleine pour l’onglet actif, aucun texte visible.
+- En-tête compact avec titre Chat, recherche, profil, notifications, ajouts et options lorsque ces commandes existent dans le site. Le bouton natif de nouvelle conversation apparaît en bas à droite ; à défaut, un raccourci vers la recherche native est proposé si celle-ci est détectée. Aucune commande de notification ou d’ajout factice.
+- Noms et statuts séparés, accents et textes natifs conservés ; les longs statuts peuvent occuper deux lignes. L’ordre natif et les offsets des listes virtualisées sont conservés, sans tri inventé.
+- Avatars composés à deux ou trois personnes lorsqu’il existe plusieurs portraits ; les badges restent distincts.
+- Icône appareil photo à droite de chaque contact reconnu. La commande native est utilisée en priorité. Si elle manque dans la liste, le raccourci ouvre la conversation sélectionnée puis sa caméra de pièce jointe uniquement lorsque le nom correspond et que la commande est reconnue. Sinon un message indique la limite. Aucun appel, déclenchement photo ou envoi automatique.
+- Ouverture des discussions au dernier message, y compris après un chargement différé ou un changement de hauteur du clavier. Les nouveaux messages suivent le bas seulement tant que l’utilisateur n’est pas remonté lire l’historique.
+- Les lecteurs natifs de Snaps reçus reconnus sont conservés au premier plan, avec leurs boutons de fermeture. Cela ne déverrouille pas un Snap que Snapchat ne fournit pas au navigateur. Les Memories ne sont pas rendues accessibles par ce script : [limites officielles du Web](https://help.snapchat.com/hc/en-gb/articles/39147590589460-Which-features-can-I-use-in-the-Snapchat-app-that-aren-t-available-yet-on-the-web).
+- Les lignes inchangées ne sont pas reconstruites pendant le défilement ; les boutons caméra suivent les lignes visibles. Les tests utilisent des pages simulées, sans connexion à un compte Snapchat et sans lire de vrais Snaps.
 
 ## Correctifs 1.4.1
 
@@ -61,7 +77,7 @@ Sur Snapchat : silhouette vectorielle jaune sur fond blanc, même en mode sombre
 
 - Accès aux conversations, caméra et galerie/Memories lorsque Snapchat Web les propose.
 - Masquage de Spotlight, Stories, Discover, carte et panneaux publics détectés.
-- Jusqu'à 700 px, deux icônes fixes en bas : **Messages** pour la liste blanche pleine largeur et **Snap** pour le panneau caméra natif plein écran, au-dessus de la barre. La navigation disparaît dans les discussions. La zone tient compte de l'espace sécurisé iPhone et du clavier.
+- Jusqu'à 700 px, deux icônes fixes en bas (également en paysage tactile jusqu’à 950 px de large et 600 px de haut) : **Messages** pour la liste blanche pleine largeur et **Snap** pour le panneau caméra natif plein écran, au-dessus de la barre. La navigation disparaît dans les discussions. La zone tient compte de l'espace sécurisé iPhone et du clavier.
 - Le rail étroit d'avatars est reconnu et élargi. Les noms déjà présents dans le DOM sont rendus visibles. S'ils sont uniquement disponibles dans le titre ou le libellé accessible du contact, ce libellé est affiché. Aucun nom n'est inventé.
 - Les vrais contacts, avatars, événements et messages de Snapchat sont conservés. Choisir un contact ouvre sa conversation ; le bouton Retour natif permet de retrouver la liste.
 - Un appui volontaire sur l'icône Snap affiche le panneau caméra détecté et active sa commande native de démarrage si elle est reconnue. Safari peut alors demander l'autorisation caméra. Aucune caméra n'est démarrée au chargement de la page ; aucune photo ni aucun message ne sont envoyés automatiquement. Les commandes de capture et d'envoi restent celles de Snapchat. Si aucun panneau caméra n'est détecté, l'onglet est désactivé, sans simuler une caméra fonctionnelle.
@@ -78,4 +94,4 @@ Ce fichier est un userscript pour l'extension Userscripts dans Safari, pas une a
 
 Les règles sont fixes dans cette édition : pas de synchronisation PC, de limites quotidiennes ni d'authentification Control. La désactivation de Userscripts contourne le filtrage. La lecture vidéo dépend aussi des fonctions natives du réseau.
 
-Validation : tests automatisés sur pages simulées, sans accès à un compte réel. Une vérification sur un vrai iPhone reste nécessaire ; aucune modification des applications iOS natives n'est annoncée.
+Validation 1.5.0 : suites automatisées sur pages simulées sous Chromium et WebKit, sans accès à un compte réel. Largeurs 320, 390, 430, 700, 1280 et 1440 px selon les scénarios, paysage 844 × 390 et hauteur de clavier simulée de 480 px. Une vérification sur un vrai iPhone reste nécessaire ; aucune modification des applications iOS natives n'est annoncée.
