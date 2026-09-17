@@ -1,4 +1,4 @@
-# Control iPhone — Safari 1.4.0
+# Control iPhone — Safari 1.4.1
 
 Cette édition complète remplace les versions précédentes. Aucun menu, bouton flottant Control ou page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
@@ -6,7 +6,7 @@ Cette édition complète remplace les versions précédentes. Aucun menu, bouton
 
 Fichier complet en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.4.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.4.1**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
 
 Alternative avec l'archive :
 
@@ -33,7 +33,15 @@ Le logo Instagram est en **contour multicolore, sans carré plein**. Son reflet 
 
 Sur Snapchat : silhouette vectorielle jaune sur fond blanc, même en mode sombre, reflet limité au logo et disparition en fondu. Le tracé vient de [Simple Icons — Snapchat](https://github.com/simple-icons/simple-icons/blob/develop/icons/snapchat.svg) ; il est embarqué dans le script, sans requête externe au chargement.
 
-## Correctifs 1.4.0
+## Correctifs 1.4.1
+
+- Correction ciblée de l'intérieur des conversations : la barre caméra/saisie/emoji/galerie conserve sa disposition native horizontale, en bas de la discussion.
+- Seuls les cadres extérieurs de l'historique sont redimensionnés. Les boutons et les parents internes du champ de saisie ne sont plus forcés en colonnes pleine hauteur.
+- La caméra de pièce jointe d'une discussion n'est plus traitée comme le panneau caméra plein écran ; les anciennes marques de dimensionnement sont retirées d'un panneau réutilisé.
+- Les couleurs natives des textes sont préservées, notamment sur fond sombre. L'historique garde son défilement indépendant.
+- Tests de régression sur barre imbriquée et historique avec/sans rôle accessible, à 320, 390 et 430 px, puis avec hauteur réduite à 480 px. Ces simulations ne remplacent pas un essai réel du clavier Safari sur iPhone.
+
+## Correctifs précédents (1.4.0)
 
 - Noms des contacts reconnus aussi dans les titres natifs : la place disponible leur est réservée, avec le statut compact sur une ligne en dessous.
 - Navigation du bas avec deux icônes uniquement ; les libellés restent accessibles aux lecteurs d'écran.

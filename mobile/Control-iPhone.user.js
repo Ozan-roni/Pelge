@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.4.0
+// @version      1.4.1
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -127,7 +127,6 @@
       @keyframes control-snap-enter{from{opacity:0}to{opacity:1}}
       [data-control-snap-enter]{animation:control-snap-enter .22s ease-out both!important}
       [data-control-snap-pane]>div{min-width:0!important;max-width:100%!important}
-      [data-control-snap-conversation]{background:#fff!important;color:#17191c!important}
       [data-control-snap-camera] video{max-width:100%!important;max-height:100%!important;object-fit:contain!important}
       #control-snap-tabs{box-sizing:border-box!important;position:fixed!important;z-index:2147483000!important;inset:auto 0 0!important;display:flex!important;align-items:stretch!important;height:var(--control-snap-bottom)!important;padding:6px 18px calc(6px + env(safe-area-inset-bottom,0px))!important;background:rgba(255,255,255,.96)!important;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid #eceef1!important;font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
       #control-snap-tabs button{appearance:none!important;border:0!important;border-radius:16px!important;background:transparent!important;color:#717780!important;display:flex!important;flex:1!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:3px!important;font:600 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;min-height:44px!important;cursor:pointer!important;transition:background .15s,color .15s!important}
@@ -142,10 +141,10 @@
       html[data-control-snap-view="conversation"]{--control-snap-bottom:0px;color-scheme:normal!important}
       html[data-control-snap-view="conversation"] #control-snap-tabs{display:none!important}
       html[data-control-snap-view="conversation"],html[data-control-snap-view="conversation"] body,html[data-control-snap-view="conversation"] [data-control-snap-shell],html[data-control-snap-view="conversation"] [data-control-snap-conversation]{background:var(--control-chat-background,#1e1e1e)!important}
-      html[data-control-snap-view="conversation"] [data-control-snap-conversation]{padding:0!important;margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
-      html[data-control-snap-view="conversation"] [data-control-snap-chat-frame]{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:100%!important;min-height:0!important;max-height:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;flex:1 1 auto!important;background:var(--control-chat-background,#1e1e1e)!important}
-      html[data-control-snap-view="conversation"] [data-control-snap-chat-log]{flex:1 1 0%!important;min-height:0!important;max-height:none!important;height:auto!important;overflow-y:auto!important;border-radius:0!important}
-      html[data-control-snap-view="conversation"] [data-control-snap-chat-composer]{flex:0 0 auto!important;margin-bottom:0!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-conversation]{display:flex!important;flex-direction:column!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-frame]{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;max-height:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;flex:1 1 0%!important;background:var(--control-chat-background,#1e1e1e)!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-log]{position:relative!important;inset:auto!important;flex:1 1 0%!important;min-height:0!important;max-height:none!important;height:auto!important;min-width:0!important;overflow-y:auto!important;border-radius:0!important}
+      html[data-control-snap-view="conversation"] [data-control-snap-chat-composer]{position:relative!important;inset:auto!important;flex:0 0 auto!important;min-width:0!important;max-width:100%!important;height:auto!important;margin-top:auto!important;margin-bottom:0!important}
       html[data-control-snap-view="conversation"] [data-control-snap-chat-frame]{align-items:stretch!important;justify-content:flex-start!important}
       [data-control-snap-name-line]{display:block!important;order:-1!important;flex:0 0 auto!important;position:static!important;inset:auto!important;transform:none!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:20px!important;max-height:40px!important;width:100%!important;min-width:0!important;max-width:none!important;font:600 17px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;white-space:normal!important;overflow:hidden!important;overflow-wrap:anywhere!important;color:#17191c!important;margin:0!important;padding:0!important}
       [data-control-snap-status-line],[data-control-snap-status-line] [data-control-snap-text-flow]{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;position:static!important;inset:auto!important;transform:none!important;flex:0 1 auto!important;min-height:18px!important;max-height:20px!important;height:20px!important;min-width:0!important;width:auto!important;overflow:hidden!important;font:400 13px/18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;white-space:nowrap!important;color:#747b84!important;margin:0!important;padding:0!important}
@@ -286,17 +285,23 @@
   }
   function snapConversationLayout(pane,composer){
     if(!pane||!composer)return;
+    const markers=['data-control-snap-chat-frame','data-control-snap-chat-log','data-control-snap-chat-composer'];
+    for(const el of [pane,...pane.querySelectorAll(markers.map(a=>'['+a+']').join(','))])for(const attr of markers)el.removeAttribute(attr);
     let log=pane.querySelector('[role="log"],[data-testid="message-list"],[data-testid="chat-history"]');
-    if(!log)log=[...pane.querySelectorAll('div,section')].find(el=>!el.contains(composer)&&/auto|scroll/.test(getComputedStyle(el).overflowY));
-    let footer=composer.closest('form,footer,[data-testid*="composer"]')||composer.parentElement;
-    if(footer===pane)footer=composer;
+    if(!log)log=[...pane.querySelectorAll('div,section')].filter(el=>!el.contains(composer)&&!composer.contains(el)&&/auto|scroll/.test(getComputedStyle(el).overflowY)).sort((a,b)=>b.getBoundingClientRect().height-a.getBoundingClientRect().height)[0];
+    // Without a message region, leave the native controls alone instead of guessing at their layout.
+    if(!log||log.contains(composer))return;
+    let shared=log.parentElement;
+    while(shared&&shared!==pane&&!shared.contains(composer))shared=shared.parentElement;
+    if(!shared||!shared.contains(composer))return;
+    // Stop at the common message/composer ancestor, NEVER inside the horizontal input toolbar.
+    let footer=composer;
+    while(footer.parentElement&&footer.parentElement!==shared)footer=footer.parentElement;
     footer.setAttribute('data-control-snap-chat-composer','');
-    for(let node=footer.parentElement;node&&node!==pane;node=node.parentElement)node.setAttribute('data-control-snap-chat-frame','');
-    if(log){
-      log.setAttribute('data-control-snap-chat-log','');
-      const bg=getComputedStyle(log).backgroundColor;
-      if(bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent')document.documentElement.style.setProperty('--control-chat-background',bg);
-    }
+    for(let node=log.parentElement;node&&node!==pane;node=node.parentElement)node.setAttribute('data-control-snap-chat-frame','');
+    log.setAttribute('data-control-snap-chat-log','');
+    const bg=getComputedStyle(log).backgroundColor;
+    if(bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent')document.documentElement.style.setProperty('--control-chat-background',bg);
   }
   function snapCameraLayout(pane){
     if(!pane)return;
@@ -352,10 +357,13 @@
     if(conversation){
       conversation.removeAttribute(hiddenAttr);
       const pane=paneFor(conversation);pane?.setAttribute('data-control-snap-conversation','');
+      // A reused pane or an attachment camera must not inherit full-screen camera sizing.
+      const cameraMarkers=['data-control-snap-camera-fill','data-control-snap-camera-surface','data-control-snap-camera-trigger','data-control-snap-camera-large-trigger','data-control-snap-camera-start'];
+      if(pane)for(const el of [pane,...pane.querySelectorAll(cameraMarkers.map(a=>'['+a+']').join(','))])for(const attr of cameraMarkers)el.removeAttribute(attr);
       snapConversationLayout(pane,composer);
     }
     const previousCamera=snapCamera;
-    snapCamera=panes.find(el=>el.matches('[data-testid="camera-panel"],[data-testid="camera-view"]')||el.querySelector('[data-testid="camera-panel"],[data-testid="camera-view"],button[aria-label*="camera" i],button[aria-label*="appareil photo" i]')||/send (?:a )?snaps|envoyer des snaps|cliquez sur l.appareil photo/i.test(el.textContent));
+    snapCamera=panes.find(el=>!el.contains(composer)&&(el.matches('[data-testid="camera-panel"],[data-testid="camera-view"]')||el.querySelector('[data-testid="camera-panel"],[data-testid="camera-view"],button[aria-label*="camera" i],button[aria-label*="appareil photo" i]')||/send (?:a )?snaps|envoyer des snaps|cliquez sur l.appareil photo/i.test(el.textContent)));
     // Capture/preview replaces the initial camera prompt; do not bounce back to the contacts.
     if(!snapCamera&&panes.includes(previousCamera)&&(!composer||!previousCamera.contains(composer)))snapCamera=previousCamera;
     if(snapCamera){snapCamera.setAttribute('data-control-snap-camera','');snapCameraLayout(snapCamera);}

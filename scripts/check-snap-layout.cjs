@@ -65,6 +65,37 @@ async function run(){
    await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('#control-snap-tabs').waitFor({state:'visible'});
    await context.close();console.log('PASS headings visible, compact status, icon-only tabs, edge-to-edge conversation and native back',width);
   }
+  // A chat attachment camera must never be mistaken for the full-screen camera pane.
+  for(const width of [320,390,430])for(const semanticLog of [true,false]){
+   const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'}),page=await context.newPage(),errors=[];
+   page.on('pageerror',e=>errors.push(e.message));
+   const chat='<section data-testid="conversation-panel" class="native-chat"><header class="chat-header"><button aria-label="Back">‹</button><strong>Camille</strong><button aria-label="Call">Appeler</button></header><div class="chat-body"><div class="history-wrap"><div class="history" '+(semanticLog?'role="log"':'')+'>'+Array.from({length:30},(_,i)=>'<p>Message de test '+i+'</p>').join('')+'</div></div><div class="native-toolbar"><button aria-label="Appareil photo" class="attach">◉</button><div class="input-wrap"><div class="input-inner"><div contenteditable="true" role="textbox" aria-label="Envoyer un Chat"></div></div></div><button aria-label="Emoji">☺</button><button aria-label="Galerie">▣</button></div></div></section>';
+   const css='<style>.native-chat{width:850px;height:700px;display:flex;flex-direction:column;background:#202124;color:#eee;border-radius:28px;padding:20px}.chat-header{height:64px;flex:0 0 64px;display:flex;align-items:center;gap:12px;background:#111;font-size:17px;padding:8px}.chat-header strong{flex:1}.chat-header button{font-size:14px}.chat-body{display:flex;flex-direction:column;flex:1;min-height:0}.history-wrap{flex:1;min-height:0;display:flex;flex-direction:column}.history{height:430px;overflow-y:auto;background:#202124;padding:12px}.history p{padding:14px;background:#303134;border-radius:10px}.native-toolbar{display:flex;flex-direction:row;align-items:center;gap:8px;padding:8px;flex:0 0 auto;background:#202124}.native-toolbar button{width:36px;height:36px;min-width:36px;flex:0 0 36px;border-radius:50%;background:#333;color:white;border:1px solid #444;font-size:22px;padding:0}.input-wrap{flex:1;min-width:0;border-radius:24px;background:#333;padding:10px}.input-inner{display:flex;align-items:center;min-width:0}.input-inner [role=textbox]{min-width:0;min-height:22px;max-height:100px;overflow-y:auto;flex:1;color:white;font:16px system-ui;outline:none}</style>';
+   const html=pageHTML(false).replace('</head>',css+'</head>').replace('<button class="public"',chat+'<button class="public"');
+   await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:html}));await context.addInitScript({content:source});
+   await page.goto('https://web.snapchat.com/');await page.waitForFunction(()=>document.documentElement.getAttribute('data-control-snap-view')==='conversation');
+   await page.locator('#control-native-loading').waitFor({state:'detached'});
+   async function checkChat(height){
+    const g=await page.evaluate(()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,right:r.right};};return{header:box('.chat-header'),history:box('.history'),toolbar:box('.native-toolbar'),input:box('[role=textbox]'),buttons:[...document.querySelectorAll('.native-toolbar button')].map(e=>{const r=e.getBoundingClientRect();return{y:r.y,width:r.width,height:r.height,bottom:r.bottom};}),direction:getComputedStyle(document.querySelector('.native-toolbar')).flexDirection,camera:document.querySelector('.native-chat').hasAttribute('data-control-snap-camera')};});
+    assert.equal(g.camera,false,'Attachment camera must not classify a conversation as the camera pane');
+    assert.equal(g.direction,'row','Native composer stays horizontal');
+    assert(g.toolbar.height<100&&g.toolbar.bottom<=height+1&&g.toolbar.bottom>=height-2,JSON.stringify(g));
+    assert(g.history.y>=g.header.bottom-1&&g.history.bottom<=g.toolbar.y+1&&g.history.height>=height-180,JSON.stringify(g));
+    assert(g.input.width>=width-175&&g.input.y>=g.toolbar.y&&g.input.bottom<=g.toolbar.bottom,JSON.stringify(g));
+    for(const b of g.buttons)assert(b.width<=45&&b.height<=45&&b.y>=g.toolbar.y&&b.bottom<=g.toolbar.bottom,JSON.stringify(g));
+    assert.equal(await page.locator('#control-snap-tabs').isVisible(),false);
+    assert.equal(await page.locator('.history').evaluate(e=>getComputedStyle(e).color),'rgb(238, 238, 238)','Preserve native dark conversation text contrast');
+   }
+   await checkChat(844);
+   await page.getByRole('textbox',{name:'Envoyer un Chat'}).fill('Texte de test — non envoyé');
+   await page.locator('.history').evaluate(el=>el.scrollTop=el.scrollHeight);assert(await page.locator('.history').evaluate(el=>el.scrollTop>0));
+   await page.screenshot({path:path.join(out,'snap-chat-toolbar-'+width+'-'+semanticLog+'.png'),animations:'disabled'});
+   await page.setViewportSize({width,height:480});await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--control-snap-height')==='480px');await checkChat(480);
+   await page.screenshot({path:path.join(out,'snap-chat-keyboard-'+width+'-'+semanticLog+'.png'),animations:'disabled'});
+   await page.evaluate(()=>{window.attachmentClicks=0;document.querySelector('.attach').onclick=()=>window.attachmentClicks++;});
+   await page.getByRole('button',{name:'Appareil photo',exact:true}).click();assert.equal(await page.evaluate(()=>window.attachmentClicks),1);
+   assert.deepEqual(errors,[]);await context.close();console.log('PASS native chat toolbar, history scrolling, attachment action and resized viewport',width,'semantic:',semanticLog);
+  }
   for(const reducedMotion of ['reduce','no-preference']){
    const context=await browser.newContext({viewport:{width:390,height:844},colorScheme:'dark',reducedMotion}),page=await context.newPage();
    await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width,initial-scale=1"><body></body>'}));await context.addInitScript({content:source});
