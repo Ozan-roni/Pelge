@@ -1,8 +1,14 @@
-# Control iPhone — Safari 1.1.0
+# Control iPhone — Safari 1.2.0
 
-Cette édition complète remplace le script 1.0.0. Aucun menu, bouton flottant Control ou page de remplacement : seuls les sites natifs restent affichés. Aucun serveur Control ni PC allumé n'est nécessaire.
+Cette édition complète remplace les versions précédentes. Aucun menu, bouton flottant Control ou page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
+
+Fichier complet en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
+
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.2.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+Alternative avec l'archive :
 
 1. Décompresser l'archive dans Fichiers sur l'iPhone.
 2. Dans Userscripts, repérer son dossier de scripts. Y remplacer l'ancien fichier `Control-iPhone.user.js` par celui fourni ici. Ne pas garder deux versions actives. Ne pas renommer le fichier en `.txt`.
@@ -23,11 +29,17 @@ Cette édition complète remplace le script 1.0.0. Aucun menu, bouton flottant C
 
 Un seul logo du réseau avec un reflet discret peut apparaître au premier chargement. Les logos sont inclus dans le fichier : aucun asset Control à télécharger. Le site charge normalement derrière ce masque, qui disparaît dès que la messagerie est détectée, et au plus tard après six secondes pour ne jamais emprisonner l'utilisateur. Pas de chargement Control rejoué à chaque conversation. L'animation respecte le réglage de réduction des mouvements. Les temps de chargement des serveurs Instagram/Snapchat ne peuvent pas être supprimés par ce script.
 
+Le logo Instagram est en **contour multicolore, sans carré plein**. Son reflet est masqué sur le tracé du logo pour ne pas balayer le reste de l'écran.
+
 ## Snapchat
 
 - Accès aux conversations, caméra et galerie/Memories lorsque Snapchat Web les propose.
 - Masquage de Spotlight, Stories, Discover, carte et panneaux publics détectés.
-- Sur petit écran, la liste native des contacts occupe la largeur ; les noms, avatars et messages restent ceux de Snapchat, sans réplique ni collecte par Control.
+- Jusqu'à 700 px, deux boutons fixes en bas : **Messages** pour la liste blanche pleine largeur et **Snap** pour le panneau caméra natif plein écran, au-dessus de la barre. La zone tient compte de l'espace sécurisé iPhone et du clavier.
+- Le rail étroit d'avatars est reconnu et élargi. Les noms déjà présents dans le DOM sont rendus visibles. S'ils sont uniquement disponibles dans le titre ou le libellé accessible du contact, ce libellé est affiché. Aucun nom n'est inventé.
+- Les vrais contacts, avatars, événements et messages de Snapchat sont conservés. Choisir un contact ouvre sa conversation ; le bouton Messages permet de retrouver la liste.
+- L'onglet Snap affiche le panneau caméra détecté, sans ouvrir automatiquement la caméra, demander de permission ou envoyer de Snap. L'utilisateur utilise ensuite les commandes natives. Si aucun panneau caméra n'est détecté, l'onglet est désactivé, sans simuler une caméra fonctionnelle.
+- La présentation desktop n'utilise pas cette barre mobile.
 - La présentation s'adapte aux conteneurs reconnus. Si Snapchat change sa structure, certains ajustements peuvent nécessiter une mise à jour.
 
 ## Autres réseaux conservés
