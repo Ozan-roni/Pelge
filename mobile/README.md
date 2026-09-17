@@ -1,4 +1,4 @@
-# Control iPhone — Safari 1.2.0
+# Control iPhone — Safari 1.3.0
 
 Cette édition complète remplace les versions précédentes. Aucun menu, bouton flottant Control ou page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
@@ -6,7 +6,7 @@ Cette édition complète remplace les versions précédentes. Aucun menu, bouton
 
 Fichier complet en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.2.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.3.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
 
 Alternative avec l'archive :
 
@@ -30,6 +30,16 @@ Alternative avec l'archive :
 Un seul logo du réseau avec un reflet discret peut apparaître au premier chargement. Les logos sont inclus dans le fichier : aucun asset Control à télécharger. Le site charge normalement derrière ce masque, qui disparaît dès que la messagerie est détectée, et au plus tard après six secondes pour ne jamais emprisonner l'utilisateur. Pas de chargement Control rejoué à chaque conversation. L'animation respecte le réglage de réduction des mouvements. Les temps de chargement des serveurs Instagram/Snapchat ne peuvent pas être supprimés par ce script.
 
 Le logo Instagram est en **contour multicolore, sans carré plein**. Son reflet est masqué sur le tracé du logo pour ne pas balayer le reste de l'écran.
+
+Sur Snapchat : silhouette vectorielle jaune sur fond blanc, même en mode sombre, reflet limité au logo et disparition en fondu. Le tracé vient de [Simple Icons — Snapchat](https://github.com/simple-icons/simple-icons/blob/develop/icons/snapchat.svg) ; il est embarqué dans le script, sans requête externe au chargement.
+
+## Correctifs 1.3.0
+
+- Suppression du traitement trop large des textes qui pouvait déformer les avatars : emplacement de 54 px pour l'avatar, zone séparée pour nom et statut, badges contenus et offsets des listes virtualisées conservés.
+- La caméra s'étend dans ses cadres internes ; les marges, tailles et arrondis desktop de ces cadres sont retirés sur mobile. La vidéo native couvre la zone disponible. Safari conserve ses propres barres système.
+- Les onglets sont plus discrets : seul le fond de l'icône active est jaune ; transition en fondu du contenu sans relancer le chargement.
+- Le compteur connu `ControlUsageTimer` est masqué sur Snapchat. Si une autre extension Control est active, la désactiver pour ce site pendant l'utilisation de ce script : ses propres injections ou styles peuvent encore interférer. Ce script ne peut pas désinstaller une autre extension Safari.
+- Tests supplémentaires avec avatars et boutons imbriqués, marges caméra desktop, lignes virtualisées et réduction des animations, à 320, 390 et 430 px. Ce sont des pages de test, pas le DOM réel du compte Snapchat sur iPhone.
 
 ## Snapchat
 
