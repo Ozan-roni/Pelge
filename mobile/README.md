@@ -1,14 +1,24 @@
-# Control iPhone — Safari 1.5.0
+# Control iPhone — Safari 1.6.0
 
 Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-La version **1.5.0** est disponible dans le fichier complet ci-dessous.
+La version **1.6.0** est disponible dans le fichier complet ci-dessous.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.5.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## Correctifs 1.6.0 — sessions Snapchat
+
+- Un contrôleur de défilement unique : positionnement initial après stabilisation, conservation de la lecture manuelle, suivi des nouveaux messages uniquement à proximité du bas, ancre conservée lors du chargement des anciens messages.
+- Cache d’identités en mémoire, indexé par identifiant de conversation reconnu. Un point ou une valeur vide ne remplace plus un nom connu. Sans identifiant stable ni nom disponible : « Conversation », sans inventer un nom.
+- Fondu de disponibilité de la discussion, indicateur discret et annulation des anciennes sessions.
+- Adaptateur pour lecteurs et appels natifs reconnus, sans déplacer, cloner ni capturer leurs médias. Les commandes de lecture et les durées restent celles exposées par Snapchat.
+- **Limites :** aucune API privée, aucune récupération d’une file de Snaps non exposée, aucun préchargement réseau de médias privés. Le décodage anticipé se limite aux images suivantes déjà fournies. L’enchaînement reste dépendant des commandes natives reconnues. Pas de garantie d’intégration réelle sur iOS sans essai sur un appareil connecté.
+
+Voir [l’audit et les limites de validation](../docs/SNAPCHAT-EXPERIENCE.md). Le module commun est généré dans ce fichier autonome avec `npm run build:snapchat` ; il n’y a rien d’autre à installer sur le téléphone.
 
 Alternative avec l'archive :
 

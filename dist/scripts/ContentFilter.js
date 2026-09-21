@@ -2153,6 +2153,7 @@ function ApplyFilters() {
     FilterInstagram();
     window.ControlInstagramVisuals?.refresh();
   } else if (IsSnapchat()) {
+    window.ControlSnapchatVisuals?.update({enabled:ActiveRules.Snapchat.Enabled});
     if (ActiveRules.Snapchat.Enabled) RemoveSnapchatHardBlockedControls();
     FilterSnapchat();
   }
