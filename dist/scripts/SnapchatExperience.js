@@ -33,6 +33,7 @@
     const style = document.createElement('style'); style.dataset.controlSnapOwned = 'style';
     style.textContent = `
       [data-csx-ready="LOADING"]{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+      video[data-csx-media][data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       [data-csx-ready="READY"]{opacity:1;transition:opacity 180ms cubic-bezier(.2,0,0,1)}
       [data-control-snap-owned="loading"]{position:fixed;z-index:2147483201;pointer-events:none;display:grid;place-items:center}
       .csx-spinner{width:22px;height:22px;border:2px solid #8885;border-top-color:#959595;border-radius:50%;animation:csx-spin .8s linear infinite}
@@ -118,13 +119,18 @@
       }
       layouts.set(pane,{log,input,footer,marks});counters.layoutPasses++;
     }
-    function stopConversation() { active?.dispose(); active = null; }
+    function releaseLayout(pane){
+      const layout=layouts.get(pane);if(!layout)return;
+      for(const [node,attr] of layout.marks)node.removeAttribute(attr);
+      pane.style.removeProperty('--csx-composer-offset');layouts.delete(pane);
+    }
+    function stopConversation() { const old=active;active=null;if(old){old.dispose();releaseLayout(old.pane);old.pane.removeAttribute('data-csx-ready');} }
     function attachConversation(pane, log, key) {
       if (!log || !pane || disposed) return;
-      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       key = key || selectedKey || keyOf(pane);
-      if (active?.log === log && active.key === key) return active;
+      if (active?.log === log && active.key === key) {layoutConversation(pane,log,pane.querySelector(selectors.composer));return active;}
       stopConversation();
+      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       const abort = new AbortController(); let frame = 0, sampleFrame = 0, followFrame = 0, followTarget = 0, following = false, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
       const notice=document.createElement('button');notice.type='button';notice.hidden=true;notice.dataset.controlSnapOwned='new-message';notice.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg><span>New message</span>';pane.append(notice);
       const state = {pane,log,key,hasInitialPositioned:false,get following(){return following;},dispose(){abort.abort();notice.remove();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);cancelAnimationFrame(followFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
@@ -208,7 +214,7 @@
       const old=viewer;viewer=null;old.abort.abort();old.mediaAbort?.abort();old.observer.disconnect();
       clearTimeout(old.timer);clearTimeout(old.deadline);cancelAnimationFrame(old.frame);old.progressAnimation?.cancel();
       old.root.style.removeProperty('--csx-height');
-      old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');
+      old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');old.root.removeAttribute('data-control-snap-viewer');
       old.root.querySelectorAll('[data-csx-media]').forEach(node=>{node.removeAttribute('data-csx-media');node.removeAttribute('data-csx-ready');});
       old.chrome.remove(); // Never pause, replace or stop Snapchat-owned media.
     }
@@ -316,7 +322,7 @@
       state.observer=new MutationObserver(records=>{if(records.some(record=>!owned(record.target)))schedule();});
       state.observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['src','hidden','aria-hidden','aria-current','data-current','data-snap-id']});
       root.addEventListener('click',event=>{
-        if(event.defaultPrevented||event.target.closest('button,a,input,[role="button"],video[controls]'))return;
+        if(event.defaultPrevented||event.target.closest('button,a,input,[role="button"],video'))return;
         const bounds=root.getBoundingClientRect();if(go(event.clientX-bounds.left<bounds.width*.22?-1:1)){event.preventDefault();}
       },{signal:abort.signal});
       document.addEventListener('keydown',event=>{

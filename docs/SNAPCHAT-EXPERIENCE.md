@@ -1,4 +1,4 @@
-# Snapchat — audit et intégration 0.35.1 / iPhone 1.6.1
+# Snapchat — audit et intégration 0.35.2 / iPhone 1.6.2
 
 ## Périmètre réel
 
@@ -50,9 +50,9 @@ Seules les images suivantes déjà chargées sont décodées en avance. Sans com
 
 ## Appels
 
-Pour les surfaces reconnues : surface verticale 9:16 centrée sur ordinateur, participant distant dominant, cadrage intégral en contain, aperçu local compact vertical en contain, commandes natives en superposition. Aucun cover forcé, y compris pour la caméra mobile.
+Pour les appels reconnus : surface verticale 9:16 centrée sur ordinateur, participant distant dominant, cadrage intégral en contain, aperçu local compact vertical en contain, commandes natives en superposition. La caméra hors appel sur mobile utilise désormais un remplissage centré (voir 1.6.2).
 
-Les dimensions et le zoom du flux local sont lus, jamais modifiés. Aucun getUserMedia supplémentaire, applyConstraints, stop de piste ou clonage de flux. L’accès aux sources et la fin d’appel restent natifs. Les erreurs d’autorisation sont dérivées des messages natifs reconnus ; Control ne contourne pas les autorisations du navigateur.
+Les dimensions et le zoom des flux d'appel sont lus, jamais modifiés par l'adaptateur d'appel. Aucun getUserMedia supplémentaire, stop de piste ou clonage de flux. L’accès aux sources et la fin d’appel restent natifs. Les erreurs d’autorisation sont dérivées des messages natifs reconnus ; Control ne contourne pas les autorisations du navigateur. Seul l'aperçu caméra mobile hors appel demande des dimensions idéales depuis 1.6.2.
 
 Pas de déplacement de l’aperçu local, pas de masquage automatique des commandes risquant de nuire au clavier. Les appels entrants réels, la sélection d’un appareil et les changements tardifs d’autorisations nécessitent encore un essai connecté.
 
@@ -93,6 +93,14 @@ Le composer est identifié une fois par combinaison panneau/historique/input. Le
 Vérifié automatiquement à 390 et 1280 px : focus puis 20 caractères = aucune variation du Y du composer, du scroll ou du compteur de reconstruction ; envoyer/recevoir au bas ; remonter 30 messages ; nouvel entrant sans saut ; bouton de retour au bas ; recherche nom/username et ouverture native ; icônes des dix lignes de paramètres testées ; conservation d'un timestamp natif ; états hidden ; caméra contain et miroir frontal ; nettoyage à la désactivation. Captures inspectées dans build/snap-experience. Les suites historiques couvrent aussi 320/430 px, le clavier redimensionné et Instagram. Aucune erreur JS ou ressource HTTP >=400 dans ces fixtures. Ce n'est pas une mesure de FPS sur Snapchat réel.
 
 Limites explicites : recherche locale limitée aux contacts montés (la recherche serveur native reste disponible) ; aucun faux message, faux résultat ou réglage inventé ; panneaux/settings en dehors des sélecteurs reconnus non garantis ; notifications sans champs natifs non complétées par des données fictives ; pas de validation réseau de tous les assets Snapchat privés. Le navigateur connecté était indisponible pendant cette passe.
+
+## Régressions corrigées en 1.6.2
+
+Le test `check-snap-regressions.cjs` échouait sur quatre points avant correction : marqueur caméra sur un panneau devenu conversation ; lecteur reçu imbriqué non détecté ; marqueurs de conversation encore présents au retour aux contacts ; quatre marqueurs conservés après stopConversation. Il passe après correction, avec clic vidéo natif avant loadeddata, masque aria-hidden, retour puis ouverture d'une autre conversation et nettoyage du lecteur.
+
+La capture fournie montre une source paysage contenue dans une surface portrait, avec bandes noires. À la demande de remplissage mobile, Control demande une seule fois par piste locale une préférence portrait via applyConstraints, en conservant deviceId/frameRate et sans nouvelle caméra. Le rejet est toléré. Le remplissage CSS mobile recadre si le navigateur n'accorde pas le portrait ; aucune rotation 90° arbitraire. À la désactivation, seules les contraintes encore identiques à celles de Control sont restaurées. Les pistes et l'envoi natif ne sont jamais arrêtés/remplacés. Référence : [MediaStreamTrack.applyConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints).
+
+Tests simulés : demande portrait unique, deviceId préservé, aucun stop de piste, restauration des contraintes, object-fit cover mobile / contain ordinateur, retrait des raccourcis Lenses/My Story et maintien du déclencheur. La vignette réelle sans libellé ne peut pas être identifiée avec certitude à partir d'une capture seule. WebKit n'est pas installé ici : les tests restent Edge/Chromium, non une validation iPhone.
 
 ## Validation restante avant garantie de production
 

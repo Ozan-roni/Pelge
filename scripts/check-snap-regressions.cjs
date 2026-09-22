@@ -1,0 +1,46 @@
+/* Native DOM regression fixtures, not a connected Snapchat/iPhone session. */
+const {chromium}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'mobile/Control-iPhone.user.js'),'utf8');
+const shared=['SnapchatEssentialUI','SnapchatExperience'].map(n=>fs.readFileSync(path.join(root,'dist/scripts',n+'.js'),'utf8')).join('\n');
+const frames=p=>p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(r)))));
+const fixture='<!doctype html><meta name="viewport" content="width=device-width"><style>*{box-sizing:border-box}body{margin:0;font:16px system-ui}main>.app{display:flex;height:100vh}.contacts{width:300px;height:100%;overflow:auto}header{height:64px;display:flex;align-items:center;padding:10px}.row{height:80px;width:100%;display:flex}.stage{flex:1;min-width:0;background:#202020;color:white}.chat-shell{display:flex;flex-direction:column;height:100%}[role=log]{flex:1;min-height:0;overflow:auto}[role=log] p{height:60px}footer{display:flex;padding:8px}textarea{flex:1;min-width:0}#viewer{position:fixed;inset:0;background:#111;z-index:99999}#viewer video{display:block;width:100%;height:75vh;background:#456}#viewer button{height:44px}</style><main><div class="app"><section class="contacts" data-testid="conversation-list"><header>Chat</header><button class="row" data-conversation-id="a" role="listitem"><h3>Camille</h3></button><button class="row" data-conversation-id="b" role="listitem"><h3>Alex</h3></button></section><section class="stage" data-testid="camera-panel"><button aria-label="Appareil photo">Ouvrir la caméra</button></section></div></main>';
+const init=()=>{
+window.openChat=()=>{const p=document.querySelector('.stage');p.dataset.testid='conversation-panel';p.innerHTML='<div class="chat-shell"><header><button aria-label="Back">Retour</button><strong>Camille</strong></header><div role="log">'+Array.from({length:40},(_,i)=>'<p>Message '+i+'</p>').join('')+'<button id="received">Voir la vidéo reçue</button></div><footer><textarea aria-label="Message"></textarea><button aria-label="Camera">Photo</button></footer></div>';p.querySelector('[aria-label=Back]').onclick=()=>{p.dataset.testid='camera-panel';p.innerHTML='<button aria-label="Appareil photo">Ouvrir la caméra</button>';};p.querySelector('#received').onclick=()=>{const d=document.createElement('div');d.id='viewer';d.dataset.testid='media-viewer';d.setAttribute('role','dialog');d.innerHTML='<video preload="none" aria-label="Received video"></video><button id="close-video">Fermer</button>';p.querySelector('[role=log]').append(d);const v=d.querySelector('video');let ready=0;Object.defineProperty(v,'readyState',{get:()=>ready});v.onclick=()=>{window.playClicks=(window.playClicks||0)+1;ready=2;v.dispatchEvent(new Event('loadeddata'));};d.querySelector('button').onclick=()=>d.remove();};};document.querySelectorAll('.row').forEach(b=>b.onclick=openChat);
+};
+(async()=>{
+ const browser=await chromium.launch({channel:process.env.CONTROL_BROWSER_CHANNEL||undefined}),failures=[];
+ const check=async(name,fn)=>{try{await fn();console.log('PASS',name);}catch(e){failures.push(name+': '+e.message);console.log('FAIL',name,e.message);}};
+ try{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));await context.route('**/*',r=>r.fulfill({contentType:'text/html',body:fixture}));
+ await context.addInitScript({content:source});await page.goto('https://web.snapchat.com/');await page.evaluate(init);await page.locator('#control-native-loading').waitFor({state:'detached'});await frames(page);
+ await page.locator('.row').first().click();await page.waitForFunction(()=>document.documentElement.dataset.controlSnapView==='conversation');await page.waitForFunction(()=>document.querySelector('.stage').dataset.csxReady==='READY');await frames(page);
+ await check('camera markers removed when native camera pane becomes conversation',async()=>assert.equal(await page.locator('.stage[data-csx-camera-surface]').count(),0));
+ await page.locator('#received').click();await frames(page);
+ await check('nested received-media viewer recognized without a page reload',async()=>assert.equal(await page.locator('#viewer').getAttribute('data-csx-overlay'),'viewer'));
+ await check('video waiting for a user gesture remains visible and clickable',async()=>{assert.equal(await page.locator('#viewer video').isVisible(),true);await page.locator('#viewer video').click({timeout:2000});assert.equal(await page.evaluate(()=>playClicks),1);});
+ await page.locator('#close-video').click();await frames(page);
+ await check('viewer closed without leftover overlay',async()=>assert.equal(await page.locator('#control-snap-session').count(),0));
+ await page.getByRole('button',{name:'Back',exact:true}).click();await frames(page);
+ await check('return to contacts clears conversation layout on the reused pane',async()=>{assert.equal(await page.locator('.stage[data-csx-chat]').count(),0);assert.equal(await page.locator('html').getAttribute('data-control-snap-view'),'messages');const box=await page.locator('.contacts').boundingBox();assert(box&&box.width>=389&&box.height>700,JSON.stringify(box));await page.locator('.row').nth(1).click({timeout:2000});});
+ await page.waitForFunction(()=>document.documentElement.dataset.controlSnapView==='conversation');
+ await page.evaluate(()=>document.querySelector('.stage').setAttribute('aria-hidden','true'));await frames(page);
+ await check('native hidden conversation does not trap the contacts view',async()=>assert.equal(await page.locator('html').getAttribute('data-control-snap-view'),'messages'));
+ await page.evaluate(()=>{const stage=document.querySelector('.stage');stage.removeAttribute('aria-hidden');stage.dataset.testid='camera-panel';stage.innerHTML='<video></video><button aria-label="Lenses">Lens thumbnail</button><button aria-label="My Story">Story</button><button aria-label="Take Snap">Shutter</button>';let current={deviceId:{exact:'camera-fixture'},frameRate:{ideal:30}};window.cameraRequests=[];window.trackStops=0;window.cameraTrack={readyState:'live',getConstraints:()=>current,getSettings:()=>({width:1920,height:1080,facingMode:'user'}),stop:()=>trackStops++,applyConstraints:async constraints=>{cameraRequests.push(constraints);current=constraints;}};Object.defineProperty(stage.querySelector('video'),'srcObject',{value:{getVideoTracks:()=>[cameraTrack]}});});await frames(page);
+ await page.locator('#control-snap-tabs [data-view="snap"]').click();await frames(page);
+ await check('mobile camera fills the viewport with native portrait preference',async()=>{assert.equal(await page.locator('.stage video').evaluate(v=>getComputedStyle(v).objectFit),'cover');assert.equal(await page.evaluate(()=>cameraRequests.length),1);assert.equal(await page.evaluate(()=>cameraRequests[0].aspectRatio.ideal),9/16);assert.deepEqual(await page.evaluate(()=>cameraRequests[0].deviceId),{exact:'camera-fixture'});assert.equal(await page.evaluate(()=>trackStops),0);assert.equal(await page.getByRole('button',{name:'Lenses',exact:true}).isVisible(),false);assert.equal(await page.getByRole('button',{name:'My Story',exact:true}).isVisible(),false);assert.equal(await page.getByRole('button',{name:'Take Snap',exact:true}).isVisible(),true);});
+ await page.evaluate(()=>document.querySelector('.stage video').dispatchEvent(new Event('loadedmetadata')));await frames(page);
+ await check('portrait request is not repeated on metadata updates',async()=>assert.equal(await page.evaluate(()=>cameraRequests.length),1));
+ await page.evaluate(()=>{history.pushState(null,'','/accounts/login');window.dispatchEvent(new PopStateEvent('popstate'));});await frames(page);
+ await check('leaving Control restores only its own camera constraints',async()=>{assert.equal(await page.evaluate(()=>cameraRequests.length),2);assert.deepEqual(await page.evaluate(()=>cameraRequests[1]),{deviceId:{exact:'camera-fixture'},frameRate:{ideal:30}});assert.equal(await page.evaluate(()=>trackStops),0);});
+ await check('no browser errors',async()=>assert.deepEqual(errors,[]));
+ await context.close();
+ const c=await browser.newContext(),p=await c.newPage();await c.route('**/*',r=>r.fulfill({contentType:'text/html',body:fixture}));await p.goto('https://web.snapchat.com/');await p.evaluate(init);await p.addScriptTag({content:shared});
+ await p.evaluate(()=>{openChat();window.cx=ControlSnapExperience.create();cx.attachConversation(document.querySelector('.stage'),document.querySelector('[role=log]'));});await p.waitForFunction(()=>cx.active.hasInitialPositioned);
+ await p.evaluate(()=>cx.stopConversation());
+ await check('stopConversation releases all owned layout markers',async()=>assert.equal(await p.locator('[data-csx-chat],[data-csx-chat-frame],[data-csx-chat-log],[data-csx-composer]').count(),0));
+ await c.close();
+ }finally{await browser.close();}
+ if(failures.length)throw Error(failures.join('\n'));
+})().catch(e=>{console.error(e);process.exitCode=1;});

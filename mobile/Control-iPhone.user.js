@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.1
+// @version      1.6.2
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -49,13 +49,24 @@ const notificationsSelector='[data-testid="notifications-panel"],[role="dialog"]
 const label=node=>(node.getAttribute('aria-label')||node.getAttribute('title')||node.textContent||'').trim();
 const normalize=text=>text.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase();
 function create(runtime){
- const abort=new AbortController(),observed=new Map(),searches=new Map(),icons=new Map(),marked=new Map();let disposed=false;
+ const abort=new AbortController(),observed=new Map(),searches=new Map(),icons=new Map(),marked=new Map(),portraitTracks=new Map();let disposed=false;
  const tag=(node,attr,value='')=>{if(node.getAttribute(attr)!==value)node.setAttribute(attr,value);if(!marked.has(node))marked.set(node,new Set());marked.get(node).add(attr);};
  const style=document.createElement('style');style.dataset.controlSnapOwned='essential-style';
  style.textContent="\n[data-csx-distraction],[data-csx-empty-rail]{display:none!important}\n[data-csx-camera-surface]{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;background:#101010!important;background-image:none!important;overflow:hidden!important;min-width:0!important}\n[data-csx-camera-media]{object-fit:contain!important;max-width:100%!important;max-height:100%!important}\n[data-csx-camera-media][data-csx-mirror]{transform:scaleX(-1)!important}\n@media(min-width:701px){[data-csx-camera-surface]{width:min(100%,calc((100dvh - 24px)*9/16))!important;flex:0 1 auto!important;height:calc(100dvh - 24px)!important;max-height:100%!important;aspect-ratio:9/16!important;margin:12px auto!important;border-radius:18px!important}}\n[data-csx-overlay=\"call\"]{width:min(100vw,calc(var(--csx-height,100dvh)*9/16))!important;inset:0!important;margin:auto!important;box-shadow:0 0 0 100vmax #101010!important}\n[data-csx-call-local]{aspect-ratio:9/16!important;width:clamp(80px,18%,112px)!important;height:auto!important;max-height:28%!important;inset:14px 14px auto auto!important;object-fit:contain!important}\n[data-csx-call-controls] button{width:44px!important;min-width:44px!important;height:44px!important;border-radius:50%!important}\n[data-csx-native-header]{display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;min-height:64px!important;padding:10px!important;box-sizing:border-box!important}\n[data-csx-native-header]>:is(h1,h2){flex:1;min-width:0;font:600 22px system-ui}\n[data-csx-toolbar-button]{min-width:40px!important;width:40px!important;height:40px!important;min-height:40px!important;box-sizing:border-box!important;padding:9px!important;border-radius:50%!important;position:relative!important}\n[data-control-snap-owned=\"semantic-icon\"]{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 22px;color:inherit;pointer-events:none}\n[data-control-snap-owned=\"semantic-icon\"] svg{width:22px!important;height:22px!important}\n[data-csx-icon-replaced]{display:none!important}\n[data-csx-toolbar-button]>[data-control-snap-owned=\"semantic-icon\"]{position:absolute;inset:0;margin:auto}\n[data-control-snap-owned=\"search\"]{box-sizing:border-box;width:100%;flex:1 1 100%;order:20;position:relative;padding:4px 0 0;font:14px system-ui}\n[data-control-snap-owned=\"search\"] input{box-sizing:border-box;width:100%;height:40px;border:1px solid #85858535;border-radius:20px;padding:0 36px 0 14px;font:16px system-ui;background:#f2f3f5;color:#15171b}\n.csx-search-results{position:absolute;top:48px;left:0;right:0;max-height:min(55dvh,480px);overflow-y:auto;background:#fff;color:#14161a;border:1px solid #8883;border-radius:16px;box-shadow:0 8px 24px #0002;z-index:12;padding:6px}\n.csx-search-results[hidden]{display:none}\n.csx-search-results button{display:flex;width:100%;align-items:center;gap:12px;border:0;border-radius:10px;background:transparent;color:inherit;padding:12px;text-align:left;font:500 15px system-ui;cursor:pointer}\n.csx-search-results button:hover,.csx-search-results button:focus-visible{background:#85858515;outline:2px solid #fffc00;outline-offset:-2px}\n.csx-search-results p{padding:8px;font:13px/1.4 system-ui}\n[data-csx-settings],[data-csx-notifications]{box-sizing:border-box!important;width:min(100%,480px)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;border-radius:18px!important;padding:16px!important;font-family:system-ui!important;box-shadow:0 12px 40px #0003}\n[data-csx-setting-row]{display:flex!important;align-items:center!important;gap:12px!important;width:100%!important;min-height:52px!important;padding:12px 8px!important;box-sizing:border-box!important;text-align:left!important;border:0!important;border-bottom:1px solid #8882!important;border-radius:0!important;background:transparent!important;font-size:15px!important}\n[data-csx-setting-group]{font:600 11px system-ui;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin:20px 8px 8px}\n[data-csx-notification-row]{box-sizing:border-box!important;min-height:68px!important;padding:12px 8px!important;border:0!important;border-bottom:1px solid #8882!important;border-radius:0!important;box-shadow:none!important;gap:12px!important}\n[data-csx-notification-row] img{width:42px!important;height:42px!important;object-fit:contain!important;border-radius:50%!important;flex-shrink:0!important}\n[data-csx-notification-row] time{font-size:12px!important;opacity:.65}\n[data-csx-notification-row][data-unread=\"true\"]{border-left:3px solid #ffdf00!important}\n[data-csx-settings],[data-csx-notifications]{animation:csx-surface-in 180ms ease-out}\n@keyframes csx-surface-in{from{opacity:0}to{opacity:1}}\n@media(prefers-reduced-motion:reduce){[data-csx-settings],[data-csx-notifications]{animation:none}}\n";
  style.textContent+='\n[data-csx-camera-surface][hidden],[data-csx-camera-surface][aria-hidden="true"],[data-csx-setting-row][hidden],[data-csx-toolbar-button][hidden]{display:none!important}\n[data-csx-native-header]{height:auto!important;flex-shrink:0!important}\n';
  style.textContent+='\n[data-csx-action-button]{font-size:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:40px!important;min-height:40px!important;padding:8px!important;border-radius:50%!important;box-sizing:border-box!important}\n[data-csx-action-button] [data-csx-icon]{width:22px;height:22px}\n[data-csx-hangup]{background:#eb3650!important;color:white!important;border:0!important}\n';
+ style.textContent+='\n@media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){[data-csx-camera-surface] video[data-csx-camera-media],html[data-control-snap-view="snap"] [data-control-snap-camera] video[data-csx-camera-media]{object-fit:cover!important;object-position:center!important;width:100%!important;height:100%!important}}\n';
  document.documentElement.append(style);
+ function portraitCamera(video){
+  if(!matchMedia('(max-width:700px) and (orientation:portrait)').matches)return;
+  const track=video.srcObject?.getVideoTracks?.()[0];
+  if(!track||portraitTracks.has(track)||typeof track.applyConstraints!=='function'||typeof track.getConstraints!=='function')return;
+  const original=track.getConstraints(),requested={...original,width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:9/16}};
+  if(Array.isArray(original.advanced))requested.advanced=original.advanced.map(item=>{const next={...item};delete next.width;delete next.height;delete next.aspectRatio;return next;});
+  portraitTracks.set(track,{original,requested});
+  // Reconfigure only an already-open local camera. Never request another stream or rotate pixels.
+  try{Promise.resolve(track.applyConstraints(requested)).catch(()=>{});}catch{}
+ }
  function nativeActions(){
   const roots=document.querySelectorAll(runtime.selectors.conversation+','+runtime.selectors.call);
   for(const root of roots)for(const button of root.querySelectorAll('button')){
@@ -90,16 +101,26 @@ function create(runtime){
   });
  }
  function camera(){
+  const current=new Set();
   for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
-   if(root.closest('[data-csx-overlay],[data-csx-chat]')||root.parentElement?.closest('[data-csx-camera-surface]'))continue;
+   if(root.closest('[data-csx-overlay],[data-csx-chat]')||root.matches(runtime.selectors.conversation)||root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')||root.parentElement?.closest('[data-csx-camera-surface]'))continue;
+   current.add(root);
    tag(root,'data-csx-camera-surface');
+   for(const control of root.querySelectorAll('button,[role="button"],[role="tab"],[data-testid*="lens" i],[data-testid*="story" i],[data-testid*="stories" i],[data-testid*="discover" i],[data-testid*="spotlight" i]')){
+    const description=[label(control),control.getAttribute('data-testid'),control.querySelector('img')?.getAttribute('alt')].filter(Boolean).join(' ');
+    if(/\b(story|stories|spotlight|discover|lenses|lens|effects|effets|filtres)\b/i.test(description)&&!/switch|flip|changer.*caméra/i.test(description))tag(control,'data-csx-distraction');
+   }
    for(const video of root.querySelectorAll('video')){
+    if(video.closest(runtime.selectors.viewer+','+runtime.selectors.call))continue;
+    current.add(video);
     tag(video,'data-csx-camera-media');
+    portraitCamera(video);
     const settings=video.srcObject?.getVideoTracks?.()[0]?.getSettings?.()||{};
     if(settings.facingMode==='environment')video.removeAttribute('data-csx-mirror');
     else if(settings.facingMode==='user'&&getComputedStyle(video).transform==='none')tag(video,'data-csx-mirror');
    }
   }
+  for(const [node,attrs] of marked)if(!current.has(node))for(const attr of ['data-csx-camera-surface','data-csx-camera-media','data-csx-mirror']){node.removeAttribute(attr);attrs.delete(attr);}
  }
  function search(list,header){
   if(searches.has(list))return;
@@ -156,6 +177,7 @@ function create(runtime){
  document.addEventListener('loadedmetadata',event=>{if(event.target instanceof HTMLVideoElement)camera();},{capture:true,signal:abort.signal});
  function dispose(){
   disposed=true;abort.abort();for(const entry of observed.values()){entry.observer.disconnect();entry.stop();}observed.clear();
+  for(const [track,{original,requested}] of portraitTracks){try{if(track.readyState!=='ended'&&JSON.stringify(track.getConstraints())===JSON.stringify(requested))Promise.resolve(track.applyConstraints(original)).catch(()=>{});}catch{}}portraitTracks.clear();
   for(const entry of searches.values())entry.box.remove();searches.clear();for(const entry of icons.values())entry.node.remove();icons.clear();
   document.querySelectorAll('[data-control-snap-owned="settings-group"]').forEach(node=>node.remove());
   for(const [node,attrs] of marked)for(const attr of attrs)node.removeAttribute(attr);marked.clear();style.remove();
@@ -200,6 +222,7 @@ globalThis.ControlSnapEssentialUI={create};
     const style = document.createElement('style'); style.dataset.controlSnapOwned = 'style';
     style.textContent = `
       [data-csx-ready="LOADING"]{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+      video[data-csx-media][data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       [data-csx-ready="READY"]{opacity:1;transition:opacity 180ms cubic-bezier(.2,0,0,1)}
       [data-control-snap-owned="loading"]{position:fixed;z-index:2147483201;pointer-events:none;display:grid;place-items:center}
       .csx-spinner{width:22px;height:22px;border:2px solid #8885;border-top-color:#959595;border-radius:50%;animation:csx-spin .8s linear infinite}
@@ -285,13 +308,18 @@ globalThis.ControlSnapEssentialUI={create};
       }
       layouts.set(pane,{log,input,footer,marks});counters.layoutPasses++;
     }
-    function stopConversation() { active?.dispose(); active = null; }
+    function releaseLayout(pane){
+      const layout=layouts.get(pane);if(!layout)return;
+      for(const [node,attr] of layout.marks)node.removeAttribute(attr);
+      pane.style.removeProperty('--csx-composer-offset');layouts.delete(pane);
+    }
+    function stopConversation() { const old=active;active=null;if(old){old.dispose();releaseLayout(old.pane);old.pane.removeAttribute('data-csx-ready');} }
     function attachConversation(pane, log, key) {
       if (!log || !pane || disposed) return;
-      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       key = key || selectedKey || keyOf(pane);
-      if (active?.log === log && active.key === key) return active;
+      if (active?.log === log && active.key === key) {layoutConversation(pane,log,pane.querySelector(selectors.composer));return active;}
       stopConversation();
+      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       const abort = new AbortController(); let frame = 0, sampleFrame = 0, followFrame = 0, followTarget = 0, following = false, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
       const notice=document.createElement('button');notice.type='button';notice.hidden=true;notice.dataset.controlSnapOwned='new-message';notice.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg><span>New message</span>';pane.append(notice);
       const state = {pane,log,key,hasInitialPositioned:false,get following(){return following;},dispose(){abort.abort();notice.remove();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);cancelAnimationFrame(followFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
@@ -375,7 +403,7 @@ globalThis.ControlSnapEssentialUI={create};
       const old=viewer;viewer=null;old.abort.abort();old.mediaAbort?.abort();old.observer.disconnect();
       clearTimeout(old.timer);clearTimeout(old.deadline);cancelAnimationFrame(old.frame);old.progressAnimation?.cancel();
       old.root.style.removeProperty('--csx-height');
-      old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');
+      old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');old.root.removeAttribute('data-control-snap-viewer');
       old.root.querySelectorAll('[data-csx-media]').forEach(node=>{node.removeAttribute('data-csx-media');node.removeAttribute('data-csx-ready');});
       old.chrome.remove(); // Never pause, replace or stop Snapchat-owned media.
     }
@@ -483,7 +511,7 @@ globalThis.ControlSnapEssentialUI={create};
       state.observer=new MutationObserver(records=>{if(records.some(record=>!owned(record.target)))schedule();});
       state.observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['src','hidden','aria-hidden','aria-current','data-current','data-snap-id']});
       root.addEventListener('click',event=>{
-        if(event.defaultPrevented||event.target.closest('button,a,input,[role="button"],video[controls]'))return;
+        if(event.defaultPrevented||event.target.closest('button,a,input,[role="button"],video'))return;
         const bounds=root.getBoundingClientRect();if(go(event.clientX-bounds.left<bounds.width*.22?-1:1)){event.preventDefault();}
       },{signal:abort.signal});
       document.addEventListener('keydown',event=>{
@@ -1000,7 +1028,10 @@ globalThis.ControlSnapEssentialUI={create};
       fallback.addEventListener('click',()=>{const current=contacts.querySelector('[data-control-snap-toolbar-action="search"],[data-control-snap-search]');if(current?.matches('input'))current.focus();else current?.click();});document.documentElement.append(fallback);
     }
   }
-  function stopSnapAnchor(){snapExperience?.stopConversation();}
+  function stopSnapAnchor(){
+    snapExperience?.stopConversation();
+    for(const attr of ['data-control-snap-chat-frame','data-control-snap-chat-log','data-control-snap-chat-composer'])document.querySelectorAll('['+attr+']').forEach(node=>node.removeAttribute(attr));
+  }
   function snapConversationLayout(pane,composer){
     if(!pane||!composer)return;
     if(snapExperience?.active?.pane===pane&&snapExperience.active.log.isConnected&&pane.querySelector('[data-control-snap-chat-composer]')?.contains(composer))return;
@@ -1073,7 +1104,8 @@ globalThis.ControlSnapEssentialUI={create};
     }
     const panes=[...root.children].filter(el=>!el.matches('header,nav,button,[role="dialog"],[role="menu"],[data-control-snap-compose],[data-control-snap-viewer]')&&el!==branch&&el!==contacts&&!el.contains(contacts)&&!el.hasAttribute(hiddenAttr));
     for(const pane of panes)pane.setAttribute('data-control-snap-pane','');
-    const conversation=document.querySelector('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')||panes.find(el=>el.querySelector('textarea,[contenteditable="true"],[role="textbox"]'));
+    const available=el=>!el.closest('[hidden],[aria-hidden="true"],[inert]');
+    const conversation=[...document.querySelectorAll('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')].find(available)||panes.find(el=>available(el)&&el.querySelector('textarea,[contenteditable="true"],[role="textbox"]'));
     const composer=conversation?.querySelector('textarea,[contenteditable="true"],[role="textbox"]');
     const paneFor=el=>panes.find(p=>p===el||p.contains(el));
     for(const pane of panes){pane.removeAttribute('data-control-snap-conversation');pane.removeAttribute('data-control-snap-camera');}
@@ -1113,7 +1145,7 @@ globalThis.ControlSnapEssentialUI={create};
     for(const button of snapTabs.querySelectorAll('button')){button.setAttribute('aria-pressed',String(button.dataset.view===snapView));button.disabled=button.dataset.view==='snap'&&!snapCamera;const title=button.disabled?'La caméra Snapchat n’est pas disponible sur cette page.':'';if(button.title!==title)button.title=title;}
     // Native received-Snap viewers are separate from camera capture and must remain above the shell.
     for(const viewer of document.querySelectorAll('[data-testid="snap-viewer"],[data-testid="media-viewer"],[role="dialog"][aria-label*="Snap" i]')){
-      if(viewer.querySelector('video,img,canvas')&&!viewer.querySelector('textarea,[contenteditable="true"]'))viewer.setAttribute('data-control-snap-viewer','');
+      if(!viewer.closest('[hidden],[aria-hidden="true"]')&&viewer.querySelector('video,img,canvas')&&!viewer.querySelector('textarea,[contenteditable="true"]'))viewer.setAttribute('data-control-snap-viewer','');
     }
     finishLoading();
   }
@@ -1212,7 +1244,11 @@ globalThis.ControlSnapEssentialUI={create};
         if(target?.closest('[data-control-snap-owned],#control-snap-session,[data-control-snap-name],#control-snap-row-actions,#control-snap-new-chat'))continue;
         if(record.type==='childList'&&[...record.addedNodes,...record.removedNodes].length&&[...record.addedNodes,...record.removedNodes].every(node=>node instanceof Element&&node.matches('[data-control-snap-owned],#control-snap-session,#control-snap-row-actions,#control-snap-new-chat,[data-control-snap-name]')))continue;
         // Messages, media and call internals have dedicated session observers.
-        if(target?.closest('[data-csx-scroll],[data-csx-overlay]'))continue;
+        if(target?.closest('[data-csx-scroll],[data-csx-overlay]')){
+          const overlaySelector=globalThis.ControlSnapExperience.selectors.viewer+','+globalThis.ControlSnapExperience.selectors.call;
+          const overlayChange=record.type==='childList'&&[...record.addedNodes,...record.removedNodes].some(node=>node instanceof Element&&(node.matches(overlaySelector)||node.querySelector(overlaySelector)));
+          if(!overlayChange)continue;
+        }
         if(record.type!=='childList'&&target?.closest('[data-csx-composer]'))continue;
         meaningful=true;
       }
@@ -1223,7 +1259,7 @@ globalThis.ControlSnapEssentialUI={create};
       }
     }
     if(meaningful)schedule();
-  }).observe(document,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','data-testid','href','class','hidden','aria-expanded']});
+  }).observe(document,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','data-testid','href','class','hidden','aria-hidden','inert','aria-expanded']});
   window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('resize',schedule);
   window.visualViewport?.addEventListener('resize',schedule);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();else finishLoading();});

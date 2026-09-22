@@ -72,7 +72,7 @@ async function run(){
     const v=c.querySelector('video');Object.defineProperties(v,{videoWidth:{value:1920},videoHeight:{value:1080},srcObject:{value:{getVideoTracks:()=>[{getSettings:()=>({facingMode:'user',width:1920,height:1080})}]}}});
    });
    await page.waitForSelector('[data-csx-camera-surface]');await frames(page);
-   assert.equal(await page.locator('#camera video').evaluate(v=>getComputedStyle(v).objectFit),'contain');
+   assert.equal(await page.locator('#camera video').evaluate(v=>getComputedStyle(v).objectFit),width<=700?'cover':'contain');
    assert.equal(await page.locator('#camera video').evaluate(v=>getComputedStyle(v).transform),'matrix(-1, 0, 0, 1, 0, 0)');
    if(width>700){const c=await page.locator('#camera').boundingBox();assert(Math.abs(c.width/c.height-9/16)<.01,JSON.stringify(c));}
    await page.evaluate(()=>document.querySelector('#camera').hidden=true);await frames(page);

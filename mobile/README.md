@@ -1,14 +1,24 @@
-# Control iPhone — Safari 1.6.1
+# Control iPhone — Safari 1.6.2
 
 Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.1**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.2**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.1**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.2**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## Correctifs 1.6.2 — vidéos, retour aux contacts et caméra mobile
+
+- Nettoyage des marqueurs de disposition à la fermeture d'une conversation et lors de la réutilisation du panneau caméra.
+- Détection des lecteurs de vidéos reçues insérés dans l'historique ; clic natif conservé, y compris avant chargement des images vidéo.
+- Aperçu caméra mobile sans bandes : demande portrait 1080 × 1920 idéale sur le flux local déjà ouvert et remplissage centré. Si Safari garde une source paysage, le remplissage recadre les côtés ; il ne peut pas créer un champ portrait sans recadrage ni garantir le cadrage de la capture native.
+- Retrait des raccourcis Stories/Discover/Spotlight et effets/lenses reconnus dans la caméra, sans supprimer le déclencheur.
+- Pas de nouvelle demande getUserMedia, de rotation arbitraire de l'image, d'arrêt de piste ou de capture automatique. Les contraintes originales sont restaurées à la désactivation si Snapchat ne les a pas modifiées entre-temps.
+
+Tests de régression simulés validés, pas encore de validation sur Safari iPhone physique. Une pastille sans sélecteur ou libellé identifiable peut nécessiter une adaptation supplémentaire.
 
 ## Correctifs 1.6.1 — interface essentielle
 
