@@ -1,7 +1,8 @@
 /* Isolated fixtures only: no real account, message, login or network request. */
 const {chromium,webkit}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8');
+// Legacy two-tab contracts. The unmodified shipping messages-only mode is covered by check-snap-messages.cjs.
+const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8').replace('const snapMessagesOnly=true;','const snapMessagesOnly=false;');
 const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{recursive:true});
 const cases=[
  {host:'www.instagram.com',dm:'/direct/inbox/',login:'/accounts/login/',blocked:['/','/reels/','/reel/not-received/','/explore/']},

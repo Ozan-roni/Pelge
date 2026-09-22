@@ -67,10 +67,10 @@
       @media(prefers-reduced-motion:reduce){[data-csx-ready]{transition:none!important}.csx-spinner{animation:none}}
     `;
     document.documentElement.append(style);
-    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation});
+    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation,messagesOnly:!!options.messagesOnly});
     function keyOf(node) {
       if (!node) return '';
-      for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id']) {
+      for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id','data-group-id']) {
         const value = node.getAttribute(attr); if (value && value !== '.' && value !== 'undefined') return attr + ':' + value;
       }
       const href = node.matches('a[href]') ? node.getAttribute('href') : node.querySelector('a[href*="/chat/"]')?.getAttribute('href');
@@ -81,8 +81,8 @@
     }
     function resolveIdentity(node, candidate) {
       const key = keyOf(node), known = identities.get(key);
-      const nameNode = node?.querySelector(selectors.identity);
-      const names = [node?.getAttribute('data-display-name'),nameNode?.getAttribute('data-display-name'),node?.getAttribute('data-friend-name'),nameNode?.getAttribute('data-friend-name'),candidate,nameNode?.textContent,nameNode?.getAttribute('title'),node?.getAttribute('data-username'),node?.querySelector('[data-username]')?.getAttribute('data-username'),node?.getAttribute('title'),node?.getAttribute('aria-label')];
+      const nameNodes = [...(node?.querySelectorAll(selectors.identity)||[])].filter(el=>!el.closest('[data-control-snap-owned],[data-control-snap-name]'));
+      const names = [node?.getAttribute('data-display-name'),node?.getAttribute('data-friend-name'),...nameNodes.flatMap(el=>[el.getAttribute('data-display-name'),el.getAttribute('data-friend-name')]),candidate,...nameNodes.flatMap(el=>[el.textContent,el.getAttribute('title')]),node?.getAttribute('data-username'),node?.querySelector('[data-username]')?.getAttribute('data-username'),node?.getAttribute('title'),node?.getAttribute('aria-label')];
       const displayName = names.map(validName).find(Boolean) || known?.displayName || 'Conversation';
       // Do not store neutral placeholders. Stable IDs permit cache recovery across native remounts.
       if (displayName !== 'Conversation' && !key.startsWith('node:')) {

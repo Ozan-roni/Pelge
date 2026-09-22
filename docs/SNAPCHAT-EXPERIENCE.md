@@ -1,4 +1,10 @@
-# Snapchat — audit et intégration 0.35.2 / iPhone 1.6.2
+# Snapchat — audit et intégration 0.35.3 / iPhone 1.6.3
+
+## Mode iPhone 1.6.3
+
+Le userscript livré active `messagesOnly` : pas de section caméra, de navigation inférieure, de raccourci photo ni de bouton flottant de nouveau chat. La galerie, la réponse et la lecture des médias reçus restent natives. Le module partagé conserve le comportement ordinateur ; seul l'adaptateur iPhone active ce mode.
+
+Les tests `check-snap-messages.cjs` exécutent le fichier livré sans modification à 320, 390 et 430 px : noms tardifs et recyclés, trois portraits, mise à jour d'un groupe, absence des raccourcis retirés, conversation pleine hauteur, envoi/galerie/vidéo natifs et retour à la liste. Captures inspectées. Les anciens tests de caméra basculent explicitement en mode historique ; ils ne valident pas l'interface livrée par défaut. Aucun essai sur Safari iPhone connecté n'est revendiqué.
 
 ## Périmètre réel
 

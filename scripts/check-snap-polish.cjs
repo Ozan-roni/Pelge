@@ -1,7 +1,8 @@
 /* Synthetic DOM contracts: no signed-in account, messages, captures or network access. */
 const {chromium,webkit}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8');
+// Legacy two-tab contracts. The unmodified shipping messages-only mode is covered by check-snap-messages.cjs.
+const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8').replace('const snapMessagesOnly=true;','const snapMessagesOnly=false;');
 const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{recursive:true});
 const icon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h4l2-3h4l2 3h4v15H4Z"/><circle cx="12" cy="12" r="4"/></svg>';
 const portrait=i=>'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><circle cx="30" cy="22" r="12" fill="${['#f1c464','#be92dd','#85b9d6'][i%3]}"/><path d="M10 60v-8a20 20 0 0 1 40 0v8" fill="${['#f1c464','#be92dd','#85b9d6'][i%3]}"/></svg>`);

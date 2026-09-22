@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.2
+// @version      1.6.3
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -56,7 +56,23 @@ function create(runtime){
  style.textContent+='\n[data-csx-camera-surface][hidden],[data-csx-camera-surface][aria-hidden="true"],[data-csx-setting-row][hidden],[data-csx-toolbar-button][hidden]{display:none!important}\n[data-csx-native-header]{height:auto!important;flex-shrink:0!important}\n';
  style.textContent+='\n[data-csx-action-button]{font-size:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:40px!important;min-height:40px!important;padding:8px!important;border-radius:50%!important;box-sizing:border-box!important}\n[data-csx-action-button] [data-csx-icon]{width:22px;height:22px}\n[data-csx-hangup]{background:#eb3650!important;color:white!important;border:0!important}\n';
  style.textContent+='\n@media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){[data-csx-camera-surface] video[data-csx-camera-media],html[data-control-snap-view="snap"] [data-control-snap-camera] video[data-csx-camera-media]{object-fit:cover!important;object-position:center!important;width:100%!important;height:100%!important}}\n';
+  if(runtime.messagesOnly)style.textContent+='\n[data-csx-messages-hidden]{display:none!important}\n[data-csx-composer-controls]>[data-csx-send]{order:100!important;margin-left:auto!important}\n[data-csx-message-media]{max-width:100%!important;height:auto;object-fit:contain;display:block;margin-inline:auto}\n';
  document.documentElement.append(style);
+  function messagesOnly(){
+   if(!runtime.messagesOnly)return;
+   for(const media of document.querySelectorAll('[data-csx-chat-log] img,[data-csx-chat-log] video')){
+    if(media.closest(runtime.selectors.viewer+', [data-testid*="avatar" i],[class*="avatar" i],[data-testid*="emoji" i],[class*="emoji" i]'))continue;
+    if(media.matches('video')||media.naturalWidth>96||media.getBoundingClientRect().width>96)tag(media,'data-csx-message-media');
+   }
+  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation))tag(root,'data-csx-messages-hidden');
+  for(const button of document.querySelectorAll('button,[role="button"],a[aria-label]')){
+   if(button.closest(runtime.selectors.viewer+','+runtime.selectors.call+','+runtime.selectors.log))continue;
+   const text=label(button);
+   if(/^(camera|caméra|appareil photo|open camera|ouvrir la caméra|take (a )?snap|prendre un snap|new chat|new message|nouveau chat|nouveau message|nouvelle conversation|compose)(\b|$)/i.test(text))tag(button,'data-csx-messages-hidden');
+   else if(/^(send|envoyer)( message| un chat)?$/i.test(text)&&button.closest(runtime.selectors.conversation))tag(button,'data-csx-send');
+  }
+  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
+ }
  function portraitCamera(video){
   if(!matchMedia('(max-width:700px) and (orientation:portrait)').matches)return;
   const track=video.srcObject?.getVideoTracks?.()[0];
@@ -102,7 +118,7 @@ function create(runtime){
  }
  function camera(){
   const current=new Set();
-  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
+  for(const root of runtime.messagesOnly?[]:document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
    if(root.closest('[data-csx-overlay],[data-csx-chat]')||root.matches(runtime.selectors.conversation)||root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')||root.parentElement?.closest('[data-csx-camera-surface]'))continue;
    current.add(root);
    tag(root,'data-csx-camera-surface');
@@ -173,7 +189,7 @@ function create(runtime){
   }
   for(const [root,entry] of observed)if(!root.isConnected){entry.observer.disconnect();entry.stop();observed.delete(root);}
  }
- function refresh(){if(disposed)return;for(const node of marked.keys())if(!node.isConnected)marked.delete(node);for(const [node,entry] of icons)if(!node.isConnected){entry.node.remove();icons.delete(node);}filterDistractions();camera();topbars();nativeActions();watchPanels();}
+ function refresh(){if(disposed)return;for(const node of marked.keys())if(!node.isConnected)marked.delete(node);for(const [node,entry] of icons)if(!node.isConnected){entry.node.remove();icons.delete(node);}filterDistractions();messagesOnly();camera();topbars();nativeActions();watchPanels();}
  document.addEventListener('loadedmetadata',event=>{if(event.target instanceof HTMLVideoElement)camera();},{capture:true,signal:abort.signal});
  function dispose(){
   disposed=true;abort.abort();for(const entry of observed.values()){entry.observer.disconnect();entry.stop();}observed.clear();
@@ -256,10 +272,10 @@ globalThis.ControlSnapEssentialUI={create};
       @media(prefers-reduced-motion:reduce){[data-csx-ready]{transition:none!important}.csx-spinner{animation:none}}
     `;
     document.documentElement.append(style);
-    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation});
+    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation,messagesOnly:!!options.messagesOnly});
     function keyOf(node) {
       if (!node) return '';
-      for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id']) {
+      for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id','data-group-id']) {
         const value = node.getAttribute(attr); if (value && value !== '.' && value !== 'undefined') return attr + ':' + value;
       }
       const href = node.matches('a[href]') ? node.getAttribute('href') : node.querySelector('a[href*="/chat/"]')?.getAttribute('href');
@@ -270,8 +286,8 @@ globalThis.ControlSnapEssentialUI={create};
     }
     function resolveIdentity(node, candidate) {
       const key = keyOf(node), known = identities.get(key);
-      const nameNode = node?.querySelector(selectors.identity);
-      const names = [node?.getAttribute('data-display-name'),nameNode?.getAttribute('data-display-name'),node?.getAttribute('data-friend-name'),nameNode?.getAttribute('data-friend-name'),candidate,nameNode?.textContent,nameNode?.getAttribute('title'),node?.getAttribute('data-username'),node?.querySelector('[data-username]')?.getAttribute('data-username'),node?.getAttribute('title'),node?.getAttribute('aria-label')];
+      const nameNodes = [...(node?.querySelectorAll(selectors.identity)||[])].filter(el=>!el.closest('[data-control-snap-owned],[data-control-snap-name]'));
+      const names = [node?.getAttribute('data-display-name'),node?.getAttribute('data-friend-name'),...nameNodes.flatMap(el=>[el.getAttribute('data-display-name'),el.getAttribute('data-friend-name')]),candidate,...nameNodes.flatMap(el=>[el.textContent,el.getAttribute('title')]),node?.getAttribute('data-username'),node?.querySelector('[data-username]')?.getAttribute('data-username'),node?.getAttribute('title'),node?.getAttribute('aria-label')];
       const displayName = names.map(validName).find(Boolean) || known?.displayName || 'Conversation';
       // Do not store neutral placeholders. Stable IDs permit cache recovery across native remounts.
       if (displayName !== 'Conversation' && !key.startsWith('node:')) {
@@ -850,6 +866,16 @@ globalThis.ControlSnapEssentialUI={create};
     for(const target of targets)for(let node=target?.parentElement;node&&node!==inbox;node=node.parentElement)node.setAttribute('data-control-inbox-flow','');
     const notes=inbox.querySelector(notesSelector);notes.setAttribute('data-control-inbox-notes','');
   }
+  const snapMessagesOnly=true;
+  if(snapMessagesOnly)style.textContent+=`\nhtml[data-control-snap-messages-only]{--control-snap-bottom:0px!important}
+    html[data-control-snap-messages-only] :is(#control-snap-tabs,#control-snap-row-actions,#control-snap-new-chat,[data-control-snap-row-camera],[data-control-snap-compose],[data-control-snap-action-wrap]){display:none!important}
+    html[data-control-snap-messages-only] [data-control-snap-row-layout]{grid-template-columns:54px minmax(0,1fr)!important}
+    [data-control-snap-obsolete-name]{display:none!important}
+    [data-control-snap-avatar-slot][data-control-snap-group="composite"] img{width:100%!important;height:100%!important;inset:0!important;object-fit:contain!important}
+    [data-control-snap-avatar-slot] [data-control-snap-avatar-wrap]{visibility:visible!important;clip-path:none!important;overflow:visible!important}
+    [data-control-snap-group] img[data-control-snap-member]{visibility:visible!important;opacity:1!important;clip-path:none!important;transform:none!important;object-fit:contain!important}
+    [data-control-snap-group] img[data-control-snap-member="extra"]{display:none!important}
+  `;
   const compactSnap=()=>matchMedia('(max-width:700px), (max-width:950px) and (max-height:600px) and (pointer:coarse)').matches;
   let snapView='messages',snapForceInbox=false,snapLastComposer=null,snapTabs=null,snapContacts=null,snapCamera=null;
   let snapExperience=null,snapPendingCamera=null,snapActionLayer=null;
@@ -869,6 +895,7 @@ globalThis.ControlSnapEssentialUI={create};
     setTimeout(()=>{if(snapPendingCamera===pending){snapPendingCamera=null;snapCameraHint();}},2500);
   }
   function snapRowActions(contacts,view){
+    if(snapMessagesOnly){snapActionLayer?.remove();snapActionLayer=null;snapActionButtons.clear();return;}
     const enabled=compactSnap()&&view==='messages'&&![...document.querySelectorAll('[role="dialog"],[role="menu"]')].some(visible);
     if(!enabled){snapActionLayer?.remove();snapActionLayer=null;snapActionButtons.clear();return;}
     if(!snapActionLayer){snapActionLayer=document.createElement('div');snapActionLayer.id='control-snap-row-actions';document.documentElement.append(snapActionLayer);}
@@ -888,6 +915,7 @@ globalThis.ControlSnapEssentialUI={create};
   }
   const snapRows='[role="listitem"],[role="option"],a[href*="/chat/"],[data-testid*="conversation-item"],[data-testid*="friend-item"]';
   function snapNavigation(){
+    if(snapMessagesOnly){snapTabs?.remove();snapTabs=null;return;}
     if(snapTabs?.isConnected)return;
     snapTabs=document.createElement('nav');snapTabs.id='control-snap-tabs';snapTabs.setAttribute('aria-label','Navigation Snapchat');
     snapTabs.innerHTML='<button type="button" data-view="messages" aria-label="Messages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H4v-7a8 8 0 1 1 16-1Z"/><path d="M8 9h8M8 13h5"/></svg><span>Messages</span></button><button type="button" data-view="snap" aria-label="Snap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h3l2-3h6l2 3h3v14H4Z"/><circle cx="12" cy="12" r="4"/></svg><span>Snap</span></button>';
@@ -930,6 +958,8 @@ globalThis.ControlSnapEssentialUI={create};
       let name=names.find(el=>el.matches('h1,h2,h3,h4,[data-testid*="name"],[data-display-name]'))||names[0];
       if(name&&!snapExperience?.validName(name.textContent))name=null;
       const resolved=snapExperience?.resolveIdentity(row,name?.textContent);
+      if(name&&resolved?.known&&name.textContent.trim()!==resolved.displayName){name.setAttribute('data-control-snap-obsolete-name','');name=null;}
+      else name?.removeAttribute('data-control-snap-obsolete-name');
       let fallback=row.querySelector('[data-control-snap-name]');
       if(name){fallback?.remove();}
       else{
@@ -945,6 +975,9 @@ globalThis.ControlSnapEssentialUI={create};
         }
       }
       if(!name)continue; // No invented identity, and no flattening of an unrecognized row.
+      for(const original of row.querySelectorAll('h1,h2,h3,h4,[data-testid*="display-name"],[data-testid*="friend-name"],.native-name')){
+        if(original!==name&&!original.contains(name))original.setAttribute('data-control-snap-obsolete-name','');
+      }
       let layout=avatar?.parentElement||row;
       while(layout!==row&&!layout.contains(name))layout=layout.parentElement;
       // If an avatar wrapper includes the name, only its media branch becomes the avatar slot.
@@ -962,6 +995,8 @@ globalThis.ControlSnapEssentialUI={create};
             img.setAttribute('data-control-snap-member',i<3?String(i):'extra');
             for(let node=img.parentElement;node&&node!==avatarSlot;node=node.parentElement)node.setAttribute('data-control-snap-avatar-wrap','');
           });
+        }else if(members.length===1&&(/group|groupe/i.test(signature(row)+' '+signature(avatarSlot))||row.hasAttribute('data-group-id'))){
+          avatarSlot.setAttribute('data-control-snap-group','composite');
         }
         for(const badge of avatarSlot.querySelectorAll('span,div'))if([...badge.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()&&!words(n.textContent)))badge.setAttribute('data-control-snap-badge','');
       }
@@ -1020,6 +1055,7 @@ globalThis.ControlSnapEssentialUI={create};
     const compose=[...document.querySelectorAll('button,[role="button"],a')].find(el=>el.id!=='control-snap-new-chat'&&!el.closest('[data-control-snap-row],[role="dialog"],[role="menu"]')&&/^(new (chat|message)|nouveau (chat|message)|nouvelle conversation|compose)(\b|$)/i.test(signature(el).trim()));
     compose?.setAttribute('data-control-snap-compose','');
     let fallback=document.getElementById('control-snap-new-chat');
+    if(snapMessagesOnly){fallback?.remove();return;}
     const search=contacts.querySelector('[data-control-snap-toolbar-action="search"],[data-control-snap-search]');
     if(compose||!search){fallback?.remove();return;}
     if(!fallback){
@@ -1080,6 +1116,8 @@ globalThis.ControlSnapEssentialUI={create};
   }
   function snapchat(){
     document.documentElement.setAttribute('data-control-snap','');
+    document.documentElement.toggleAttribute('data-control-snap-messages-only',snapMessagesOnly);
+    if(snapMessagesOnly){snapView='messages';snapPendingCamera=null;}
     for(const el of document.querySelectorAll('aside,section,[role="region"],iframe'))if(unwanted.test(signature(el))||(el.tagName==='IFRAME'&&/\/(spotlight|discover|stories)\b/i.test(el.getAttribute('src')||'')))hide(el);
     for(const el of document.querySelectorAll('nav button,nav [role="tab"],[role="navigation"] button,[role="tablist"] [role="tab"]'))if(unwanted.test(signature(el)+' '+el.textContent.trim()))hide(el);
     for(const el of document.querySelectorAll('button,[role="button"],[role="tab"]'))if(unwanted.test(signature(el)))hide(el);
@@ -1121,7 +1159,7 @@ globalThis.ControlSnapEssentialUI={create};
     snapCamera=panes.find(el=>!el.contains(composer)&&(el.matches('[data-testid="camera-panel"],[data-testid="camera-view"]')||el.querySelector('[data-testid="camera-panel"],[data-testid="camera-view"],button[aria-label*="camera" i],button[aria-label*="appareil photo" i]')||/send (?:a )?snaps|envoyer des snaps|cliquez sur l.appareil photo/i.test(el.textContent)));
     // Capture/preview replaces the initial camera prompt; do not bounce back to the contacts.
     if(!snapCamera&&panes.includes(previousCamera)&&(!composer||!previousCamera.contains(composer)))snapCamera=previousCamera;
-    if(snapCamera){snapCamera.setAttribute('data-control-snap-camera','');snapCameraLayout(snapCamera);}
+    if(snapCamera){snapCamera.setAttribute('data-control-snap-camera','');if(!snapMessagesOnly)snapCameraLayout(snapCamera);}
     if(composer&&composer!==snapLastComposer){snapForceInbox=false;if(snapView!=='snap')snapView='messages';}
     snapLastComposer=composer||null;
     const open=!!composer&&!snapForceInbox&&snapView!=='snap';
@@ -1142,7 +1180,7 @@ globalThis.ControlSnapEssentialUI={create};
       const camera=[...conversation.querySelectorAll('button,[role="button"]')].find(el=>/^(appareil photo|camera|ouvrir la caméra|open camera|prendre un snap|take a snap)(\b|$)/i.test(signature(el).trim())&&!/call|appel|video|vidéo|capture|shutter|send|envoyer/i.test(signature(el)));
       if(pending.expires>=Date.now()&&pending.name&&header?.textContent.includes(pending.name)&&camera&&visible(camera)&&!camera.disabled){snapPendingCamera=null;camera.click();}
     }
-    for(const button of snapTabs.querySelectorAll('button')){button.setAttribute('aria-pressed',String(button.dataset.view===snapView));button.disabled=button.dataset.view==='snap'&&!snapCamera;const title=button.disabled?'La caméra Snapchat n’est pas disponible sur cette page.':'';if(button.title!==title)button.title=title;}
+    for(const button of snapTabs?.querySelectorAll('button')||[]){button.setAttribute('aria-pressed',String(button.dataset.view===snapView));button.disabled=button.dataset.view==='snap'&&!snapCamera;const title=button.disabled?'La caméra Snapchat n’est pas disponible sur cette page.':'';if(button.title!==title)button.title=title;}
     // Native received-Snap viewers are separate from camera capture and must remain above the shell.
     for(const viewer of document.querySelectorAll('[data-testid="snap-viewer"],[data-testid="media-viewer"],[role="dialog"][aria-label*="Snap" i]')){
       if(!viewer.closest('[hidden],[aria-hidden="true"]')&&viewer.querySelector('video,img,canvas')&&!viewer.querySelector('textarea,[contenteditable="true"]'))viewer.setAttribute('data-control-snap-viewer','');
@@ -1169,7 +1207,7 @@ globalThis.ControlSnapEssentialUI={create};
     redirecting=false;document.documentElement.removeAttribute('data-control-redirecting');
     if(refresh.mode!==mode){document.querySelectorAll('['+hiddenAttr+']').forEach(el=>el.removeAttribute(hiddenAttr));refresh.mode=mode;}
     if(app.id==='Snapchat'&&mode!=='account'){
-      if(!snapExperience)snapExperience=globalThis.ControlSnapExperience?.create({onReady:schedule});
+      if(!snapExperience)snapExperience=globalThis.ControlSnapExperience?.create({onReady:schedule,messagesOnly:snapMessagesOnly});
       snapExperience?.refreshOverlays();
     }
     fitViewport(mode);
@@ -1210,7 +1248,7 @@ globalThis.ControlSnapEssentialUI={create};
   let swipe=null;
   document.addEventListener('touchstart',event=>{
     swipe=null;
-    if(app.id!=='Snapchat'||!compactSnap()||event.touches.length!==1||!['messages','snap'].includes(document.documentElement.getAttribute('data-control-snap-view')))return;
+    if(snapMessagesOnly||app.id!=='Snapchat'||!compactSnap()||event.touches.length!==1||!['messages','snap'].includes(document.documentElement.getAttribute('data-control-snap-view')))return;
     const target=event.target instanceof Element?event.target:null;
     if(!target?.closest('[data-control-snap-contacts],[data-control-snap-camera]')||target.closest('input,textarea,[contenteditable="true"],[role="dialog"],[role="menu"],[data-control-snap-viewer]'))return;
     for(let node=target;node&&node!==document.body;node=node.parentElement)if(node.scrollWidth>node.clientWidth+2&&/auto|scroll/.test(getComputedStyle(node).overflowX))return;
@@ -1259,7 +1297,7 @@ globalThis.ControlSnapEssentialUI={create};
       }
     }
     if(meaningful)schedule();
-  }).observe(document,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','data-testid','href','class','hidden','aria-hidden','inert','aria-expanded']});
+  }).observe(document,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','data-testid','href','class','hidden','aria-hidden','inert','aria-expanded','src','alt','data-conversation-id','data-chat-id','data-group-id','data-user-id','data-display-name','data-friend-name','data-username']});
   window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('resize',schedule);
   window.visualViewport?.addEventListener('resize',schedule);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();else finishLoading();});

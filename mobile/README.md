@@ -1,14 +1,24 @@
-# Control iPhone — Safari 1.6.2
+# Control iPhone — Safari 1.6.3
 
-Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
+Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés. Snapchat iPhone est désormais en mode messages uniquement, sans section caméra, onglets inférieurs ni bouton flottant de nouveau chat. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.2**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.3**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.2**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.3**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## 1.6.3 — messages uniquement sur iPhone
+
+- Section caméra, navigation Messages/Snap, raccourcis photo des contacts et du champ de réponse, et bouton flottant de nouveau chat masqués.
+- Conversation sur toute la hauteur disponible ; saisie, galerie, emoji et envoi natifs conservés. Les vidéos reçues restent ouvrables.
+- Noms issus des métadonnées natives, titres ou identifiants disponibles ; mise à jour des lignes recyclées, sans identité inventée.
+- Jusqu'à trois portraits natifs par groupe, y compris lorsqu'ils arrivent plus tard ; une image de groupe déjà composée reste entière. Aucun faux membre ajouté.
+- Tests sur DOM simulé à 320, 390 et 430 px, avec inspection des captures. Pas encore testé sur un iPhone connecté à Snapchat.
+
+Les notes caméra ci-dessous décrivent les versions précédentes ; elles ne correspondent plus au mode iPhone par défaut. Leurs tests restent conservés séparément du test du script réellement livré (`check-snap-messages.cjs`).
 
 ## Correctifs 1.6.2 — vidéos, retour aux contacts et caméra mobile
 
@@ -106,13 +116,13 @@ Sur Snapchat : silhouette vectorielle jaune assombrie sur fond blanc, même en m
 
 ## Snapchat
 
-- Accès aux conversations, caméra et galerie/Memories lorsque Snapchat Web les propose.
+- Accès aux conversations, médias reçus et galerie de pièces jointes lorsque Snapchat Web les propose. Pas de section caméra ni d'accès Memories ajouté.
 - Masquage de Spotlight, Stories, Discover, carte et panneaux publics détectés.
-- Jusqu'à 700 px, deux icônes fixes en bas (également en paysage tactile jusqu’à 950 px de large et 600 px de haut) : **Messages** pour la liste blanche pleine largeur et **Snap** pour le panneau caméra natif plein écran, au-dessus de la barre. La navigation disparaît dans les discussions. La zone tient compte de l'espace sécurisé iPhone et du clavier.
+- Sur mobile, liste blanche pleine largeur puis conversation pleine hauteur, sans navigation inférieure. La zone tient compte de l'espace sécurisé iPhone et du clavier.
 - Le rail étroit d'avatars est reconnu et élargi. Les noms déjà présents dans le DOM sont rendus visibles. S'ils sont uniquement disponibles dans le titre ou le libellé accessible du contact, ce libellé est affiché. Aucun nom n'est inventé.
 - Les vrais contacts, avatars, événements et messages de Snapchat sont conservés. Choisir un contact ouvre sa conversation ; le bouton Retour natif permet de retrouver la liste.
-- Un appui volontaire sur l'icône Snap affiche le panneau caméra détecté et active sa commande native de démarrage si elle est reconnue. Safari peut alors demander l'autorisation caméra. Aucune caméra n'est démarrée au chargement de la page ; aucune photo ni aucun message ne sont envoyés automatiquement. Les commandes de capture et d'envoi restent celles de Snapchat. Si aucun panneau caméra n'est détecté, l'onglet est désactivé, sans simuler une caméra fonctionnelle.
-- La présentation desktop n'utilise pas cette barre mobile.
+- Les raccourcis caméra et le bouton flottant de nouveau chat sont masqués. Les commandes natives de galerie, emoji et envoi restent accessibles dans la discussion. Le script n'ouvre pas de flux caméra et ne prend ni n'envoie de photo automatiquement.
+- L'extension ordinateur conserve son mode existant ; cette simplification est activée dans le userscript iPhone.
 - La présentation s'adapte aux conteneurs reconnus. Si Snapchat change sa structure, certains ajustements peuvent nécessiter une mise à jour.
 
 ## Autres réseaux conservés

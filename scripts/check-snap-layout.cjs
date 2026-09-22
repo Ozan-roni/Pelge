@@ -1,7 +1,8 @@
 /* Synthetic adversarial DOM, not a recording of a signed-in Snapchat account. */
 const {chromium,webkit}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8');
+// Legacy two-tab contracts. The unmodified shipping messages-only mode is covered by check-snap-messages.cjs.
+const source=fs.readFileSync(path.join(__dirname,'../mobile/Control-iPhone.user.js'),'utf8').replace('const snapMessagesOnly=true;','const snapMessagesOnly=false;');
 const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{recursive:true});
 const avatar='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#ecedf1"/><circle cx="32" cy="24" r="12" fill="#a9b1bc"/><path d="M10 58a22 22 0 0 1 44 0" fill="#a9b1bc"/></svg>');
 const pageHTML=virtual=>`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>

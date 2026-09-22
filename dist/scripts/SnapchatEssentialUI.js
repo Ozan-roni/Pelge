@@ -37,7 +37,23 @@ function create(runtime){
  style.textContent+='\n[data-csx-camera-surface][hidden],[data-csx-camera-surface][aria-hidden="true"],[data-csx-setting-row][hidden],[data-csx-toolbar-button][hidden]{display:none!important}\n[data-csx-native-header]{height:auto!important;flex-shrink:0!important}\n';
  style.textContent+='\n[data-csx-action-button]{font-size:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:40px!important;min-height:40px!important;padding:8px!important;border-radius:50%!important;box-sizing:border-box!important}\n[data-csx-action-button] [data-csx-icon]{width:22px;height:22px}\n[data-csx-hangup]{background:#eb3650!important;color:white!important;border:0!important}\n';
  style.textContent+='\n@media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){[data-csx-camera-surface] video[data-csx-camera-media],html[data-control-snap-view="snap"] [data-control-snap-camera] video[data-csx-camera-media]{object-fit:cover!important;object-position:center!important;width:100%!important;height:100%!important}}\n';
+  if(runtime.messagesOnly)style.textContent+='\n[data-csx-messages-hidden]{display:none!important}\n[data-csx-composer-controls]>[data-csx-send]{order:100!important;margin-left:auto!important}\n[data-csx-message-media]{max-width:100%!important;height:auto;object-fit:contain;display:block;margin-inline:auto}\n';
  document.documentElement.append(style);
+  function messagesOnly(){
+   if(!runtime.messagesOnly)return;
+   for(const media of document.querySelectorAll('[data-csx-chat-log] img,[data-csx-chat-log] video')){
+    if(media.closest(runtime.selectors.viewer+', [data-testid*="avatar" i],[class*="avatar" i],[data-testid*="emoji" i],[class*="emoji" i]'))continue;
+    if(media.matches('video')||media.naturalWidth>96||media.getBoundingClientRect().width>96)tag(media,'data-csx-message-media');
+   }
+  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation))tag(root,'data-csx-messages-hidden');
+  for(const button of document.querySelectorAll('button,[role="button"],a[aria-label]')){
+   if(button.closest(runtime.selectors.viewer+','+runtime.selectors.call+','+runtime.selectors.log))continue;
+   const text=label(button);
+   if(/^(camera|caméra|appareil photo|open camera|ouvrir la caméra|take (a )?snap|prendre un snap|new chat|new message|nouveau chat|nouveau message|nouvelle conversation|compose)(\b|$)/i.test(text))tag(button,'data-csx-messages-hidden');
+   else if(/^(send|envoyer)( message| un chat)?$/i.test(text)&&button.closest(runtime.selectors.conversation))tag(button,'data-csx-send');
+  }
+  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
+ }
  function portraitCamera(video){
   if(!matchMedia('(max-width:700px) and (orientation:portrait)').matches)return;
   const track=video.srcObject?.getVideoTracks?.()[0];
@@ -83,7 +99,7 @@ function create(runtime){
  }
  function camera(){
   const current=new Set();
-  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
+  for(const root of runtime.messagesOnly?[]:document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
    if(root.closest('[data-csx-overlay],[data-csx-chat]')||root.matches(runtime.selectors.conversation)||root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')||root.parentElement?.closest('[data-csx-camera-surface]'))continue;
    current.add(root);
    tag(root,'data-csx-camera-surface');
@@ -154,7 +170,7 @@ function create(runtime){
   }
   for(const [root,entry] of observed)if(!root.isConnected){entry.observer.disconnect();entry.stop();observed.delete(root);}
  }
- function refresh(){if(disposed)return;for(const node of marked.keys())if(!node.isConnected)marked.delete(node);for(const [node,entry] of icons)if(!node.isConnected){entry.node.remove();icons.delete(node);}filterDistractions();camera();topbars();nativeActions();watchPanels();}
+ function refresh(){if(disposed)return;for(const node of marked.keys())if(!node.isConnected)marked.delete(node);for(const [node,entry] of icons)if(!node.isConnected){entry.node.remove();icons.delete(node);}filterDistractions();messagesOnly();camera();topbars();nativeActions();watchPanels();}
  document.addEventListener('loadedmetadata',event=>{if(event.target instanceof HTMLVideoElement)camera();},{capture:true,signal:abort.signal});
  function dispose(){
   disposed=true;abort.abort();for(const entry of observed.values()){entry.observer.disconnect();entry.stop();}observed.clear();
