@@ -1,4 +1,4 @@
-# Snapchat — audit et intégration 0.35.0 / iPhone 1.6.0
+# Snapchat — audit et intégration 0.35.1 / iPhone 1.6.1
 
 ## Périmètre réel
 
@@ -27,7 +27,7 @@ Les observateurs messages, lecteur et appel sont limités à leur surface, leurs
 
 Ouverture : attendre un contenu et trois mesures stables, puis positionner au bas une seule fois. L’identité de session ne dépend plus du texte de l’en-tête.
 
-Ensuite : aucune correction pour le simple décodage d’une image. Un nouveau message suit le bas si la distance était inférieure à 80 px. Une insertion en tête conserve l’élément visible à la même hauteur. Le redimensionnement du conteneur/clavier conserve le bas uniquement pour un lecteur déjà au bas. Les changements rapides A → B annulent les callbacks d’A.
+Ensuite : aucune correction pour le simple décodage d’une image. Un nouveau message suit le bas en 180 ms si la distance était inférieure à 100 px ; un geste manuel interrompt ce suivi. Le lecteur remonté conserve sa position et voit « New message ». Une insertion en tête conserve l’élément visible à la même hauteur. Le redimensionnement du conteneur/clavier conserve le bas uniquement pour un lecteur déjà au bas. Les changements rapides A → B annulent les callbacks d’A.
 
 Les listes virtualisées qui remplacent intégralement leurs enfants sans identifiants exploitables nécessitent encore une vérification du contrat réel. Nous ne pouvons pas garantir une ancre sur un nœud déjà supprimé par Snapchat.
 
@@ -50,7 +50,7 @@ Seules les images suivantes déjà chargées sont décodées en avance. Sans com
 
 ## Appels
 
-Pour les surfaces reconnues : participant distant dominant, cadrage sans déformation, contain si cover retirerait plus de 15 % de l’image, aperçu local compact en contain, commandes natives en superposition.
+Pour les surfaces reconnues : surface verticale 9:16 centrée sur ordinateur, participant distant dominant, cadrage intégral en contain, aperçu local compact vertical en contain, commandes natives en superposition. Aucun cover forcé, y compris pour la caméra mobile.
 
 Les dimensions et le zoom du flux local sont lus, jamais modifiés. Aucun getUserMedia supplémentaire, applyConstraints, stop de piste ou clonage de flux. L’accès aux sources et la fin d’appel restent natifs. Les erreurs d’autorisation sont dérivées des messages natifs reconnus ; Control ne contourne pas les autorisations du navigateur.
 
@@ -83,6 +83,16 @@ Cas couverts :
 - désactivation de l’adaptateur sans marqueurs résiduels ;
 - 20 changements de texte dans une discussion : 0 nouveau scan structurel par le nouvel adaptateur ;
 - suite mobile existante : contacts, groupes, statuts, navigation, caméra native, historique, clavier redimensionné, modes clair/sombre, Instagram et routes d’authentification.
+
+## Passe ciblée 1.6.1
+
+`SnapchatEssentialUI.js` complète le contrôleur commun sans déplacer les composants natifs : filtrage des distractions hors historique, caméra portrait, SVG locaux sémantiques, recherche locale des conversations actuellement chargées, groupes de paramètres et styles de notifications sur panneaux reconnus. Pas de demande réseau supplémentaire pour ces icônes.
+
+Le composer est identifié une fois par combinaison panneau/historique/input. Les marqueurs sont conservés pendant la frappe ; les mutations d'attributs dans le composer ne relancent pas un scan structurel. Les contrôles natifs gardent leurs gestionnaires. La caméra existante reste propriétaire de son flux ; le script ne peut pas promettre une source physique portrait si la webcam fournit du paysage.
+
+Vérifié automatiquement à 390 et 1280 px : focus puis 20 caractères = aucune variation du Y du composer, du scroll ou du compteur de reconstruction ; envoyer/recevoir au bas ; remonter 30 messages ; nouvel entrant sans saut ; bouton de retour au bas ; recherche nom/username et ouverture native ; icônes des dix lignes de paramètres testées ; conservation d'un timestamp natif ; états hidden ; caméra contain et miroir frontal ; nettoyage à la désactivation. Captures inspectées dans build/snap-experience. Les suites historiques couvrent aussi 320/430 px, le clavier redimensionné et Instagram. Aucune erreur JS ou ressource HTTP >=400 dans ces fixtures. Ce n'est pas une mesure de FPS sur Snapchat réel.
+
+Limites explicites : recherche locale limitée aux contacts montés (la recherche serveur native reste disponible) ; aucun faux message, faux résultat ou réglage inventé ; panneaux/settings en dehors des sélecteurs reconnus non garantis ; notifications sans champs natifs non complétées par des données fictives ; pas de validation réseau de tous les assets Snapchat privés. Le navigateur connecté était indisponible pendant cette passe.
 
 ## Validation restante avant garantie de production
 

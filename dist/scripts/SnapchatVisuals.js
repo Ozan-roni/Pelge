@@ -69,6 +69,7 @@
       if(records.some(record=>{
         const target=record.target instanceof Element?record.target:record.target.parentElement;
         if(target?.closest('[data-control-snap-owned],#control-snap-session,[data-csx-scroll],[data-csx-overlay]'))return false;
+        if(record.type!=='childList'&&target?.closest('[data-csx-composer]'))return false;
         if(record.type==='childList'&&[...record.addedNodes,...record.removedNodes].length&&[...record.addedNodes,...record.removedNodes].every(node=>node instanceof Element&&node.matches('[data-control-snap-owned],#control-snap-session')))return false;
         return true;
       }))schedule();

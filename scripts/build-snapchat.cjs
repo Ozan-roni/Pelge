@@ -5,7 +5,7 @@ const root = path.resolve(__dirname, '..');
 const file = path.join(root, 'mobile/Control-iPhone.user.js');
 const start = '/* BEGIN SHARED SNAPCHAT EXPERIENCE */';
 const end = '/* END SHARED SNAPCHAT EXPERIENCE */';
-const runtime = fs.readFileSync(path.join(root, 'dist/scripts/SnapchatExperience.js'), 'utf8').trim();
+const runtime = ['SnapchatEssentialUI.js','SnapchatExperience.js'].map(file=>fs.readFileSync(path.join(root,'dist/scripts',file),'utf8').trim()).join('\n\n');
 const source = fs.readFileSync(file, 'utf8');
 const block = start + '\n' + runtime + '\n' + end;
 const a = source.indexOf(start), b = source.indexOf(end);

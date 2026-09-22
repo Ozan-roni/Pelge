@@ -1,13 +1,13 @@
 {
   "name": "control-focus",
-  "version": "0.35.0",
+  "version": "0.35.1",
   "private": true,
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build:snapchat": "node scripts/build-snapchat.cjs",
-    "test:snapchat": "node scripts/build-snapchat.cjs --check && node scripts/check-snap-experience.cjs",
+    "test:snapchat": "node scripts/build-snapchat.cjs --check && node scripts/check-snap-experience.cjs && node scripts/check-snap-essential.cjs",
     "dev": "node scripts/serve.cjs",
     "test": "node extension/check.cjs && node extension/check-settings.cjs && node extension/check-social-focus.cjs",
     "package:extension": "node scripts/package-extension.cjs",

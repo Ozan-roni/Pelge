@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.0
+// @version      1.6.1
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -17,6 +17,154 @@
 // ==/UserScript==
 
 /* BEGIN SHARED SNAPCHAT EXPERIENCE */
+/* Scoped presentation for existing Snapchat surfaces. No private API or media ownership. */
+(() => {
+'use strict';
+if(globalThis.ControlSnapEssentialUI||!/(^|\.)snapchat\.com$/.test(location.hostname))return;
+const paths={
+user:'M20 21v-2a7 7 0 0 0-14 0v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+search:'M21 21l-5-5M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16',
+bell:'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
+settings:'M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1 1-3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+shield:'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3',
+blocked:'M16 4l5 5m0-5-5 5M3 21v-2a6 6 0 0 1 12 0v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+moon:'M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11',
+camera:'M3 7h4l2-3h6l2 3h4v13H3ZM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+mic:'M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0V5M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8',
+help:'M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3m0 3v.1M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20',
+info:'M12 10v7m0-10v.1M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20',
+add:'M19 3v6m-3-3h6M3 21v-2a6 6 0 0 1 12 0v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+more:'M5 12h.1M12 12h.1M19 12h.1',
+back:'m15 5-7 7 7 7',
+send:'m3 3 19 9-19 9 4-9-4-9m4 9h15',
+emoji:'M8 14s1 3 4 3 4-3 4-3M8 9h.1M16 9h.1M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20',
+gallery:'M3 3h18v18H3ZM3 17l6-6 4 4 3-3 5 5M16 8h.1',
+hangup:'M3 16v-5c5-6 13-6 18 0v5l-5-1v-4M8 11v4l-5 1',
+switchCamera:'M4 8h13l-4-4m7 12H7l4 4'
+};
+const svg=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+paths[name]+'"/></svg>';
+const rules=[[/blocked|bloqu/i,'blocked','Privacy'],[/privacy|confidentialit|security|sécurité/i,'shield','Privacy'],[/notification/i,'bell','Account'],[/username|nom d.utilisateur|profile|profil|account|compte/i,'user','Account'],[/camera|caméra|appareil photo/i,'camera','App'],[/microphone|micro\b/i,'mic','App'],[/appearance|apparence|theme|thème|dark mode|mode sombre/i,'moon','App'],[/help|aide|assistance/i,'help','Support'],[/about|à propos|version/i,'info','Support']];
+const settingsSelector='[data-testid="settings-panel"],[data-testid="settings-dialog"],[role="dialog"][aria-label*="settings" i],[role="dialog"][aria-label*="paramètres" i]';
+const notificationsSelector='[data-testid="notifications-panel"],[role="dialog"][aria-label*="notification" i],[role="region"][aria-label*="notification" i]';
+const label=node=>(node.getAttribute('aria-label')||node.getAttribute('title')||node.textContent||'').trim();
+const normalize=text=>text.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase();
+function create(runtime){
+ const abort=new AbortController(),observed=new Map(),searches=new Map(),icons=new Map(),marked=new Map();let disposed=false;
+ const tag=(node,attr,value='')=>{if(node.getAttribute(attr)!==value)node.setAttribute(attr,value);if(!marked.has(node))marked.set(node,new Set());marked.get(node).add(attr);};
+ const style=document.createElement('style');style.dataset.controlSnapOwned='essential-style';
+ style.textContent="\n[data-csx-distraction],[data-csx-empty-rail]{display:none!important}\n[data-csx-camera-surface]{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;background:#101010!important;background-image:none!important;overflow:hidden!important;min-width:0!important}\n[data-csx-camera-media]{object-fit:contain!important;max-width:100%!important;max-height:100%!important}\n[data-csx-camera-media][data-csx-mirror]{transform:scaleX(-1)!important}\n@media(min-width:701px){[data-csx-camera-surface]{width:min(100%,calc((100dvh - 24px)*9/16))!important;flex:0 1 auto!important;height:calc(100dvh - 24px)!important;max-height:100%!important;aspect-ratio:9/16!important;margin:12px auto!important;border-radius:18px!important}}\n[data-csx-overlay=\"call\"]{width:min(100vw,calc(var(--csx-height,100dvh)*9/16))!important;inset:0!important;margin:auto!important;box-shadow:0 0 0 100vmax #101010!important}\n[data-csx-call-local]{aspect-ratio:9/16!important;width:clamp(80px,18%,112px)!important;height:auto!important;max-height:28%!important;inset:14px 14px auto auto!important;object-fit:contain!important}\n[data-csx-call-controls] button{width:44px!important;min-width:44px!important;height:44px!important;border-radius:50%!important}\n[data-csx-native-header]{display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;min-height:64px!important;padding:10px!important;box-sizing:border-box!important}\n[data-csx-native-header]>:is(h1,h2){flex:1;min-width:0;font:600 22px system-ui}\n[data-csx-toolbar-button]{min-width:40px!important;width:40px!important;height:40px!important;min-height:40px!important;box-sizing:border-box!important;padding:9px!important;border-radius:50%!important;position:relative!important}\n[data-control-snap-owned=\"semantic-icon\"]{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 22px;color:inherit;pointer-events:none}\n[data-control-snap-owned=\"semantic-icon\"] svg{width:22px!important;height:22px!important}\n[data-csx-icon-replaced]{display:none!important}\n[data-csx-toolbar-button]>[data-control-snap-owned=\"semantic-icon\"]{position:absolute;inset:0;margin:auto}\n[data-control-snap-owned=\"search\"]{box-sizing:border-box;width:100%;flex:1 1 100%;order:20;position:relative;padding:4px 0 0;font:14px system-ui}\n[data-control-snap-owned=\"search\"] input{box-sizing:border-box;width:100%;height:40px;border:1px solid #85858535;border-radius:20px;padding:0 36px 0 14px;font:16px system-ui;background:#f2f3f5;color:#15171b}\n.csx-search-results{position:absolute;top:48px;left:0;right:0;max-height:min(55dvh,480px);overflow-y:auto;background:#fff;color:#14161a;border:1px solid #8883;border-radius:16px;box-shadow:0 8px 24px #0002;z-index:12;padding:6px}\n.csx-search-results[hidden]{display:none}\n.csx-search-results button{display:flex;width:100%;align-items:center;gap:12px;border:0;border-radius:10px;background:transparent;color:inherit;padding:12px;text-align:left;font:500 15px system-ui;cursor:pointer}\n.csx-search-results button:hover,.csx-search-results button:focus-visible{background:#85858515;outline:2px solid #fffc00;outline-offset:-2px}\n.csx-search-results p{padding:8px;font:13px/1.4 system-ui}\n[data-csx-settings],[data-csx-notifications]{box-sizing:border-box!important;width:min(100%,480px)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;border-radius:18px!important;padding:16px!important;font-family:system-ui!important;box-shadow:0 12px 40px #0003}\n[data-csx-setting-row]{display:flex!important;align-items:center!important;gap:12px!important;width:100%!important;min-height:52px!important;padding:12px 8px!important;box-sizing:border-box!important;text-align:left!important;border:0!important;border-bottom:1px solid #8882!important;border-radius:0!important;background:transparent!important;font-size:15px!important}\n[data-csx-setting-group]{font:600 11px system-ui;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin:20px 8px 8px}\n[data-csx-notification-row]{box-sizing:border-box!important;min-height:68px!important;padding:12px 8px!important;border:0!important;border-bottom:1px solid #8882!important;border-radius:0!important;box-shadow:none!important;gap:12px!important}\n[data-csx-notification-row] img{width:42px!important;height:42px!important;object-fit:contain!important;border-radius:50%!important;flex-shrink:0!important}\n[data-csx-notification-row] time{font-size:12px!important;opacity:.65}\n[data-csx-notification-row][data-unread=\"true\"]{border-left:3px solid #ffdf00!important}\n[data-csx-settings],[data-csx-notifications]{animation:csx-surface-in 180ms ease-out}\n@keyframes csx-surface-in{from{opacity:0}to{opacity:1}}\n@media(prefers-reduced-motion:reduce){[data-csx-settings],[data-csx-notifications]{animation:none}}\n";
+ style.textContent+='\n[data-csx-camera-surface][hidden],[data-csx-camera-surface][aria-hidden="true"],[data-csx-setting-row][hidden],[data-csx-toolbar-button][hidden]{display:none!important}\n[data-csx-native-header]{height:auto!important;flex-shrink:0!important}\n';
+ style.textContent+='\n[data-csx-action-button]{font-size:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:40px!important;min-height:40px!important;padding:8px!important;border-radius:50%!important;box-sizing:border-box!important}\n[data-csx-action-button] [data-csx-icon]{width:22px;height:22px}\n[data-csx-hangup]{background:#eb3650!important;color:white!important;border:0!important}\n';
+ document.documentElement.append(style);
+ function nativeActions(){
+  const roots=document.querySelectorAll(runtime.selectors.conversation+','+runtime.selectors.call);
+  for(const root of roots)for(const button of root.querySelectorAll('button')){
+   if(button.closest('[data-control-snap-owned],'+runtime.selectors.log))continue;
+   const text=label(button);let kind;
+   if(/^(back|retour|go back)$/i.test(text))kind='back';
+   else if(/hang up|hangup|raccrocher|end call/i.test(text))kind='hangup';
+   else if(/switch camera|flip camera|changer.*caméra/i.test(text))kind='switchCamera';
+   else if(/^(send|envoyer)( message| un chat)?$/i.test(text))kind='send';
+   else if(/microphone|mute|unmute/i.test(text))kind='mic';
+   else if(/^(camera|caméra|appareil photo|turn (on|off) camera)$/i.test(text))kind='camera';
+   else if(/^(emoji|stickers)$/i.test(text))kind='emoji';
+   else if(/^(gallery|galerie|attach media)$/i.test(text))kind='gallery';
+   if(kind){replaceIcon(button,kind);tag(button,'data-csx-action-button');if(kind==='hangup')tag(button,'data-csx-hangup');}
+  }
+ }
+ function replaceIcon(button,name,toolbar=false){
+  if(!paths[name])return;if(toolbar)tag(button,'data-csx-toolbar-button');
+  for(const original of button.querySelectorAll('svg,img[data-icon],[data-icon]'))if(!original.closest('[data-control-snap-owned]'))tag(original,'data-csx-icon-replaced');
+  const entry=icons.get(button);if(entry?.name===name&&entry.node.isConnected)return;entry?.node.remove();
+  const node=document.createElement('span');node.dataset.controlSnapOwned='semantic-icon';node.dataset.csxIcon=name;node.innerHTML=svg(name);button.prepend(node);icons.set(button,{node,name});
+ }
+ function filterDistractions(){
+  const candidates=document.querySelectorAll('nav a,nav button,[role="tab"],[data-testid*="story" i],[data-testid*="stories" i],[data-testid*="spotlight" i],[data-testid*="discover" i],aside,[role="region"],section[aria-label]');
+  for(const node of candidates){
+   if(node.closest('[role="log"],[data-testid="chat-history"],[data-csx-chat-log],[data-csx-composer],[data-csx-overlay],[data-control-snap-owned]'))continue;
+   const text=label(node),testid=node.getAttribute('data-testid')||'',href=node.getAttribute('href')||'';
+   if(/^(my story|ma story|stories|story|discover|découvrir|spotlight)(\b|$)/i.test(text)||/(^|[-_])(story|stories|spotlight|discover)([-_]|$)/i.test(testid)||/\/(stories|story|spotlight|discover)(\/|$)/i.test(href))tag(node,'data-csx-distraction');
+  }
+  document.querySelectorAll('aside,[data-testid="stories-sidebar"],[data-testid="right-sidebar"]').forEach(rail=>{
+   if(rail.querySelector('[data-csx-distraction]')&&[...rail.children].every(child=>child.hasAttribute('data-csx-distraction')||!child.textContent.trim()&&!child.querySelector('button,a,input,video')))tag(rail,'data-csx-empty-rail');
+  });
+ }
+ function camera(){
+  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]')){
+   if(root.closest('[data-csx-overlay],[data-csx-chat]')||root.parentElement?.closest('[data-csx-camera-surface]'))continue;
+   tag(root,'data-csx-camera-surface');
+   for(const video of root.querySelectorAll('video')){
+    tag(video,'data-csx-camera-media');
+    const settings=video.srcObject?.getVideoTracks?.()[0]?.getSettings?.()||{};
+    if(settings.facingMode==='environment')video.removeAttribute('data-csx-mirror');
+    else if(settings.facingMode==='user'&&getComputedStyle(video).transform==='none')tag(video,'data-csx-mirror');
+   }
+  }
+ }
+ function search(list,header){
+  if(searches.has(list))return;
+  const box=document.createElement('div');box.dataset.controlSnapOwned='search';
+  box.innerHTML='<input type="search" aria-label="Search loaded conversations" placeholder="Search conversations" autocomplete="off"><div class="csx-search-results" hidden></div>';
+  const input=box.querySelector('input'),results=box.querySelector('.csx-search-results');header.append(box);
+  const render=()=>{
+   const query=normalize(input.value.trim());results.replaceChildren();results.hidden=!query;if(!query)return;
+   const rows=[...list.querySelectorAll(runtime.selectors.rows)].filter(row=>!row.closest('[data-control-snap-owned]')&&!row.hasAttribute('data-csx-distraction'));
+   const matches=rows.map(row=>({row,identity:runtime.resolveIdentity(row)})).filter(({row,identity})=>normalize(identity.displayName+' '+(row.getAttribute('data-username')||row.querySelector('[data-username]')?.getAttribute('data-username')||'')).includes(query)).slice(0,50);
+   for(const {row,identity} of matches){
+    const result=document.createElement('button');result.type='button';result.innerHTML=svg('user');result.querySelector('svg').setAttribute('width','22');result.querySelector('svg').setAttribute('height','22');const name=document.createElement('span');name.textContent=identity.displayName;result.append(name);
+    result.addEventListener('click',()=>{if(!row.isConnected)return;const target=row.matches('button,a,[role="button"]')?row:row.querySelector('button,a,[role="button"]')||row;input.value='';results.hidden=true;runtime.selectConversation(row);target.click();});results.append(result);
+   }
+   if(!matches.length){const empty=document.createElement('p');empty.textContent='No loaded conversation found. Use Snapchat search to find other people.';results.append(empty);}
+  };
+  input.addEventListener('input',render,{signal:abort.signal});input.addEventListener('keydown',event=>{if(event.key==='Escape'){input.value='';render();input.focus({preventScroll:true});}if(event.key==='ArrowDown'){event.preventDefault();results.querySelector('button')?.focus({preventScroll:true});}},{signal:abort.signal});
+  searches.set(list,{box,render});
+ }
+ function topbars(){
+  for(const list of document.querySelectorAll(runtime.selectors.contacts)){
+   const header=list.querySelector('header,[data-testid="chat-header"],[data-testid="conversation-list-header"]');if(!header)continue;tag(header,'data-csx-native-header');
+   for(const button of header.querySelectorAll('button,[role="button"],a')){
+    if(button.closest('[data-control-snap-owned]'))continue;const text=label(button);
+    const kind=/search|recherch/i.test(text)?'search':/notification/i.test(text)?'bell':/settings|paramètre/i.test(text)?'settings':/more|options|menu/i.test(text)?'more':/add friend|ajout/i.test(text)?'add':/profil|account|compte/i.test(text)?'user':null;
+    if(kind&&!button.querySelector('img:not([data-icon])'))replaceIcon(button,kind,true);
+   }
+   search(list,header);
+  }
+  for(const [list,entry] of searches)if(!list.isConnected){entry.box.remove();searches.delete(list);}
+ }
+ function settings(root){
+  tag(root,'data-csx-settings');let lastGroup='';
+  for(const row of root.querySelectorAll('button,a,[role="menuitem"]')){
+   if(row.closest('[data-control-snap-owned]')||row.parentElement?.closest('button,a,[role="menuitem"]'))continue;
+   const rule=rules.find(([regex])=>regex.test(label(row)));if(!rule)continue;tag(row,'data-csx-setting-row');replaceIcon(row,rule[1]);
+   if(rule[2]!==lastGroup){
+    if(!row.previousElementSibling?.hasAttribute('data-csx-setting-group')){const heading=document.createElement('div');heading.dataset.controlSnapOwned='settings-group';heading.setAttribute('data-csx-setting-group','');heading.textContent=rule[2];row.before(heading);}
+    lastGroup=rule[2];
+   }
+  }
+ }
+ function notifications(root){tag(root,'data-csx-notifications');root.querySelectorAll('[role="listitem"],[data-testid*="notification-item"]').forEach(row=>tag(row,'data-csx-notification-row'));}
+ function watchPanels(){
+  for(const root of document.querySelectorAll(settingsSelector+','+notificationsSelector)){
+   if(observed.has(root))continue;
+   const render=()=>{if(!disposed&&root.isConnected){if(root.matches(settingsSelector))settings(root);else notifications(root);}};let frame=0;
+   const observer=new MutationObserver(records=>{if(records.some(record=>!record.target.parentElement?.closest('[data-control-snap-owned]')&&!record.target.closest?.('[data-control-snap-owned]')&&[...record.addedNodes,...record.removedNodes].some(node=>!(node instanceof Element)||!node.hasAttribute('data-control-snap-owned')))&&!frame)frame=requestAnimationFrame(()=>{frame=0;render();});});
+   observer.observe(root,{childList:true,subtree:true,characterData:true});observed.set(root,{observer,stop:()=>cancelAnimationFrame(frame)});render();
+  }
+  for(const [root,entry] of observed)if(!root.isConnected){entry.observer.disconnect();entry.stop();observed.delete(root);}
+ }
+ function refresh(){if(disposed)return;for(const node of marked.keys())if(!node.isConnected)marked.delete(node);for(const [node,entry] of icons)if(!node.isConnected){entry.node.remove();icons.delete(node);}filterDistractions();camera();topbars();nativeActions();watchPanels();}
+ document.addEventListener('loadedmetadata',event=>{if(event.target instanceof HTMLVideoElement)camera();},{capture:true,signal:abort.signal});
+ function dispose(){
+  disposed=true;abort.abort();for(const entry of observed.values()){entry.observer.disconnect();entry.stop();}observed.clear();
+  for(const entry of searches.values())entry.box.remove();searches.clear();for(const entry of icons.values())entry.node.remove();icons.clear();
+  document.querySelectorAll('[data-control-snap-owned="settings-group"]').forEach(node=>node.remove());
+  for(const [node,attrs] of marked)for(const attr of attrs)node.removeAttribute(attr);marked.clear();style.remove();
+ }
+ return {refresh,dispose};
+}
+globalThis.ControlSnapEssentialUI={create};
+})();
+
 /* Shared presentation controller. No private APIs, message persistence, stream capture or owned media copies. */
 (() => {
   'use strict';
@@ -47,7 +195,8 @@
   function create(options = {}) {
     const identities = new Map(), ephemeral = new WeakMap(), surfaces = new Map();
     let serial = 0, selectedKey = '', active = null, disposed = false, suspended = false;
-    const counters = {structuralPasses:0, scrollWrites:0, initialPositions:0, scopedMutations:0};
+    const counters = {structuralPasses:0, scrollWrites:0, initialPositions:0, scopedMutations:0, layoutPasses:0};
+    const layouts=new WeakMap();
     const style = document.createElement('style'); style.dataset.controlSnapOwned = 'style';
     style.textContent = `
       [data-csx-ready="LOADING"]{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
@@ -56,6 +205,18 @@
       .csx-spinner{width:22px;height:22px;border:2px solid #8885;border-top-color:#959595;border-radius:50%;animation:csx-spin .8s linear infinite}
       @keyframes csx-spin{to{transform:rotate(1turn)}}
       [data-csx-scroll]{overflow-anchor:none!important;scroll-behavior:auto!important;overscroll-behavior:contain}
+      [data-csx-chat]{position:relative!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important;min-width:0!important}
+      [data-csx-chat][hidden],[data-csx-chat][aria-hidden="true"]{display:none!important}
+      [data-csx-chat-frame]{display:flex!important;flex-direction:column!important;flex:1 1 0%!important;min-height:0!important;min-width:0!important;height:auto!important;overflow:hidden!important;position:relative!important;inset:auto!important}
+      [data-csx-chat-header]{position:relative!important;inset:auto!important;flex:0 0 auto!important;min-height:48px;z-index:2}
+      [data-csx-chat-log]{position:relative!important;inset:auto!important;flex:1 1 0%!important;height:auto!important;min-height:0!important;min-width:0!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-gutter:stable}
+      [data-csx-composer]{position:relative!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;min-width:0!important;max-width:100%!important;height:auto!important;overflow:visible!important;margin:0!important;z-index:2}
+      [data-csx-composer-controls]{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:6px!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
+      [data-csx-composer] :is(textarea,[contenteditable="true"],[role="textbox"]){min-width:0!important;max-width:100%!important;min-height:38px!important;max-height:112px!important;overflow-y:auto!important;font-size:16px!important;box-sizing:border-box!important;resize:none!important;scroll-margin:0!important}
+      [data-csx-composer-controls]>:is(textarea,[contenteditable="true"],[role="textbox"]){flex:1 1 0%!important}
+      [data-csx-composer-controls]>button{flex:0 0 40px!important;width:40px!important;height:40px!important;min-width:0!important;padding:8px!important;border-radius:50%!important}
+      [data-control-snap-owned="new-message"]{position:absolute;bottom:var(--csx-composer-offset,72px);left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:6px;border:1px solid #ffffff40;border-radius:22px;background:#252525ee;color:white;padding:9px 14px;font:600 13px system-ui;box-shadow:0 3px 12px #0002;cursor:pointer}
+      [data-control-snap-owned="new-message"][hidden]{display:none!important}
       [data-csx-overlay]{position:fixed!important;inset:0!important;box-sizing:border-box!important;width:100%!important;height:var(--csx-height,100dvh)!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:2147483150!important;background:#111!important}
       [data-csx-overlay="call"]{z-index:2147483250!important}
       [data-csx-call-frame]{position:static!important;transform:none!important;contain:none!important}
@@ -72,6 +233,7 @@
       @media(prefers-reduced-motion:reduce){[data-csx-ready]{transition:none!important}.csx-spinner{animation:none}}
     `;
     document.documentElement.append(style);
+    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation});
     function keyOf(node) {
       if (!node) return '';
       for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id']) {
@@ -106,15 +268,41 @@
       const timer = setTimeout(() => { if (!disposed && surfaces.has(node)) { indicator.remove(); surfaces.delete(node); mark(node,'data-csx-ready','ERROR'); } }, 4000);
       surfaces.set(node,{indicator,timer,kind});
     }
+    function layoutConversation(pane,log,input){
+      if(!pane||!log||!input||log.contains(input))return;
+      const old=layouts.get(pane);if(old?.log===log&&old.input===input&&old.footer.isConnected)return;
+      if(old)for(const [node,attr] of old.marks)node.removeAttribute(attr);
+      let shared=log.parentElement;while(shared&&shared!==pane&&!shared.contains(input))shared=shared.parentElement;
+      if(!shared?.contains(input))return;
+      let footer=input;while(footer.parentElement&&footer.parentElement!==shared)footer=footer.parentElement;
+      const marks=[],tag=(node,attr)=>{mark(node,attr);marks.push([node,attr]);};
+      tag(pane,'data-csx-chat');tag(log,'data-csx-chat-log');tag(footer,'data-csx-composer');
+      for(let node=log.parentElement;node&&node!==pane;node=node.parentElement)tag(node,'data-csx-chat-frame');
+      const header=pane.querySelector('header,[data-testid="conversation-header"]');if(header&&!log.contains(header))tag(header,'data-csx-chat-header');
+      for(let node=input.parentElement;node&&footer.contains(node);node=node.parentElement){
+        if(node.querySelectorAll('button,[role="button"]').length>=2||node.matches('[role="toolbar"],form')){tag(node,'data-csx-composer-controls');break;}
+        if(node===footer)break;
+      }
+      layouts.set(pane,{log,input,footer,marks});counters.layoutPasses++;
+    }
     function stopConversation() { active?.dispose(); active = null; }
     function attachConversation(pane, log, key) {
       if (!log || !pane || disposed) return;
+      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       key = key || selectedKey || keyOf(pane);
       if (active?.log === log && active.key === key) return active;
       stopConversation();
-      const abort = new AbortController(); let frame = 0, sampleFrame = 0, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
-      const state = {pane,log,key,hasInitialPositioned:false,dispose(){abort.abort();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
+      const abort = new AbortController(); let frame = 0, sampleFrame = 0, followFrame = 0, followTarget = 0, following = false, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
+      const notice=document.createElement('button');notice.type='button';notice.hidden=true;notice.dataset.controlSnapOwned='new-message';notice.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg><span>New message</span>';pane.append(notice);
+      const state = {pane,log,key,hasInitialPositioned:false,get following(){return following;},dispose(){abort.abort();notice.remove();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);cancelAnimationFrame(followFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
       active = state; mark(log,'data-csx-scroll'); readySurface(pane,false,'conversation');
+      let pendingImages=0;
+      for(const image of [...log.querySelectorAll('img')].slice(-12)){
+        pendingImages++;
+        const settled=()=>{pendingImages=Math.max(0,pendingImages-1);};
+        const decode=()=>{if(image.decode)image.decode().catch(()=>{}).then(settled);else settled();};
+        if(image.complete)decode();else{image.addEventListener('load',decode,{once:true,signal:abort.signal});image.addEventListener('error',settled,{once:true,signal:abort.signal});}
+      }
       const current = () => !disposed && active === state && log.isConnected;
       const distance = () => Math.max(0,log.scrollHeight-log.clientHeight-log.scrollTop);
       const snapshot = () => {
@@ -126,21 +314,30 @@
         return {height:log.scrollHeight,top:log.scrollTop,first,offset:first?first.getBoundingClientRect().top-box.top:0,head:nodes[0],tail:nodes[nodes.length-1]};
       };
       const write = top => { if (Math.abs(log.scrollTop-top)>1) { log.scrollTop=top; counters.scrollWrites++; } };
-      const remember = () => { if (current()) { atBottom=distance()<80;metrics=snapshot(); } };
-      const intent = () => { userIntent=true; if (!state.hasInitialPositioned) { state.hasInitialPositioned=true; readySurface(pane,true); } atBottom=distance()<80; };
+      const remember = () => { if (current()) { atBottom=distance()<100;metrics=snapshot();if(atBottom)notice.hidden=true; } };
+      function followBottom(){
+        followTarget=Math.max(0,log.scrollHeight-log.clientHeight);
+        if(following)return;
+        if(matchMedia('(prefers-reduced-motion:reduce)').matches){write(log.scrollHeight);remember();return;}
+        following=true;notice.hidden=true;const start=log.scrollTop,started=performance.now();
+        const tick=now=>{if(!current()||suspended){following=false;return;}const progress=Math.min(1,(now-started)/180);write(start+(followTarget-start)*(1-Math.pow(1-progress,3)));if(progress<1)followFrame=requestAnimationFrame(tick);else{following=false;followFrame=0;remember();}};
+        followFrame=requestAnimationFrame(tick);
+      }
+      const intent = () => { cancelAnimationFrame(followFrame);following=false;userIntent=true; if (!state.hasInitialPositioned) { state.hasInitialPositioned=true; readySurface(pane,true); } atBottom=distance()<100; };
+      notice.addEventListener('click',()=>{if(current())followBottom();},{signal:abort.signal});
       log.addEventListener('wheel',intent,{passive:true,signal:abort.signal});log.addEventListener('touchmove',intent,{passive:true,signal:abort.signal});
       log.addEventListener('pointerdown',intent,{passive:true,signal:abort.signal});
       log.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))intent();},{signal:abort.signal});
-      log.addEventListener('scroll',()=>{if(!sampleFrame)sampleFrame=requestAnimationFrame(()=>{sampleFrame=0;remember();});},{passive:true,signal:abort.signal});
+      log.addEventListener('scroll',()=>{if(!following&&!sampleFrame)sampleFrame=requestAnimationFrame(()=>{sampleFrame=0;if(!following)remember();});},{passive:true,signal:abort.signal});
       function initialize() {
         frame=0;
         if (!current() || state.hasInitialPositioned || suspended) return;
         const hasContent = log.children.length || log.textContent.trim() || pane.querySelector('[data-testid="empty-conversation"]');
         const next = log.scrollHeight + ':' + log.clientHeight;
         stable = next === signature ? stable+1 : 0; signature=next;
-        if (hasContent && stable >= 3 && log.clientHeight > 0) {
+        if (hasContent && pendingImages===0 && stable >= 3 && log.clientHeight > 0) {
           if(!userIntent){write(log.scrollHeight);counters.initialPositions++;}
-          state.hasInitialPositioned=true;remember();readySurface(pane,true);return;
+          state.hasInitialPositioned=true;clearTimeout(initialTimer);remember();readySurface(pane,true);return;
         }
         frame=requestAnimationFrame(initialize);
       }
@@ -153,18 +350,18 @@
         if (prepend && old.first?.isConnected && log.contains(old.first)) {
           const offset=old.first.getBoundingClientRect().top-log.getBoundingClientRect().top;
           write(log.scrollTop+offset-old.offset);
-        } else if (append && atBottom && !userIntent) write(log.scrollHeight);
-        else if (append && atBottom && Math.abs(log.scrollTop-old.top)<2) write(log.scrollHeight);
+        } else if (append && atBottom && (!userIntent||following||Math.abs(log.scrollTop-old.top)<2)) followBottom();
+        else if(append&&!atBottom)notice.hidden=false;
         // Resize/media decode alone never pins a reader to the bottom after initial positioning.
-        remember();
+        if(!following)remember();
       }
       const changes=new MutationObserver(records=>{counters.scopedMutations++; if(frame||!state.hasInitialPositioned)return; frame=requestAnimationFrame(()=>{frame=0;reconcile(records);});});
       changes.observe(log,{childList:true,subtree:true,characterData:true});
       let oldHeight=log.clientHeight;
-      const resize=new ResizeObserver(()=>{const height=log.clientHeight;if(height===oldHeight)return;oldHeight=height;if(current()&&!suspended&&state.hasInitialPositioned&&atBottom){write(log.scrollHeight);remember();}});
+      const resize=new ResizeObserver(()=>{const footer=layouts.get(pane)?.footer;if(footer)pane.style.setProperty('--csx-composer-offset',(footer.getBoundingClientRect().height+12)+'px');const height=log.clientHeight;if(height===oldHeight)return;oldHeight=height;if(current()&&!suspended&&state.hasInitialPositioned&&atBottom){write(log.scrollHeight);remember();}});
       resize.observe(log); // Not every message: one observer and no reconnect on each mutation.
       frame=requestAnimationFrame(initialize);
-      initialTimer=setTimeout(()=>{cancelAnimationFrame(frame);frame=0;if(current()&&!state.hasInitialPositioned){state.hasInitialPositioned=true;readySurface(pane,true);mark(pane,'data-csx-ready','ERROR');remember();}},3500);
+      initialTimer=setTimeout(()=>{cancelAnimationFrame(frame);frame=0;if(current()&&!state.hasInitialPositioned){if(!userIntent){write(log.scrollHeight);counters.initialPositions++;}state.hasInitialPositioned=true;readySurface(pane,true);mark(pane,'data-csx-ready','ERROR');remember();}},3500);
       return state;
     }
     function suspend(value) { const was=suspended;suspended=value;if(was&&!value&&active&&!active.hasInitialPositioned){const {pane,log,key}=active;stopConversation();attachConversation(pane,log,key);} }
@@ -320,8 +517,8 @@
         state.cameraSettings={width:settings.width,height:settings.height,aspectRatio:settings.aspectRatio,zoom:settings.zoom};
         if(local){mark(local,'data-csx-call-local');local.style.setProperty('--csx-ratio',String((local.videoWidth||settings.width||4)/(local.videoHeight||settings.height||3)));}
         if(remote){
-          mark(remote,'data-csx-call-remote');const box=root.getBoundingClientRect(),ratio=remote.videoWidth/remote.videoHeight,screen=box.width/box.height;
-          remote.style.setProperty('--csx-fit',Number.isFinite(ratio)&&Math.min(ratio/screen,screen/ratio)>=.85?'cover':'contain');
+          mark(remote,'data-csx-call-remote');
+          remote.style.setProperty('--csx-fit','contain');
         }
         const controls=root.querySelector('[data-testid="call-controls"],[role="toolbar"]');if(controls)mark(controls,'data-csx-call-controls');
         for(const element of [local,remote,controls])for(let parent=element?.parentElement;parent&&parent!==root;parent=parent.parentElement)mark(parent,'data-csx-call-frame');
@@ -341,6 +538,7 @@
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
+      essentialUI?.refresh();
       const height=(window.visualViewport?.height||innerHeight)+'px';
       const callRoot=[...document.querySelectorAll(selectors.call)].find(shown);
       if(callRoot){callRoot.style.setProperty('--csx-height',height);attachCall(callRoot);}else stopCall();
@@ -350,8 +548,10 @@
       if(!callRoot)viewer?.resumePhoto();
     }
     function dispose() {
-      if(disposed)return;stopViewer();stopCall();stopConversation();for(const [node,entry] of surfaces){clearTimeout(entry.timer);entry.indicator.remove();node.removeAttribute('data-csx-ready');}surfaces.clear();
-      document.querySelectorAll('[data-csx-ready]').forEach(node=>node.removeAttribute('data-csx-ready'));style.remove();identities.clear();disposed=true;
+      if(disposed)return;essentialUI?.dispose();stopViewer();stopCall();stopConversation();for(const [node,entry] of surfaces){clearTimeout(entry.timer);entry.indicator.remove();node.removeAttribute('data-csx-ready');}surfaces.clear();
+      document.querySelectorAll('[data-csx-ready]').forEach(node=>node.removeAttribute('data-csx-ready'));
+      for(const attr of ['data-csx-chat','data-csx-chat-frame','data-csx-chat-header','data-csx-chat-log','data-csx-composer','data-csx-composer-controls'])document.querySelectorAll('['+attr+']').forEach(node=>{node.removeAttribute(attr);node.style.removeProperty('--csx-composer-offset');});
+      style.remove();identities.clear();disposed=true;
     }
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }
@@ -476,7 +676,7 @@
       [data-control-snap-camera-surface]{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important}
       [data-control-snap-camera-trigger]{max-width:100%!important;max-height:100%!important}
       [data-control-snap-camera-large-trigger]{box-sizing:border-box!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;aspect-ratio:auto!important;flex:1!important}
-      html[data-control-snap-view="snap"] [data-control-snap-camera] video{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important}
+      html[data-control-snap-view="snap"] [data-control-snap-camera] video{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
       @keyframes control-snap-enter{from{opacity:0}to{opacity:1}}
       [data-control-snap-enter]{animation:control-snap-enter .22s ease-out both!important}
       [data-control-snap-pane]>div{min-width:0!important;max-width:100%!important}
@@ -803,6 +1003,7 @@
   function stopSnapAnchor(){snapExperience?.stopConversation();}
   function snapConversationLayout(pane,composer){
     if(!pane||!composer)return;
+    if(snapExperience?.active?.pane===pane&&snapExperience.active.log.isConnected&&pane.querySelector('[data-control-snap-chat-composer]')?.contains(composer))return;
     const markers=['data-control-snap-chat-frame','data-control-snap-chat-log','data-control-snap-chat-composer'];
     for(const el of [pane,...pane.querySelectorAll(markers.map(a=>'['+a+']').join(','))])for(const attr of markers)el.removeAttribute(attr);
     let log=pane.querySelector('[role="log"],[data-testid="message-list"],[data-testid="chat-history"]');
@@ -1012,6 +1213,7 @@
         if(record.type==='childList'&&[...record.addedNodes,...record.removedNodes].length&&[...record.addedNodes,...record.removedNodes].every(node=>node instanceof Element&&node.matches('[data-control-snap-owned],#control-snap-session,#control-snap-row-actions,#control-snap-new-chat,[data-control-snap-name]')))continue;
         // Messages, media and call internals have dedicated session observers.
         if(target?.closest('[data-csx-scroll],[data-csx-overlay]'))continue;
+        if(record.type!=='childList'&&target?.closest('[data-csx-composer]'))continue;
         meaningful=true;
       }
       const row=target?.closest('[data-control-snap-row]');if(row)snapDirtyRows.add(row);

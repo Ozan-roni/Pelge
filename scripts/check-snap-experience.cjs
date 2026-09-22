@@ -1,12 +1,12 @@
 /* Contract tests, not a live Snapchat account. Media events and permission errors are simulated. */
 const {chromium}=require(process.env.CONTROL_PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const root=path.join(__dirname,'..'),runtime=fs.readFileSync(path.join(root,'dist/scripts/SnapchatExperience.js'),'utf8');
+const root=path.join(__dirname,'..'),runtime=fs.readFileSync(path.join(root,'dist/scripts/SnapchatEssentialUI.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'dist/scripts/SnapchatExperience.js'),'utf8');
 const adapter=fs.readFileSync(path.join(root,'dist/scripts/SnapchatVisuals.js'),'utf8');
 const out=path.join(root,'build/snap-experience');fs.mkdirSync(out,{recursive:true});
 const fixture='<!doctype html><meta name="viewport" content="width=device-width"><style>*{box-sizing:border-box}body{margin:0;font:16px system-ui}main{display:flex;height:100vh}#list{width:320px;background:#fafafa}#list button{display:block;width:100%;padding:20px;text-align:left;border:0;background:white}#pane{flex:1;display:flex;flex-direction:column;min-width:0;background:#202020;color:white}header{padding:20px;height:64px;flex-shrink:0;background:#121212}#log{flex:1;overflow:auto;min-height:0}#log p{height:44px;margin:0;padding:10px 20px;border-bottom:1px solid #333}footer{display:flex;padding:10px;gap:12px}textarea{flex:1;min-width:0}button{cursor:pointer}#viewer{position:fixed;inset:0;background:#111;color:white;z-index:20}#viewer img,#viewer video{width:100%;height:100%;object-fit:contain}#viewer>button{position:absolute;bottom:20px;z-index:3}#viewer>button:last-child{right:20px}#viewer>[data-snap-id]{height:100%}</style><main><section id="list" aria-label="Conversations"><header>Chat</header><button role="listitem" data-conversation-id="A"><span data-testid="display-name">Alex</span></button><button role="listitem" data-conversation-id="B"><span data-testid="display-name">Bram</span></button></section><section id="pane" data-testid="conversation-panel" data-conversation-id="A"><header>Alex</header><div id="log" role="log"></div><footer><button aria-label="Camera">◉</button><textarea aria-label="Message"></textarea><button aria-label="Emoji">☺</button></footer></section></main>';
 const frames=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))));
-const bottom=page=>page.waitForFunction(()=>{const l=document.querySelector('#log');return Math.abs(l.scrollHeight-l.clientHeight-l.scrollTop)<2;});
+const bottom=page=>page.waitForFunction(()=>{const l=document.querySelector('#log');return !cx.active?.following&&Math.abs(l.scrollHeight-l.clientHeight-l.scrollTop)<2;});
 async function run(){
  const browser=await chromium.launch({channel:process.env.CONTROL_BROWSER_CHANNEL||undefined});
  const errors=[];

@@ -28,7 +28,8 @@
   function create(options = {}) {
     const identities = new Map(), ephemeral = new WeakMap(), surfaces = new Map();
     let serial = 0, selectedKey = '', active = null, disposed = false, suspended = false;
-    const counters = {structuralPasses:0, scrollWrites:0, initialPositions:0, scopedMutations:0};
+    const counters = {structuralPasses:0, scrollWrites:0, initialPositions:0, scopedMutations:0, layoutPasses:0};
+    const layouts=new WeakMap();
     const style = document.createElement('style'); style.dataset.controlSnapOwned = 'style';
     style.textContent = `
       [data-csx-ready="LOADING"]{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
@@ -37,6 +38,18 @@
       .csx-spinner{width:22px;height:22px;border:2px solid #8885;border-top-color:#959595;border-radius:50%;animation:csx-spin .8s linear infinite}
       @keyframes csx-spin{to{transform:rotate(1turn)}}
       [data-csx-scroll]{overflow-anchor:none!important;scroll-behavior:auto!important;overscroll-behavior:contain}
+      [data-csx-chat]{position:relative!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important;min-width:0!important}
+      [data-csx-chat][hidden],[data-csx-chat][aria-hidden="true"]{display:none!important}
+      [data-csx-chat-frame]{display:flex!important;flex-direction:column!important;flex:1 1 0%!important;min-height:0!important;min-width:0!important;height:auto!important;overflow:hidden!important;position:relative!important;inset:auto!important}
+      [data-csx-chat-header]{position:relative!important;inset:auto!important;flex:0 0 auto!important;min-height:48px;z-index:2}
+      [data-csx-chat-log]{position:relative!important;inset:auto!important;flex:1 1 0%!important;height:auto!important;min-height:0!important;min-width:0!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-gutter:stable}
+      [data-csx-composer]{position:relative!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;min-width:0!important;max-width:100%!important;height:auto!important;overflow:visible!important;margin:0!important;z-index:2}
+      [data-csx-composer-controls]{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:6px!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
+      [data-csx-composer] :is(textarea,[contenteditable="true"],[role="textbox"]){min-width:0!important;max-width:100%!important;min-height:38px!important;max-height:112px!important;overflow-y:auto!important;font-size:16px!important;box-sizing:border-box!important;resize:none!important;scroll-margin:0!important}
+      [data-csx-composer-controls]>:is(textarea,[contenteditable="true"],[role="textbox"]){flex:1 1 0%!important}
+      [data-csx-composer-controls]>button{flex:0 0 40px!important;width:40px!important;height:40px!important;min-width:0!important;padding:8px!important;border-radius:50%!important}
+      [data-control-snap-owned="new-message"]{position:absolute;bottom:var(--csx-composer-offset,72px);left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:6px;border:1px solid #ffffff40;border-radius:22px;background:#252525ee;color:white;padding:9px 14px;font:600 13px system-ui;box-shadow:0 3px 12px #0002;cursor:pointer}
+      [data-control-snap-owned="new-message"][hidden]{display:none!important}
       [data-csx-overlay]{position:fixed!important;inset:0!important;box-sizing:border-box!important;width:100%!important;height:var(--csx-height,100dvh)!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:2147483150!important;background:#111!important}
       [data-csx-overlay="call"]{z-index:2147483250!important}
       [data-csx-call-frame]{position:static!important;transform:none!important;contain:none!important}
@@ -53,6 +66,7 @@
       @media(prefers-reduced-motion:reduce){[data-csx-ready]{transition:none!important}.csx-spinner{animation:none}}
     `;
     document.documentElement.append(style);
+    const essentialUI=globalThis.ControlSnapEssentialUI?.create({selectors,resolveIdentity,selectConversation});
     function keyOf(node) {
       if (!node) return '';
       for (const attr of ['data-conversation-id','data-chat-id','data-thread-id','data-user-id']) {
@@ -87,15 +101,41 @@
       const timer = setTimeout(() => { if (!disposed && surfaces.has(node)) { indicator.remove(); surfaces.delete(node); mark(node,'data-csx-ready','ERROR'); } }, 4000);
       surfaces.set(node,{indicator,timer,kind});
     }
+    function layoutConversation(pane,log,input){
+      if(!pane||!log||!input||log.contains(input))return;
+      const old=layouts.get(pane);if(old?.log===log&&old.input===input&&old.footer.isConnected)return;
+      if(old)for(const [node,attr] of old.marks)node.removeAttribute(attr);
+      let shared=log.parentElement;while(shared&&shared!==pane&&!shared.contains(input))shared=shared.parentElement;
+      if(!shared?.contains(input))return;
+      let footer=input;while(footer.parentElement&&footer.parentElement!==shared)footer=footer.parentElement;
+      const marks=[],tag=(node,attr)=>{mark(node,attr);marks.push([node,attr]);};
+      tag(pane,'data-csx-chat');tag(log,'data-csx-chat-log');tag(footer,'data-csx-composer');
+      for(let node=log.parentElement;node&&node!==pane;node=node.parentElement)tag(node,'data-csx-chat-frame');
+      const header=pane.querySelector('header,[data-testid="conversation-header"]');if(header&&!log.contains(header))tag(header,'data-csx-chat-header');
+      for(let node=input.parentElement;node&&footer.contains(node);node=node.parentElement){
+        if(node.querySelectorAll('button,[role="button"]').length>=2||node.matches('[role="toolbar"],form')){tag(node,'data-csx-composer-controls');break;}
+        if(node===footer)break;
+      }
+      layouts.set(pane,{log,input,footer,marks});counters.layoutPasses++;
+    }
     function stopConversation() { active?.dispose(); active = null; }
     function attachConversation(pane, log, key) {
       if (!log || !pane || disposed) return;
+      layoutConversation(pane,log,pane.querySelector(selectors.composer));
       key = key || selectedKey || keyOf(pane);
       if (active?.log === log && active.key === key) return active;
       stopConversation();
-      const abort = new AbortController(); let frame = 0, sampleFrame = 0, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
-      const state = {pane,log,key,hasInitialPositioned:false,dispose(){abort.abort();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
+      const abort = new AbortController(); let frame = 0, sampleFrame = 0, followFrame = 0, followTarget = 0, following = false, initialTimer = 0, stable = 0, signature = '', userIntent = false, atBottom = true, metrics = null;
+      const notice=document.createElement('button');notice.type='button';notice.hidden=true;notice.dataset.controlSnapOwned='new-message';notice.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg><span>New message</span>';pane.append(notice);
+      const state = {pane,log,key,hasInitialPositioned:false,get following(){return following;},dispose(){abort.abort();notice.remove();cancelAnimationFrame(frame);cancelAnimationFrame(sampleFrame);cancelAnimationFrame(followFrame);clearTimeout(initialTimer);changes.disconnect();resize.disconnect();readySurface(pane,true);log.removeAttribute('data-csx-scroll');}};
       active = state; mark(log,'data-csx-scroll'); readySurface(pane,false,'conversation');
+      let pendingImages=0;
+      for(const image of [...log.querySelectorAll('img')].slice(-12)){
+        pendingImages++;
+        const settled=()=>{pendingImages=Math.max(0,pendingImages-1);};
+        const decode=()=>{if(image.decode)image.decode().catch(()=>{}).then(settled);else settled();};
+        if(image.complete)decode();else{image.addEventListener('load',decode,{once:true,signal:abort.signal});image.addEventListener('error',settled,{once:true,signal:abort.signal});}
+      }
       const current = () => !disposed && active === state && log.isConnected;
       const distance = () => Math.max(0,log.scrollHeight-log.clientHeight-log.scrollTop);
       const snapshot = () => {
@@ -107,21 +147,30 @@
         return {height:log.scrollHeight,top:log.scrollTop,first,offset:first?first.getBoundingClientRect().top-box.top:0,head:nodes[0],tail:nodes[nodes.length-1]};
       };
       const write = top => { if (Math.abs(log.scrollTop-top)>1) { log.scrollTop=top; counters.scrollWrites++; } };
-      const remember = () => { if (current()) { atBottom=distance()<80;metrics=snapshot(); } };
-      const intent = () => { userIntent=true; if (!state.hasInitialPositioned) { state.hasInitialPositioned=true; readySurface(pane,true); } atBottom=distance()<80; };
+      const remember = () => { if (current()) { atBottom=distance()<100;metrics=snapshot();if(atBottom)notice.hidden=true; } };
+      function followBottom(){
+        followTarget=Math.max(0,log.scrollHeight-log.clientHeight);
+        if(following)return;
+        if(matchMedia('(prefers-reduced-motion:reduce)').matches){write(log.scrollHeight);remember();return;}
+        following=true;notice.hidden=true;const start=log.scrollTop,started=performance.now();
+        const tick=now=>{if(!current()||suspended){following=false;return;}const progress=Math.min(1,(now-started)/180);write(start+(followTarget-start)*(1-Math.pow(1-progress,3)));if(progress<1)followFrame=requestAnimationFrame(tick);else{following=false;followFrame=0;remember();}};
+        followFrame=requestAnimationFrame(tick);
+      }
+      const intent = () => { cancelAnimationFrame(followFrame);following=false;userIntent=true; if (!state.hasInitialPositioned) { state.hasInitialPositioned=true; readySurface(pane,true); } atBottom=distance()<100; };
+      notice.addEventListener('click',()=>{if(current())followBottom();},{signal:abort.signal});
       log.addEventListener('wheel',intent,{passive:true,signal:abort.signal});log.addEventListener('touchmove',intent,{passive:true,signal:abort.signal});
       log.addEventListener('pointerdown',intent,{passive:true,signal:abort.signal});
       log.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))intent();},{signal:abort.signal});
-      log.addEventListener('scroll',()=>{if(!sampleFrame)sampleFrame=requestAnimationFrame(()=>{sampleFrame=0;remember();});},{passive:true,signal:abort.signal});
+      log.addEventListener('scroll',()=>{if(!following&&!sampleFrame)sampleFrame=requestAnimationFrame(()=>{sampleFrame=0;if(!following)remember();});},{passive:true,signal:abort.signal});
       function initialize() {
         frame=0;
         if (!current() || state.hasInitialPositioned || suspended) return;
         const hasContent = log.children.length || log.textContent.trim() || pane.querySelector('[data-testid="empty-conversation"]');
         const next = log.scrollHeight + ':' + log.clientHeight;
         stable = next === signature ? stable+1 : 0; signature=next;
-        if (hasContent && stable >= 3 && log.clientHeight > 0) {
+        if (hasContent && pendingImages===0 && stable >= 3 && log.clientHeight > 0) {
           if(!userIntent){write(log.scrollHeight);counters.initialPositions++;}
-          state.hasInitialPositioned=true;remember();readySurface(pane,true);return;
+          state.hasInitialPositioned=true;clearTimeout(initialTimer);remember();readySurface(pane,true);return;
         }
         frame=requestAnimationFrame(initialize);
       }
@@ -134,18 +183,18 @@
         if (prepend && old.first?.isConnected && log.contains(old.first)) {
           const offset=old.first.getBoundingClientRect().top-log.getBoundingClientRect().top;
           write(log.scrollTop+offset-old.offset);
-        } else if (append && atBottom && !userIntent) write(log.scrollHeight);
-        else if (append && atBottom && Math.abs(log.scrollTop-old.top)<2) write(log.scrollHeight);
+        } else if (append && atBottom && (!userIntent||following||Math.abs(log.scrollTop-old.top)<2)) followBottom();
+        else if(append&&!atBottom)notice.hidden=false;
         // Resize/media decode alone never pins a reader to the bottom after initial positioning.
-        remember();
+        if(!following)remember();
       }
       const changes=new MutationObserver(records=>{counters.scopedMutations++; if(frame||!state.hasInitialPositioned)return; frame=requestAnimationFrame(()=>{frame=0;reconcile(records);});});
       changes.observe(log,{childList:true,subtree:true,characterData:true});
       let oldHeight=log.clientHeight;
-      const resize=new ResizeObserver(()=>{const height=log.clientHeight;if(height===oldHeight)return;oldHeight=height;if(current()&&!suspended&&state.hasInitialPositioned&&atBottom){write(log.scrollHeight);remember();}});
+      const resize=new ResizeObserver(()=>{const footer=layouts.get(pane)?.footer;if(footer)pane.style.setProperty('--csx-composer-offset',(footer.getBoundingClientRect().height+12)+'px');const height=log.clientHeight;if(height===oldHeight)return;oldHeight=height;if(current()&&!suspended&&state.hasInitialPositioned&&atBottom){write(log.scrollHeight);remember();}});
       resize.observe(log); // Not every message: one observer and no reconnect on each mutation.
       frame=requestAnimationFrame(initialize);
-      initialTimer=setTimeout(()=>{cancelAnimationFrame(frame);frame=0;if(current()&&!state.hasInitialPositioned){state.hasInitialPositioned=true;readySurface(pane,true);mark(pane,'data-csx-ready','ERROR');remember();}},3500);
+      initialTimer=setTimeout(()=>{cancelAnimationFrame(frame);frame=0;if(current()&&!state.hasInitialPositioned){if(!userIntent){write(log.scrollHeight);counters.initialPositions++;}state.hasInitialPositioned=true;readySurface(pane,true);mark(pane,'data-csx-ready','ERROR');remember();}},3500);
       return state;
     }
     function suspend(value) { const was=suspended;suspended=value;if(was&&!value&&active&&!active.hasInitialPositioned){const {pane,log,key}=active;stopConversation();attachConversation(pane,log,key);} }
@@ -301,8 +350,8 @@
         state.cameraSettings={width:settings.width,height:settings.height,aspectRatio:settings.aspectRatio,zoom:settings.zoom};
         if(local){mark(local,'data-csx-call-local');local.style.setProperty('--csx-ratio',String((local.videoWidth||settings.width||4)/(local.videoHeight||settings.height||3)));}
         if(remote){
-          mark(remote,'data-csx-call-remote');const box=root.getBoundingClientRect(),ratio=remote.videoWidth/remote.videoHeight,screen=box.width/box.height;
-          remote.style.setProperty('--csx-fit',Number.isFinite(ratio)&&Math.min(ratio/screen,screen/ratio)>=.85?'cover':'contain');
+          mark(remote,'data-csx-call-remote');
+          remote.style.setProperty('--csx-fit','contain');
         }
         const controls=root.querySelector('[data-testid="call-controls"],[role="toolbar"]');if(controls)mark(controls,'data-csx-call-controls');
         for(const element of [local,remote,controls])for(let parent=element?.parentElement;parent&&parent!==root;parent=parent.parentElement)mark(parent,'data-csx-call-frame');
@@ -322,6 +371,7 @@
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
+      essentialUI?.refresh();
       const height=(window.visualViewport?.height||innerHeight)+'px';
       const callRoot=[...document.querySelectorAll(selectors.call)].find(shown);
       if(callRoot){callRoot.style.setProperty('--csx-height',height);attachCall(callRoot);}else stopCall();
@@ -331,8 +381,10 @@
       if(!callRoot)viewer?.resumePhoto();
     }
     function dispose() {
-      if(disposed)return;stopViewer();stopCall();stopConversation();for(const [node,entry] of surfaces){clearTimeout(entry.timer);entry.indicator.remove();node.removeAttribute('data-csx-ready');}surfaces.clear();
-      document.querySelectorAll('[data-csx-ready]').forEach(node=>node.removeAttribute('data-csx-ready'));style.remove();identities.clear();disposed=true;
+      if(disposed)return;essentialUI?.dispose();stopViewer();stopCall();stopConversation();for(const [node,entry] of surfaces){clearTimeout(entry.timer);entry.indicator.remove();node.removeAttribute('data-csx-ready');}surfaces.clear();
+      document.querySelectorAll('[data-csx-ready]').forEach(node=>node.removeAttribute('data-csx-ready'));
+      for(const attr of ['data-csx-chat','data-csx-chat-frame','data-csx-chat-header','data-csx-chat-log','data-csx-composer','data-csx-composer-controls'])document.querySelectorAll('['+attr+']').forEach(node=>{node.removeAttribute(attr);node.style.removeProperty('--csx-composer-offset');});
+      style.remove();identities.clear();disposed=true;
     }
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }

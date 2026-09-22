@@ -1,14 +1,25 @@
-# Control iPhone — Safari 1.6.0
+# Control iPhone — Safari 1.6.1
 
 Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés, avec deux onglets de navigation sur Snapchat mobile. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-La version **1.6.0** est disponible dans le fichier complet ci-dessous.
+Cette édition contient la version **1.6.1**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.0**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.1**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## Correctifs 1.6.1 — interface essentielle
+
+- Composer séparé du défilement ; focus et saisie sans reconstruction de la discussion.
+- Défilement doux de 180 ms uniquement près du bas ; bouton « New message » pendant la lecture d'anciens messages.
+- Caméra et appels en portrait sur ordinateur, aperçu complet en `contain`, miroir limité au preview frontal local.
+- Recherche des conversations chargées par nom/username, ouverture par les commandes natives.
+- Icônes SVG cohérentes ; groupes de paramètres et notifications sur les panneaux natifs reconnus.
+- Stories/Spotlight et rails vides masqués sans masquer l'historique des messages.
+
+Les tests sont des scénarios DOM simulés sur Edge. Une vérification sur Snapchat connecté et Safari iPhone réel reste obligatoire avant de considérer l'intégration terminée.
 
 ## Correctifs 1.6.0 — sessions Snapchat
 
