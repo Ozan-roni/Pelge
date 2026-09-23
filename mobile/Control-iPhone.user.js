@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.3
+// @version      1.6.4
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -64,14 +64,14 @@ function create(runtime){
     if(media.closest(runtime.selectors.viewer+', [data-testid*="avatar" i],[class*="avatar" i],[data-testid*="emoji" i],[class*="emoji" i]'))continue;
     if(media.matches('video')||media.naturalWidth>96||media.getBoundingClientRect().width>96)tag(media,'data-csx-message-media');
    }
-  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation))tag(root,'data-csx-messages-hidden');
+  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation)&&!root.matches(runtime.selectors.viewer)&&!root.querySelector(runtime.selectors.viewer))tag(root,'data-csx-messages-hidden');
   for(const button of document.querySelectorAll('button,[role="button"],a[aria-label]')){
    if(button.closest(runtime.selectors.viewer+','+runtime.selectors.call+','+runtime.selectors.log))continue;
    const text=label(button);
    if(/^(camera|caméra|appareil photo|open camera|ouvrir la caméra|take (a )?snap|prendre un snap|new chat|new message|nouveau chat|nouveau message|nouvelle conversation|compose)(\b|$)/i.test(text))tag(button,'data-csx-messages-hidden');
    else if(/^(send|envoyer)( message| un chat)?$/i.test(text)&&button.closest(runtime.selectors.conversation))tag(button,'data-csx-send');
   }
-  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
+  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.matches(runtime.selectors.viewer)||node.querySelector(runtime.selectors.viewer)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
  }
  function portraitCamera(video){
   if(!matchMedia('(max-width:700px) and (orientation:portrait)').matches)return;
@@ -214,7 +214,7 @@ globalThis.ControlSnapEssentialUI={create};
     log: '[role="log"],[data-testid="message-list"],[data-testid="chat-history"],[data-control-snap-chat-log]',
     composer: 'textarea,[contenteditable="true"],[role="textbox"]',
     identity: '[data-display-name],[data-friend-name],[data-testid*="display-name"],[data-testid*="friend-name"],[data-testid*="username"],h1,h2,h3,h4,[class*="name" i]',
-    viewer: '[data-testid="snap-viewer"],[data-testid="media-viewer"],[role="dialog"][aria-label*="Snap" i]',
+    viewer: '[data-testid="snap-viewer"],[data-testid="media-viewer"],[data-testid="snap-player"],[data-testid="received-snap-viewer"],[role="dialog"][aria-label*="Snap" i],[role="dialog"][aria-label*="media" i],[role="dialog"]:not([data-testid*="camera" i]):has(video):has(button[aria-label="Close"],button[aria-label="Fermer"])',
     call: '[data-testid="call-view"],[data-testid="video-call"],[data-testid="call-panel"],[role="dialog"][aria-label="Video call"],[role="dialog"][aria-label="Appel vidéo"]',
     camera: '[data-testid="camera-panel"],[data-testid="camera-view"]',
     next: 'button[aria-label="Next Snap"],button[aria-label="Snap suivant"],button[data-testid="next-snap"]',
@@ -260,6 +260,13 @@ globalThis.ControlSnapEssentialUI={create};
       [data-csx-overlay="call"]{z-index:2147483250!important}
       [data-csx-call-frame]{position:static!important;transform:none!important;contain:none!important}
       [data-csx-media]{object-fit:contain!important;max-width:100%!important;max-height:100%!important}
+      html[data-control-snap-view] [data-csx-viewer-host],html[data-control-snap-view] [data-control-snap-viewer]{display:block!important;visibility:visible!important;opacity:1!important}
+      [data-csx-overlay="viewer"] video[data-csx-media]{display:block!important;width:100%!important;object-fit:contain!important}
+      [data-csx-viewer-reply]{box-sizing:border-box!important;position:absolute!important;inset:auto 12px max(12px,env(safe-area-inset-bottom))!important;width:calc(100% - 24px)!important;max-width:none!important;min-width:0!important;margin:0!important;transform:none!important;z-index:5!important}
+      [data-csx-viewer-reply]:not(textarea):not([contenteditable="true"]):not([role="textbox"]){display:flex!important;align-items:center!important;gap:8px!important}
+      [data-csx-viewer-reply]:is(textarea,[contenteditable="true"],[role="textbox"]),[data-csx-viewer-reply] :is(textarea,[contenteditable="true"],[role="textbox"]){box-sizing:border-box!important;flex:1!important;min-width:0!important;min-height:44px!important;max-height:96px!important;font:16px/1.4 system-ui!important;border:1px solid #ffffff40!important;border-radius:22px!important;padding:10px 14px!important;background:#292929ed!important;color:#fff!important;resize:none!important}
+      [data-csx-viewer-close]{position:absolute!important;inset:max(14px,env(safe-area-inset-top)) 12px auto auto!important;z-index:6!important;min-width:44px!important;min-height:44px!important;width:auto!important;height:auto!important;padding:10px!important;margin:0!important;border:1px solid #ffffff40!important;border-radius:22px!important;background:#252525cc!important;color:#fff!important;font:14px system-ui!important}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-reply]) video[data-csx-media]{height:calc(var(--csx-height,100dvh) - 88px)!important;max-height:calc(var(--csx-height,100dvh) - 88px)!important}
       [data-csx-call-remote]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:var(--csx-fit,contain)!important}
       [data-csx-call-local]{position:absolute!important;inset:16px 16px auto auto!important;width:clamp(88px,16vw,180px)!important;height:auto!important;aspect-ratio:var(--csx-ratio,4/3)!important;max-height:25%!important;object-fit:contain!important;background:#171717!important;border-radius:12px!important;z-index:3!important}
       [data-csx-call-controls]{position:absolute!important;inset:auto 12px max(16px,env(safe-area-inset-bottom))!important;display:flex!important;justify-content:center!important;gap:12px!important;width:auto!important;height:auto!important;z-index:4!important}
@@ -421,6 +428,7 @@ globalThis.ControlSnapEssentialUI={create};
       old.root.style.removeProperty('--csx-height');
       old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');old.root.removeAttribute('data-control-snap-viewer');
       old.root.querySelectorAll('[data-csx-media]').forEach(node=>{node.removeAttribute('data-csx-media');node.removeAttribute('data-csx-ready');});
+      old.root.querySelectorAll('[data-csx-viewer-reply],[data-csx-viewer-close]').forEach(node=>{node.removeAttribute('data-csx-viewer-reply');node.removeAttribute('data-csx-viewer-close');});
       old.chrome.remove(); // Never pause, replace or stop Snapchat-owned media.
     }
     function attachViewer(root){
@@ -479,6 +487,9 @@ globalThis.ControlSnapEssentialUI={create};
       const mediaKey=node=>(node?.currentSrc||node?.getAttribute('src')||'')+'|'+(node?.closest(selectors.snapItems)?.dataset.snapId||'');
       function prepare(){
         state.frame=0;if(!current())return;
+        const reply=root.querySelector(selectors.composer);
+        if(reply){let bar=reply;for(let parent=reply.parentElement;parent&&parent!==root&&!parent.querySelector('video,img,canvas');parent=parent.parentElement)bar=parent;mark(bar,'data-csx-viewer-reply');}
+        const close=root.querySelector(selectors.close);if(close)mark(close,'data-csx-viewer-close');
         const media=[...root.querySelectorAll(selectors.currentMedia)].find(node=>!node.closest('[hidden],[aria-hidden="true"]')&&shown(node));
         if(!media){phase('LOADING');return;}
         const source=mediaKey(media);
@@ -583,6 +594,16 @@ globalThis.ControlSnapEssentialUI={create};
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
       essentialUI?.refresh();
+      document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
+      for(const root of document.querySelectorAll(selectors.viewer)){
+        if(root.closest('[hidden],[aria-hidden="true"],[inert]')||root.closest(selectors.call)||!root.querySelector('img,video,canvas'))continue;
+        mark(root,'data-control-snap-viewer');
+        // A received-media portal may live under the pane hidden in messages-only mode.
+        // Release only our own layout hiding, never a native hidden/inert state.
+        for(let parent=root.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
+          if(parent.matches('[data-control-snap-pane],[data-control-snap-contacts],[data-csx-messages-hidden]'))mark(parent,'data-csx-viewer-host');
+        }
+      }
       const height=(window.visualViewport?.height||innerHeight)+'px';
       const callRoot=[...document.querySelectorAll(selectors.call)].find(shown);
       if(callRoot){callRoot.style.setProperty('--csx-height',height);attachCall(callRoot);}else stopCall();
@@ -596,6 +617,7 @@ globalThis.ControlSnapEssentialUI={create};
       document.querySelectorAll('[data-csx-ready]').forEach(node=>node.removeAttribute('data-csx-ready'));
       for(const attr of ['data-csx-chat','data-csx-chat-frame','data-csx-chat-header','data-csx-chat-log','data-csx-composer','data-csx-composer-controls'])document.querySelectorAll('['+attr+']').forEach(node=>{node.removeAttribute(attr);node.style.removeProperty('--csx-composer-offset');});
       style.remove();identities.clear();disposed=true;
+      document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
     }
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }
@@ -875,6 +897,17 @@ globalThis.ControlSnapEssentialUI={create};
     [data-control-snap-avatar-slot] [data-control-snap-avatar-wrap]{visibility:visible!important;clip-path:none!important;overflow:visible!important}
     [data-control-snap-group] img[data-control-snap-member]{visibility:visible!important;opacity:1!important;clip-path:none!important;transform:none!important;object-fit:contain!important}
     [data-control-snap-group] img[data-control-snap-member="extra"]{display:none!important}
+    html[data-control-snap-messages-only] [data-control-snap-row]:has([data-control-snap-row-reply]) [data-control-snap-row-layout]{padding-right:88px!important}
+    html[data-control-snap-messages-only] [data-control-snap-row-reply]{position:absolute!important;inset:50% 10px auto auto!important;transform:translateY(-50%)!important;display:flex!important;align-items:center!important;justify-content:center!important;width:72px!important;min-width:0!important;height:36px!important;max-height:36px!important;padding:0 6px!important;margin:0!important;border:0!important;border-radius:18px!important;background:#f0f2f4!important;color:#303740!important;font:600 12px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;white-space:nowrap!important;z-index:2!important}
+    [data-control-snap-row-reply] :is(svg,img){display:none!important}
+    [data-control-snap-row-reply] :is(span,div){position:static!important;inset:auto!important;transform:none!important;font:inherit!important;color:inherit!important;margin:0!important;padding:0!important;width:auto!important;height:auto!important;background:transparent!important}
+    [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member]{position:absolute!important;width:66%!important;height:76%!important;max-width:none!important;max-height:none!important;inset:auto!important;left:0!important;bottom:0!important;z-index:1!important;transform:none!important;object-fit:contain!important}
+    [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="1"]{left:34%!important;z-index:2!important}
+    [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member]{width:62%!important;height:68%!important}
+    html [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member="0"]{left:19%!important;top:0!important;bottom:auto!important;z-index:0!important}
+    html [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member="1"]{left:0!important}
+    html [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member="2"]{left:38%!important}
+    [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="extra"]{display:none!important}
   `;
   const compactSnap=()=>matchMedia('(max-width:700px), (max-width:950px) and (max-height:600px) and (pointer:coarse)').matches;
   let snapView='messages',snapForceInbox=false,snapLastComposer=null,snapTabs=null,snapContacts=null,snapCamera=null;
@@ -940,6 +973,12 @@ globalThis.ControlSnapEssentialUI={create};
       if(row.parentElement.closest(snapRows))continue;
       if(snapProcessedRows.has(row)&&row.hasAttribute('data-control-snap-row')&&!snapDirtyRows.has(row))continue;
       snapDirtyRows.delete(row);
+      row.querySelectorAll('[data-control-snap-row-reply]').forEach(el=>el.removeAttribute('data-control-snap-row-reply'));
+      // Reply is an action, never a display name/status. Preserve its native handler.
+      for(const action of row.querySelectorAll('button,[role="button"],a')){
+        if(action.querySelector('h1,h2,h3,h4,[data-display-name],[data-testid*="avatar"]'))continue;
+        if(/^(répondre|repondre|reply)(?:\s+(?:au snap|to snap))?$/i.test((action.getAttribute('aria-label')||action.getAttribute('title')||action.textContent).trim()))action.setAttribute('data-control-snap-row-reply','');
+      }
       if(unwanted.test(signature(row))){hide(row);continue;}
       // Virtual lists own their row offsets: keep their measured height and transform.
       if(!row.hasAttribute('data-control-snap-row')&&getComputedStyle(row).position==='absolute'){
@@ -949,10 +988,11 @@ globalThis.ControlSnapEssentialUI={create};
       if(getComputedStyle(row).position==='static')row.setAttribute('data-control-snap-static-row','');
       for(let parent=row.parentElement;parent&&parent!==contacts;parent=parent.parentElement)parent.setAttribute('data-control-snap-list-flow','');
       for(const element of [row,...row.querySelectorAll('*')])for(const attr of ['data-control-snap-row-layout','data-control-snap-row-shell','data-control-snap-avatar-slot','data-control-snap-avatar-wrap','data-control-snap-text-slot','data-control-snap-text-flow','data-control-snap-name-line','data-control-snap-status-line','data-control-snap-name-only','data-control-snap-status-only','data-control-snap-group','data-control-snap-member','data-control-snap-row-camera','data-control-snap-outside-camera','data-control-snap-action-wrap'])element.removeAttribute(attr);
-      const avatar=row.querySelector('img')||row.querySelector('[data-testid*="avatar" i],[class*="avatar" i],svg');
+      const avatarRoot=row.querySelector('[data-testid*="avatar" i],[class*="avatar" i]');
+      const avatar=avatarRoot?.querySelector('img,svg')||avatarRoot||[...row.querySelectorAll('img,svg')].find(el=>!el.closest('[data-control-snap-row-reply]'));
       let avatarGroup=avatar;
       while(avatarGroup?.parentElement&&avatarGroup.parentElement!==row&&!words(avatarGroup.parentElement.textContent))avatarGroup=avatarGroup.parentElement;
-      const leaves=[...row.querySelectorAll('*')].filter(el=>!avatarGroup?.contains(el)&&!el.closest('svg,script,style,[data-control-snap-row-camera]')&&[...el.childNodes].some(n=>n.nodeType===3&&words(n.textContent)));
+      const leaves=[...row.querySelectorAll('*')].filter(el=>!avatarGroup?.contains(el)&&!el.closest('svg,script,style,[data-control-snap-row-camera],[data-control-snap-row-reply]')&&[...el.childNodes].some(n=>n.nodeType===3&&words(n.textContent)));
       const isStatus=el=>el.matches('small,time,[data-testid*="status"]')||/^(reçue?|ouverte?|remis|envoyé|vous avez|a réagi|a enregistré|enregistré|appel|nouveau snap|nouveau chat|received|opened|delivered|sent|saved|reacted|new snap|new chat|you |tap to|appuyez|\d+\s*(min|h|j|d|s)\b)/i.test(el.textContent.trim());
       const names=leaves.filter(el=>!isStatus(el)&&!el.closest('button[aria-label*="camera" i],button[aria-label*="photo" i]')&&!el.hasAttribute('data-control-snap-name'));
       let name=names.find(el=>el.matches('h1,h2,h3,h4,[data-testid*="name"],[data-display-name]'))||names[0];
@@ -988,7 +1028,7 @@ globalThis.ControlSnapEssentialUI={create};
       if(avatarSlot){
         avatarSlot.setAttribute('data-control-snap-avatar-slot','');
         for(let node=avatar.parentElement;node&&node!==avatarSlot&&avatarSlot.contains(node);node=node.parentElement)node.setAttribute('data-control-snap-avatar-wrap','');
-        const members=[...avatarSlot.querySelectorAll('img')].filter(img=>!img.closest('[data-control-snap-badge],[data-testid*="badge" i],[class*="badge" i]'));
+        const members=[...avatarSlot.querySelectorAll('img,svg')].filter(img=>!img.closest('[data-control-snap-badge],[data-testid*="badge" i],[class*="badge" i]')&&!img.parentElement.closest('svg'));
         if(members.length>1){
           avatarSlot.setAttribute('data-control-snap-group',String(Math.min(3,members.length)));
           members.forEach((img,i)=>{
@@ -1143,7 +1183,8 @@ globalThis.ControlSnapEssentialUI={create};
     const panes=[...root.children].filter(el=>!el.matches('header,nav,button,[role="dialog"],[role="menu"],[data-control-snap-compose],[data-control-snap-viewer]')&&el!==branch&&el!==contacts&&!el.contains(contacts)&&!el.hasAttribute(hiddenAttr));
     for(const pane of panes)pane.setAttribute('data-control-snap-pane','');
     const available=el=>!el.closest('[hidden],[aria-hidden="true"],[inert]');
-    const conversation=[...document.querySelectorAll('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')].find(available)||panes.find(el=>available(el)&&el.querySelector('textarea,[contenteditable="true"],[role="textbox"]'));
+    const viewerSelector=globalThis.ControlSnapExperience.selectors.viewer;
+    const conversation=[...document.querySelectorAll('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')].find(el=>available(el)&&!el.closest(viewerSelector))||panes.find(el=>available(el)&&[...el.querySelectorAll('textarea,[contenteditable="true"],[role="textbox"]')].some(input=>!input.closest(viewerSelector)));
     const composer=conversation?.querySelector('textarea,[contenteditable="true"],[role="textbox"]');
     const paneFor=el=>panes.find(p=>p===el||p.contains(el));
     for(const pane of panes){pane.removeAttribute('data-control-snap-conversation');pane.removeAttribute('data-control-snap-camera');}
@@ -1182,9 +1223,10 @@ globalThis.ControlSnapEssentialUI={create};
     }
     for(const button of snapTabs?.querySelectorAll('button')||[]){button.setAttribute('aria-pressed',String(button.dataset.view===snapView));button.disabled=button.dataset.view==='snap'&&!snapCamera;const title=button.disabled?'La caméra Snapchat n’est pas disponible sur cette page.':'';if(button.title!==title)button.title=title;}
     // Native received-Snap viewers are separate from camera capture and must remain above the shell.
-    for(const viewer of document.querySelectorAll('[data-testid="snap-viewer"],[data-testid="media-viewer"],[role="dialog"][aria-label*="Snap" i]')){
-      if(!viewer.closest('[hidden],[aria-hidden="true"]')&&viewer.querySelector('video,img,canvas')&&!viewer.querySelector('textarea,[contenteditable="true"]'))viewer.setAttribute('data-control-snap-viewer','');
+    for(const viewer of document.querySelectorAll(viewerSelector)){
+      if(!viewer.closest('[hidden],[aria-hidden="true"]')&&viewer.querySelector('video,img,canvas'))viewer.setAttribute('data-control-snap-viewer','');
     }
+    snapExperience?.refreshOverlays();
     finishLoading();
   }
   function singleMedia(){

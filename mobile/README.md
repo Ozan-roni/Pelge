@@ -1,14 +1,22 @@
-# Control iPhone — Safari 1.6.3
+# Control iPhone — Safari 1.6.4
 
 Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés. Snapchat iPhone est désormais en mode messages uniquement, sans section caméra, onglets inférieurs ni bouton flottant de nouveau chat. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.3**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.4**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.3**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.4**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## 1.6.4 — actions Répondre et groupes mixtes
+
+- Action native Répondre séparée du nom et du statut, alignée à droite sans sa décoration caméra. Son comportement reste natif : une action de réponse caméra n'est pas transformée artificiellement en commande de lecture.
+- Silhouettes SVG et portraits image composés ensemble dans les groupes ; trois membres visibles si Snapchat fournit trois portraits, sans faux membre.
+- Reconnaissance de lecteurs reçus supplémentaires, y compris une boîte vidéo avec commande de fermeture et une réponse. Un lecteur reçu n'est plus masqué parce qu'il est monté sous le panneau caméra masqué par Control.
+- Champ de réponse du lecteur en bas, fermeture en haut, lecture native conservée. Aucun démarrage de caméra, capture ou envoi automatique.
+- `check-snap-reply.cjs` couvre ces contrats à 320, 390 et 430 px. Captures simulées inspectées ; aucune lecture d'un vrai Snap ou validation Safari iPhone connecté revendiquée.
 
 ## 1.6.3 — messages uniquement sur iPhone
 

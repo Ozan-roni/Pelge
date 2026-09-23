@@ -1,4 +1,8 @@
-# Snapchat — audit et intégration 0.35.3 / iPhone 1.6.3
+# Snapchat — audit et intégration 0.35.4 / iPhone 1.6.4
+
+## Correctif iPhone 1.6.4
+
+Les actions Répondre ne participent plus à la détection du nom/statut et disposent d'un emplacement réservé. Les groupes reconnaissent également les SVG natifs. Les lecteurs de Snaps reçus reconnus libèrent uniquement les masquages de présentation appartenant à Control sur leurs ancêtres ; les états natifs hidden/aria-hidden/inert restent respectés. Réponse et fermeture du lecteur sont repositionnées, sans changer les gestionnaires d'événements de Snapchat. Les tests de contrats utilisent un lecteur simulé (pas de vrai décodage vidéo Safari ni d'accès à un compte). Le comportement natif d'un bouton de réponse reste distinct de celui d'une commande de lecture.
 
 ## Mode iPhone 1.6.3
 

@@ -21,7 +21,8 @@ const init=()=>{
  });
 };
 const frames=p=>p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(r)))));
-(async()=>{
+module.exports={fixture,init,portrait,frames};
+if(require.main===module)(async()=>{
  const browser=await chromium.launch({channel:process.env.CONTROL_BROWSER_CHANNEL||undefined});
  try{for(const width of [320,390,430]){
   const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true}),page=await context.newPage(),errors=[];

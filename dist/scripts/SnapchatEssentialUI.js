@@ -45,14 +45,14 @@ function create(runtime){
     if(media.closest(runtime.selectors.viewer+', [data-testid*="avatar" i],[class*="avatar" i],[data-testid*="emoji" i],[class*="emoji" i]'))continue;
     if(media.matches('video')||media.naturalWidth>96||media.getBoundingClientRect().width>96)tag(media,'data-csx-message-media');
    }
-  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation))tag(root,'data-csx-messages-hidden');
+  for(const root of document.querySelectorAll('[data-testid="camera-panel"],[data-testid="camera-view"],[data-control-snap-camera]'))if(!root.querySelector('textarea,[contenteditable="true"],[role="textbox"]')&&!root.matches(runtime.selectors.conversation)&&!root.matches(runtime.selectors.viewer)&&!root.querySelector(runtime.selectors.viewer))tag(root,'data-csx-messages-hidden');
   for(const button of document.querySelectorAll('button,[role="button"],a[aria-label]')){
    if(button.closest(runtime.selectors.viewer+','+runtime.selectors.call+','+runtime.selectors.log))continue;
    const text=label(button);
    if(/^(camera|caméra|appareil photo|open camera|ouvrir la caméra|take (a )?snap|prendre un snap|new chat|new message|nouveau chat|nouveau message|nouvelle conversation|compose)(\b|$)/i.test(text))tag(button,'data-csx-messages-hidden');
    else if(/^(send|envoyer)( message| un chat)?$/i.test(text)&&button.closest(runtime.selectors.conversation))tag(button,'data-csx-send');
   }
-  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
+  for(const node of document.querySelectorAll('[data-csx-messages-hidden]'))if(node.matches(runtime.selectors.conversation)||node.matches(runtime.selectors.viewer)||node.querySelector(runtime.selectors.viewer)||node.querySelector('textarea,[contenteditable="true"],[role="textbox"]'))node.removeAttribute('data-csx-messages-hidden');
  }
  function portraitCamera(video){
   if(!matchMedia('(max-width:700px) and (orientation:portrait)').matches)return;
