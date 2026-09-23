@@ -1,14 +1,22 @@
-# Control iPhone — Safari 1.6.4
+# Control iPhone — Safari 1.6.5
 
 Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés. Snapchat iPhone est désormais en mode messages uniquement, sans section caméra, onglets inférieurs ni bouton flottant de nouveau chat. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.4**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.5**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.4**. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.5** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## 1.6.5 — lecteur, portraits et réglages
+
+- Un lecteur reçu reconnu est libéré des cadres de conversation qui le découpaient. Le contenu vidéo est sélectionné avant les images ; avatar de l'expéditeur et icônes de réaction exclus. Le lecteur apparaît en fondu sans fermer la conversation, et ses marqueurs temporaires sont retirés à la fermeture.
+- Média centré en entier, commandes natives de fermeture, réactions et réponse séparées du média. Pas de copie du flux, de lecture forcée, ni de contournement des restrictions Safari/Snapchat.
+- Bulles décoratives identifiables exclues des portraits. Bitmoji individuel centré ; un membre natif à l'avant et les autres derrière pour les groupes. Un portrait fourni reste nécessaire : aucun membre inventé.
+- Logo Snapchat dans l'en-tête. Menus de paramètres séparés des lignes de contacts, glass clair/sombre compact et icônes SVG embarquées. Les actions restent natives.
+- `check-snap-surfaces.cjs` reproduit les trois défauts sur la 1.6.4 et vérifie la correction à 320, 390 et 430 px, y compris fermeture du lecteur et clics natifs. Tests DOM simulés et captures inspectées sur Edge, **pas de validation sur un compte Snapchat connecté ni de décodage vidéo Safari iPhone réel**. Les sélecteurs restent dépendants du DOM fourni par Snapchat.
 
 ## 1.6.4 — actions Répondre et groupes mixtes
 

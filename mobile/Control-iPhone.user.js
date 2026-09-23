@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.4
+// @version      1.6.5
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -41,10 +41,17 @@ emoji:'M8 14s1 3 4 3 4-3 4-3M8 9h.1M16 9h.1M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0
 gallery:'M3 3h18v18H3ZM3 17l6-6 4 4 3-3 5 5M16 8h.1',
 hangup:'M3 16v-5c5-6 13-6 18 0v5l-5-1v-4M8 11v4l-5 1',
 switchCamera:'M4 8h13l-4-4m7 12H7l4 4'
+ ,sound:'M3 9h4l5-4v14l-5-4H3V9m13-2a7 7 0 0 1 0 10m3-13a11 11 0 0 1 0 16'
+ ,ads:'M3 10v4h4l10 5V5L7 10H3m4 4 2 7h3l-2-6m10-6v6'
+ ,flag:'M5 22V3m0 1c5-4 9 4 14 0v10c-5 4-9-4-14 0'
+ ,idea:'M9 18h6m-5 3h4M8 14a6 6 0 1 1 8 0l-1 2H9l-1-2'
+ ,logout:'M10 4H4v16h6m4-12 4 4-4 4m-6-4h12'
 };
 const svg=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+paths[name]+'"/></svg>';
 const rules=[[/blocked|bloqu/i,'blocked','Privacy'],[/privacy|confidentialit|security|sécurité/i,'shield','Privacy'],[/notification/i,'bell','Account'],[/username|nom d.utilisateur|profile|profil|account|compte/i,'user','Account'],[/camera|caméra|appareil photo/i,'camera','App'],[/microphone|micro\b/i,'mic','App'],[/appearance|apparence|theme|thème|dark mode|mode sombre/i,'moon','App'],[/help|aide|assistance/i,'help','Support'],[/about|à propos|version/i,'info','Support']];
+rules.unshift([/sound|sonore|sons\b/i,'sound','App'],[/publicit|advertis|\bads\b/i,'ads','Support'],[/signaler|report|problème/i,'flag','Support'],[/suggestion|feedback/i,'idea','Support'],[/déconnexion|log out|sign out/i,'logout','Account']);
 const settingsSelector='[data-testid="settings-panel"],[data-testid="settings-dialog"],[role="dialog"][aria-label*="settings" i],[role="dialog"][aria-label*="paramètres" i]';
+const settingsMenu=root=>root.matches('[role="menu"]')&&[...root.querySelectorAll('button,a,[role="menuitem"]')].filter(row=>rules.some(([pattern])=>pattern.test(label(row)))).length>=2;
 const notificationsSelector='[data-testid="notifications-panel"],[role="dialog"][aria-label*="notification" i],[role="region"][aria-label*="notification" i]';
 const label=node=>(node.getAttribute('aria-label')||node.getAttribute('title')||node.textContent||'').trim();
 const normalize=text=>text.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase();
@@ -58,6 +65,17 @@ function create(runtime){
  style.textContent+='\n@media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){[data-csx-camera-surface] video[data-csx-camera-media],html[data-control-snap-view="snap"] [data-control-snap-camera] video[data-csx-camera-media]{object-fit:cover!important;object-position:center!important;width:100%!important;height:100%!important}}\n';
   if(runtime.messagesOnly)style.textContent+='\n[data-csx-messages-hidden]{display:none!important}\n[data-csx-composer-controls]>[data-csx-send]{order:100!important;margin-left:auto!important}\n[data-csx-message-media]{max-width:100%!important;height:auto;object-fit:contain;display:block;margin-inline:auto}\n';
  document.documentElement.append(style);
+ style.textContent+=`
+  [data-csx-settings]{--csx-glass:rgba(255,255,255,.86);--csx-ink:#232631;--csx-muted:#636878;position:fixed!important;inset:72px auto auto 50%!important;transform:translateX(-50%)!important;width:min(420px,calc(100vw - 24px))!important;max-height:calc(100dvh - 96px)!important;z-index:2147483050!important;border:1px solid rgba(170,180,205,.35)!important;border-radius:24px!important;background:var(--csx-glass)!important;color:var(--csx-ink)!important;backdrop-filter:blur(24px) saturate(140%)!important;-webkit-backdrop-filter:blur(24px) saturate(140%)!important;box-shadow:0 18px 60px #19254826,inset 0 1px #ffffff80!important;padding:14px!important;overflow:auto!important}
+  html [data-csx-settings] :is([role="list"],[role="listbox"],ul,li){width:100%!important;height:auto!important;min-height:0!important;background:transparent!important;margin:0!important;padding:0!important;list-style:none!important}
+  html [data-csx-setting-row]{display:flex!important;align-items:center!important;gap:12px!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;height:auto!important;min-height:48px!important;max-height:none!important;padding:10px!important;border:0!important;border-radius:14px!important;color:var(--csx-ink)!important;font:500 14px/1.4 system-ui!important;background:transparent!important;text-align:left!important;white-space:normal!important;transition:background 140ms ease!important}
+  html [data-csx-setting-row]:hover,html [data-csx-setting-row]:focus-visible{background:#8b94b11c!important;outline:2px solid #909aba50;outline-offset:-2px}
+  html [data-csx-setting-row]>[data-control-snap-owned="semantic-icon"]{flex:0 0 34px!important;width:34px!important;height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;border:1px solid #929db126!important;border-radius:11px!important;background:#a8b1cc15!important;color:var(--csx-muted)!important}
+  html [data-csx-setting-row] :is(span,div):not([data-control-snap-owned]):not([data-csx-icon-replaced]){position:static!important;inset:auto!important;transform:none!important;width:auto!important;height:auto!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important;font:inherit!important;color:inherit!important;background:transparent!important;border:0!important;border-radius:0!important}
+  html [data-csx-settings] [data-csx-setting-group]{font:600 10px/1.4 system-ui!important;letter-spacing:.08em!important;color:var(--csx-muted)!important;margin:14px 10px 5px!important;background:transparent!important}
+  html [data-csx-settings] :is(h1,h2,h3){font:600 17px/1.4 system-ui!important;background:transparent!important;color:var(--csx-ink)!important;margin:6px 10px 12px!important}
+  @media(prefers-color-scheme:dark){[data-csx-settings]{--csx-glass:rgba(29,31,40,.90);--csx-ink:#f0f1f6;--csx-muted:#b6bece;border-color:#ffffff24!important;box-shadow:0 18px 60px #0005,inset 0 1px #ffffff12!important}}
+ `;
   function messagesOnly(){
    if(!runtime.messagesOnly)return;
    for(const media of document.querySelectorAll('[data-csx-chat-log] img,[data-csx-chat-log] video')){
@@ -170,20 +188,27 @@ function create(runtime){
  }
  function settings(root){
   tag(root,'data-csx-settings');let lastGroup='';
+  const french=/thème|paramètres|confidentialité|sonores|signaler|aide/i.test(root.textContent);
+  const groupLabels=french?{App:'Application',Support:'Assistance',Account:'Compte',Privacy:'Confidentialité'}:{};
+  // Menus mounted in the contacts rail must not inherit avatar/name/virtual-row overrides.
+  root.querySelectorAll('[data-control-snap-name]').forEach(node=>node.remove());
+  for(const node of [root,...root.querySelectorAll('*')])for(const name of node.getAttributeNames())if(name.startsWith('data-control-snap-')&&name!=='data-control-snap-owned')node.removeAttribute(name);
   for(const row of root.querySelectorAll('button,a,[role="menuitem"]')){
    if(row.closest('[data-control-snap-owned]')||row.parentElement?.closest('button,a,[role="menuitem"]'))continue;
    const rule=rules.find(([regex])=>regex.test(label(row)));if(!rule)continue;tag(row,'data-csx-setting-row');replaceIcon(row,rule[1]);
+   for(const original of row.querySelectorAll('img,svg'))if(!original.closest('[data-control-snap-owned]'))tag(original,'data-csx-icon-replaced');
    if(rule[2]!==lastGroup){
-    if(!row.previousElementSibling?.hasAttribute('data-csx-setting-group')){const heading=document.createElement('div');heading.dataset.controlSnapOwned='settings-group';heading.setAttribute('data-csx-setting-group','');heading.textContent=rule[2];row.before(heading);}
+    if(!row.previousElementSibling?.hasAttribute('data-csx-setting-group')){const heading=document.createElement('div');heading.dataset.controlSnapOwned='settings-group';heading.setAttribute('data-csx-setting-group','');heading.textContent=groupLabels[rule[2]]||rule[2];row.before(heading);}
     lastGroup=rule[2];
    }
   }
  }
  function notifications(root){tag(root,'data-csx-notifications');root.querySelectorAll('[role="listitem"],[data-testid*="notification-item"]').forEach(row=>tag(row,'data-csx-notification-row'));}
  function watchPanels(){
-  for(const root of document.querySelectorAll(settingsSelector+','+notificationsSelector)){
+  for(const root of document.querySelectorAll(settingsSelector+','+notificationsSelector+',[role="menu"]')){
+   if(!root.matches(settingsSelector+','+notificationsSelector)&&!settingsMenu(root))continue;
    if(observed.has(root))continue;
-   const render=()=>{if(!disposed&&root.isConnected){if(root.matches(settingsSelector))settings(root);else notifications(root);}};let frame=0;
+   const render=()=>{if(!disposed&&root.isConnected){if(root.matches(settingsSelector)||settingsMenu(root))settings(root);else notifications(root);}};let frame=0;
    const observer=new MutationObserver(records=>{if(records.some(record=>!record.target.parentElement?.closest('[data-control-snap-owned]')&&!record.target.closest?.('[data-control-snap-owned]')&&[...record.addedNodes,...record.removedNodes].some(node=>!(node instanceof Element)||!node.hasAttribute('data-control-snap-owned')))&&!frame)frame=requestAnimationFrame(()=>{frame=0;render();});});
    observer.observe(root,{childList:true,subtree:true,characterData:true});observed.set(root,{observer,stop:()=>cancelAnimationFrame(frame)});render();
   }
@@ -214,7 +239,7 @@ globalThis.ControlSnapEssentialUI={create};
     log: '[role="log"],[data-testid="message-list"],[data-testid="chat-history"],[data-control-snap-chat-log]',
     composer: 'textarea,[contenteditable="true"],[role="textbox"]',
     identity: '[data-display-name],[data-friend-name],[data-testid*="display-name"],[data-testid*="friend-name"],[data-testid*="username"],h1,h2,h3,h4,[class*="name" i]',
-    viewer: '[data-testid="snap-viewer"],[data-testid="media-viewer"],[data-testid="snap-player"],[data-testid="received-snap-viewer"],[role="dialog"][aria-label*="Snap" i],[role="dialog"][aria-label*="media" i],[role="dialog"]:not([data-testid*="camera" i]):has(video):has(button[aria-label="Close"],button[aria-label="Fermer"])',
+    viewer: '[data-csx-detected-viewer],[data-testid="snap-viewer"],[data-testid="media-viewer"],[data-testid="snap-player"],[data-testid="received-snap-viewer"],[role="dialog"][aria-label*="Snap" i],[role="dialog"][aria-label*="media" i],[role="dialog"]:not([data-testid*="camera" i]):has(video):has(button[aria-label="Close"],button[aria-label="Fermer"])',
     call: '[data-testid="call-view"],[data-testid="video-call"],[data-testid="call-panel"],[role="dialog"][aria-label="Video call"],[role="dialog"][aria-label="Appel vidéo"]',
     camera: '[data-testid="camera-panel"],[data-testid="camera-view"]',
     next: 'button[aria-label="Next Snap"],button[aria-label="Snap suivant"],button[data-testid="next-snap"]',
@@ -261,12 +286,24 @@ globalThis.ControlSnapEssentialUI={create};
       [data-csx-call-frame]{position:static!important;transform:none!important;contain:none!important}
       [data-csx-media]{object-fit:contain!important;max-width:100%!important;max-height:100%!important}
       html[data-control-snap-view] [data-csx-viewer-host],html[data-control-snap-view] [data-control-snap-viewer]{display:block!important;visibility:visible!important;opacity:1!important}
+      html[data-control-snap-view] [data-csx-viewer-host]{overflow:visible!important;clip:auto!important;clip-path:none!important;contain:none!important;transform:none!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;perspective:none!important;will-change:auto!important;isolation:auto!important;animation:none!important;z-index:auto!important}
+      [data-csx-overlay="viewer"]{animation:csx-viewer-in 180ms ease-out}
+      @keyframes csx-viewer-in{from{opacity:0}to{opacity:1}}
+      @media(prefers-reduced-motion:reduce){[data-csx-overlay="viewer"]{animation:none}}
       [data-csx-overlay="viewer"] video[data-csx-media]{display:block!important;width:100%!important;object-fit:contain!important}
       [data-csx-viewer-reply]{box-sizing:border-box!important;position:absolute!important;inset:auto 12px max(12px,env(safe-area-inset-bottom))!important;width:calc(100% - 24px)!important;max-width:none!important;min-width:0!important;margin:0!important;transform:none!important;z-index:5!important}
       [data-csx-viewer-reply]:not(textarea):not([contenteditable="true"]):not([role="textbox"]){display:flex!important;align-items:center!important;gap:8px!important}
       [data-csx-viewer-reply]:is(textarea,[contenteditable="true"],[role="textbox"]),[data-csx-viewer-reply] :is(textarea,[contenteditable="true"],[role="textbox"]){box-sizing:border-box!important;flex:1!important;min-width:0!important;min-height:44px!important;max-height:96px!important;font:16px/1.4 system-ui!important;border:1px solid #ffffff40!important;border-radius:22px!important;padding:10px 14px!important;background:#292929ed!important;color:#fff!important;resize:none!important}
       [data-csx-viewer-close]{position:absolute!important;inset:max(14px,env(safe-area-inset-top)) 12px auto auto!important;z-index:6!important;min-width:44px!important;min-height:44px!important;width:auto!important;height:auto!important;padding:10px!important;margin:0!important;border:1px solid #ffffff40!important;border-radius:22px!important;background:#252525cc!important;color:#fff!important;font:14px system-ui!important}
-      [data-csx-overlay="viewer"]:has([data-csx-viewer-reply]) video[data-csx-media]{height:calc(var(--csx-height,100dvh) - 88px)!important;max-height:calc(var(--csx-height,100dvh) - 88px)!important}
+      [data-csx-overlay="viewer"]{--csx-media-top:0px;--csx-media-bottom:0px;overflow:hidden!important}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-header]){--csx-media-top:64px}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-reply]){--csx-media-bottom:88px}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-reactions]){--csx-media-bottom:144px}
+      html [data-csx-overlay="viewer"] [data-csx-media]{position:absolute!important;inset:var(--csx-media-top) 0 auto!important;display:block!important;width:100%!important;height:calc(var(--csx-height,100dvh) - var(--csx-media-top) - var(--csx-media-bottom))!important;max-height:none!important;margin:0!important;object-fit:contain!important;object-position:center!important;z-index:1!important}
+      [data-csx-viewer-media-frame]{position:static!important;transform:none!important;contain:none!important;overflow:visible!important;clip:auto!important;clip-path:none!important}
+      [data-csx-viewer-header]{position:absolute!important;inset:0 0 auto!important;min-height:60px!important;max-height:64px!important;box-sizing:border-box!important;z-index:4!important}
+      [data-csx-viewer-reactions]{position:absolute!important;inset:auto 12px 88px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;height:44px!important;width:calc(100% - 24px)!important;max-width:none!important;margin:0!important;z-index:5!important;overflow-x:auto!important}
+      [data-csx-viewer-reactions] button{flex:0 0 auto!important;min-width:36px!important;min-height:36px!important;border:0!important;border-radius:50%!important;background:#ffffff12!important;color:white!important;font-size:22px!important}
       [data-csx-call-remote]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:var(--csx-fit,contain)!important}
       [data-csx-call-local]{position:absolute!important;inset:16px 16px auto auto!important;width:clamp(88px,16vw,180px)!important;height:auto!important;aspect-ratio:var(--csx-ratio,4/3)!important;max-height:25%!important;object-fit:contain!important;background:#171717!important;border-radius:12px!important;z-index:3!important}
       [data-csx-call-controls]{position:absolute!important;inset:auto 12px max(16px,env(safe-area-inset-bottom))!important;display:flex!important;justify-content:center!important;gap:12px!important;width:auto!important;height:auto!important;z-index:4!important}
@@ -420,15 +457,16 @@ globalThis.ControlSnapEssentialUI={create};
     // Controls are an adapter contract, not a private Snapchat API.
     let viewer=null,call=null;
     const owned=node=>!!node?.closest?.('[data-control-snap-owned],#control-snap-session');
-    const button=(root,selector)=>[...root.querySelectorAll(selector)].find(node=>shown(node)&&!node.disabled);
+    const button=(root,selector)=>[...root.querySelectorAll(selector)].find(node=>shown(node)&&!node.disabled)||(selector===selectors.close?[...root.querySelectorAll('button,[role="button"]')].find(node=>shown(node)&&!node.disabled&&/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(node)||node.textContent).trim())):null);
     function stopViewer(){
       if(!viewer)return;
       const old=viewer;viewer=null;old.abort.abort();old.mediaAbort?.abort();old.observer.disconnect();
       clearTimeout(old.timer);clearTimeout(old.deadline);cancelAnimationFrame(old.frame);old.progressAnimation?.cancel();
       old.root.style.removeProperty('--csx-height');
       old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');old.root.removeAttribute('data-control-snap-viewer');
+      old.root.removeAttribute('data-csx-detected-viewer');
       old.root.querySelectorAll('[data-csx-media]').forEach(node=>{node.removeAttribute('data-csx-media');node.removeAttribute('data-csx-ready');});
-      old.root.querySelectorAll('[data-csx-viewer-reply],[data-csx-viewer-close]').forEach(node=>{node.removeAttribute('data-csx-viewer-reply');node.removeAttribute('data-csx-viewer-close');});
+      for(const attr of ['data-csx-viewer-reply','data-csx-viewer-close','data-csx-viewer-header','data-csx-viewer-reactions','data-csx-viewer-media-frame'])old.root.querySelectorAll('['+attr+']').forEach(node=>node.removeAttribute(attr));
       old.chrome.remove(); // Never pause, replace or stop Snapchat-owned media.
     }
     function attachViewer(root){
@@ -489,9 +527,14 @@ globalThis.ControlSnapEssentialUI={create};
         state.frame=0;if(!current())return;
         const reply=root.querySelector(selectors.composer);
         if(reply){let bar=reply;for(let parent=reply.parentElement;parent&&parent!==root&&!parent.querySelector('video,img,canvas');parent=parent.parentElement)bar=parent;mark(bar,'data-csx-viewer-reply');}
-        const close=root.querySelector(selectors.close);if(close)mark(close,'data-csx-viewer-close');
-        const media=[...root.querySelectorAll(selectors.currentMedia)].find(node=>!node.closest('[hidden],[aria-hidden="true"]')&&shown(node));
+        const close=button(root,selectors.close);if(close)mark(close,'data-csx-viewer-close');
+        const header=root.querySelector('header,[data-testid="viewer-header"],[data-testid="snap-header"]');if(header)mark(header,'data-csx-viewer-header');
+        const reactions=root.querySelector('[data-testid*="reaction" i],[class*="reactions" i]');if(reactions&&!reactions.querySelector('video,img,textarea'))mark(reactions,'data-csx-viewer-reactions');
+        const candidates=[...root.querySelectorAll(selectors.currentMedia)].filter(node=>!node.closest('[hidden],[aria-hidden="true"],header,nav,[role="toolbar"],[data-testid*="avatar" i],[class*="avatar" i],[data-testid*="reaction" i],[class*="reaction" i],[data-control-snap-owned]')&&shown(node));
+        // Sender portraits and reaction icons are UI, not the attachment being viewed.
+        const media=candidates.find(node=>node.tagName==='VIDEO')||candidates.sort((a,b)=>{const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;})[0];
         if(!media){phase('LOADING');return;}
+        for(let parent=media.parentElement;parent&&parent!==root&&!parent.querySelector('button,textarea,[contenteditable="true"]');parent=parent.parentElement)mark(parent,'data-csx-viewer-media-frame');
         const source=mediaKey(media);
         if(media===state.media&&source===state.source){rebuildQueue();return;}
         if(state.media){state.media.removeAttribute('data-csx-ready');state.media.removeAttribute('data-csx-media');}
@@ -593,6 +636,14 @@ globalThis.ControlSnapEssentialUI={create};
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
+      // Some native dialogs expose only a text/title close action, not a media test id.
+      for(const root of document.querySelectorAll('[role="dialog"],[aria-modal="true"]')){
+        if(root.matches(selectors.camera)||root.closest(selectors.call+', [data-csx-settings],[hidden],[aria-hidden="true"],[inert]'))continue;
+        const video=[...root.querySelectorAll('video')].find(node=>!node.srcObject&&!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]'));
+        const photo=[...root.querySelectorAll('img')].find(node=>!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]')&&(node.naturalWidth>120||node.getBoundingClientRect().width>120));
+        const hasClose=root.querySelector(selectors.close)||[...root.querySelectorAll('button,[role="button"]')].some(node=>/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(node)||node.textContent).trim()));
+        if(hasClose&&(video||(photo&&root.querySelector(selectors.composer))))mark(root,'data-csx-detected-viewer');
+      }
       essentialUI?.refresh();
       document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
       for(const root of document.querySelectorAll(selectors.viewer)){
@@ -601,7 +652,7 @@ globalThis.ControlSnapEssentialUI={create};
         // A received-media portal may live under the pane hidden in messages-only mode.
         // Release only our own layout hiding, never a native hidden/inert state.
         for(let parent=root.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
-          if(parent.matches('[data-control-snap-pane],[data-control-snap-contacts],[data-csx-messages-hidden]'))mark(parent,'data-csx-viewer-host');
+          mark(parent,'data-csx-viewer-host');
         }
       }
       const height=(window.visualViewport?.height||innerHeight)+'px';
@@ -618,6 +669,7 @@ globalThis.ControlSnapEssentialUI={create};
       for(const attr of ['data-csx-chat','data-csx-chat-frame','data-csx-chat-header','data-csx-chat-log','data-csx-composer','data-csx-composer-controls'])document.querySelectorAll('['+attr+']').forEach(node=>{node.removeAttribute(attr);node.style.removeProperty('--csx-composer-offset');});
       style.remove();identities.clear();disposed=true;
       document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
+      document.querySelectorAll('[data-csx-detected-viewer]').forEach(node=>node.removeAttribute('data-csx-detected-viewer'));
     }
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }
@@ -908,6 +960,14 @@ globalThis.ControlSnapEssentialUI={create};
     html [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member="1"]{left:0!important}
     html [data-control-snap-avatar-slot][data-control-snap-group="3"] [data-control-snap-member="2"]{left:38%!important}
     [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="extra"]{display:none!important}
+    html [data-control-snap-avatar-slot]{background:transparent!important;border-radius:0!important}
+    html [data-control-snap-avatar-slot] [data-control-snap-avatar-decoration]{display:none!important}
+    html [data-control-snap-avatar-slot]:not([data-control-snap-group]) :is(img,svg):not([data-control-snap-avatar-decoration]){position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+    html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="0"]{width:76%!important;height:90%!important;inset:auto auto 0 12%!important;z-index:3!important}
+    html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="1"]{width:60%!important;height:70%!important;inset:0 auto auto 0!important;z-index:1!important}
+    html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="2"]{width:60%!important;height:70%!important;inset:0 0 auto auto!important;z-index:2!important}
+    #control-snap-brand{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;flex:1 0 100%!important;order:-10!important;height:40px!important;background:transparent!important;color:#17191c!important;font:600 16px/1.2 system-ui!important}
+    #control-snap-brand svg{width:28px!important;height:28px!important}
   `;
   const compactSnap=()=>matchMedia('(max-width:700px), (max-width:950px) and (max-height:600px) and (pointer:coarse)').matches;
   let snapView='messages',snapForceInbox=false,snapLastComposer=null,snapTabs=null,snapContacts=null,snapCamera=null;
@@ -970,6 +1030,7 @@ globalThis.ControlSnapEssentialUI={create};
     if(!rows.length)rows=[...contacts.querySelectorAll('button,[role="button"]')].filter(el=>el.querySelector('img')&&!el.closest('header')&&!unwanted.test(signature(el)));
     const words=text=>/\p{L}/u.test(text||'');
     for(const row of rows){
+      if(row.closest('[role="menu"],[role="dialog"],[data-csx-settings],[data-csx-notifications],[data-control-snap-owned]'))continue;
       if(row.parentElement.closest(snapRows))continue;
       if(snapProcessedRows.has(row)&&row.hasAttribute('data-control-snap-row')&&!snapDirtyRows.has(row))continue;
       snapDirtyRows.delete(row);
@@ -1028,7 +1089,17 @@ globalThis.ControlSnapEssentialUI={create};
       if(avatarSlot){
         avatarSlot.setAttribute('data-control-snap-avatar-slot','');
         for(let node=avatar.parentElement;node&&node!==avatarSlot&&avatarSlot.contains(node);node=node.parentElement)node.setAttribute('data-control-snap-avatar-wrap','');
-        const members=[...avatarSlot.querySelectorAll('img,svg')].filter(img=>!img.closest('[data-control-snap-badge],[data-testid*="badge" i],[class*="badge" i]')&&!img.parentElement.closest('svg'));
+        const visuals=[...avatarSlot.querySelectorAll('img,svg')].filter(img=>!img.closest('[data-control-snap-badge],[data-testid*="badge" i],[class*="badge" i]')&&!img.parentElement.closest('svg'));
+        const members=visuals.filter(img=>{
+          const description=[signature(img),img.getAttribute('class'),img.getAttribute('alt'),img.getAttribute('src')].filter(Boolean).join(' ');
+          const outline=img.tagName.toLowerCase()==='svg'&&[...img.querySelectorAll('path,circle,ellipse')].length>0&&[...img.querySelectorAll('path,circle,ellipse')].every(part=>{const c=getComputedStyle(part);return ['none','rgb(255, 255, 255)','rgba(0, 0, 0, 0)'].includes(c.fill);});
+          const decoration=/bubble|speech|thought|typing|balloon|bulle|nuage/i.test(description)||(outline&&visuals.length>1&&!/avatar|person|member|silhouette/i.test(description));
+          img.toggleAttribute('data-control-snap-avatar-decoration',decoration);return !decoration;
+        });
+        // Put a supplied Bitmoji in front, with the other supplied members behind it.
+        const front=members.findIndex(img=>img.tagName==='IMG');if(front>0)members.unshift(members.splice(front,1)[0]);
+        // A decorative bubble can be the first native child. Unclip the real portrait branch too.
+        for(const img of members)for(let node=img.parentElement;node&&node!==avatarSlot;node=node.parentElement)node.setAttribute('data-control-snap-avatar-wrap','');
         if(members.length>1){
           avatarSlot.setAttribute('data-control-snap-group',String(Math.min(3,members.length)));
           members.forEach((img,i)=>{
@@ -1072,9 +1143,13 @@ globalThis.ControlSnapEssentialUI={create};
     }
   }
   function snapHeader(contacts){
-    const header=contacts.querySelector('header,[data-testid="chat-header"],[data-testid="conversation-list-header"]');
+    let header=contacts.querySelector('header,[data-testid="chat-header"],[data-testid="conversation-list-header"]');
+    if(!header&&snapMessagesOnly){header=document.createElement('header');header.dataset.controlSnapOwned='header';contacts.prepend(header);}
     if(header){
       header.setAttribute('data-control-snap-toolbar','');
+      if(snapMessagesOnly&&!header.querySelector('#control-snap-brand')){
+        const brand=document.createElement('div');brand.id='control-snap-brand';brand.dataset.controlSnapOwned='brand';brand.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffed00" stroke="#17191c" stroke-width="1.2" stroke-linejoin="round" d="M12 3.2c-3.2 0-4.6 2.4-4.6 5.2 0 .7.1 1.4.2 2-1 .5-1.7-.4-2.3 0-.5.4.1 1.3 1.6 1.9-.4 1.4-1.4 2.7-3 3.6-.5.3-.3 1 .2 1.2.8.3 1.5.4 2.2.6.5.1.6.7.8 1.1.4.5 1.5.1 2.5.5.8.3 1.3 1.2 2.4 1.2s1.6-.9 2.4-1.2c1-.4 2.1 0 2.5-.5.3-.4.3-1 .8-1.1.7-.2 1.4-.3 2.2-.6.5-.2.7-.9.2-1.2-1.6-.9-2.6-2.2-3-3.6 1.5-.6 2.1-1.5 1.6-1.9-.6-.4-1.3.5-2.3 0 .1-.6.2-1.3.2-2 0-2.8-1.4-5.2-4.6-5.2Z"/></svg><span>Snapchat</span>';header.prepend(brand);
+      }
       let title=header.querySelector('h1,h2,[role="heading"],[data-control-snap-toolbar-title]');
       if(!title&&header.children.length){title=document.createElement('span');title.setAttribute('data-control-snap-generated-title','');title.textContent='Chat';header.append(title);}
       title?.setAttribute('data-control-snap-toolbar-title','');
@@ -1325,7 +1400,7 @@ globalThis.ControlSnapEssentialUI={create};
         if(record.type==='childList'&&[...record.addedNodes,...record.removedNodes].length&&[...record.addedNodes,...record.removedNodes].every(node=>node instanceof Element&&node.matches('[data-control-snap-owned],#control-snap-session,#control-snap-row-actions,#control-snap-new-chat,[data-control-snap-name]')))continue;
         // Messages, media and call internals have dedicated session observers.
         if(target?.closest('[data-csx-scroll],[data-csx-overlay]')){
-          const overlaySelector=globalThis.ControlSnapExperience.selectors.viewer+','+globalThis.ControlSnapExperience.selectors.call;
+          const overlaySelector=globalThis.ControlSnapExperience.selectors.viewer+','+globalThis.ControlSnapExperience.selectors.call+',[role="dialog"],[aria-modal="true"]';
           const overlayChange=record.type==='childList'&&[...record.addedNodes,...record.removedNodes].some(node=>node instanceof Element&&(node.matches(overlaySelector)||node.querySelector(overlaySelector)));
           if(!overlayChange)continue;
         }

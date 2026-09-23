@@ -9,7 +9,7 @@
     log: '[role="log"],[data-testid="message-list"],[data-testid="chat-history"],[data-control-snap-chat-log]',
     composer: 'textarea,[contenteditable="true"],[role="textbox"]',
     identity: '[data-display-name],[data-friend-name],[data-testid*="display-name"],[data-testid*="friend-name"],[data-testid*="username"],h1,h2,h3,h4,[class*="name" i]',
-    viewer: '[data-testid="snap-viewer"],[data-testid="media-viewer"],[data-testid="snap-player"],[data-testid="received-snap-viewer"],[role="dialog"][aria-label*="Snap" i],[role="dialog"][aria-label*="media" i],[role="dialog"]:not([data-testid*="camera" i]):has(video):has(button[aria-label="Close"],button[aria-label="Fermer"])',
+    viewer: '[data-csx-detected-viewer],[data-testid="snap-viewer"],[data-testid="media-viewer"],[data-testid="snap-player"],[data-testid="received-snap-viewer"],[role="dialog"][aria-label*="Snap" i],[role="dialog"][aria-label*="media" i],[role="dialog"]:not([data-testid*="camera" i]):has(video):has(button[aria-label="Close"],button[aria-label="Fermer"])',
     call: '[data-testid="call-view"],[data-testid="video-call"],[data-testid="call-panel"],[role="dialog"][aria-label="Video call"],[role="dialog"][aria-label="Appel vidéo"]',
     camera: '[data-testid="camera-panel"],[data-testid="camera-view"]',
     next: 'button[aria-label="Next Snap"],button[aria-label="Snap suivant"],button[data-testid="next-snap"]',
@@ -56,12 +56,24 @@
       [data-csx-call-frame]{position:static!important;transform:none!important;contain:none!important}
       [data-csx-media]{object-fit:contain!important;max-width:100%!important;max-height:100%!important}
       html[data-control-snap-view] [data-csx-viewer-host],html[data-control-snap-view] [data-control-snap-viewer]{display:block!important;visibility:visible!important;opacity:1!important}
+      html[data-control-snap-view] [data-csx-viewer-host]{overflow:visible!important;clip:auto!important;clip-path:none!important;contain:none!important;transform:none!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;perspective:none!important;will-change:auto!important;isolation:auto!important;animation:none!important;z-index:auto!important}
+      [data-csx-overlay="viewer"]{animation:csx-viewer-in 180ms ease-out}
+      @keyframes csx-viewer-in{from{opacity:0}to{opacity:1}}
+      @media(prefers-reduced-motion:reduce){[data-csx-overlay="viewer"]{animation:none}}
       [data-csx-overlay="viewer"] video[data-csx-media]{display:block!important;width:100%!important;object-fit:contain!important}
       [data-csx-viewer-reply]{box-sizing:border-box!important;position:absolute!important;inset:auto 12px max(12px,env(safe-area-inset-bottom))!important;width:calc(100% - 24px)!important;max-width:none!important;min-width:0!important;margin:0!important;transform:none!important;z-index:5!important}
       [data-csx-viewer-reply]:not(textarea):not([contenteditable="true"]):not([role="textbox"]){display:flex!important;align-items:center!important;gap:8px!important}
       [data-csx-viewer-reply]:is(textarea,[contenteditable="true"],[role="textbox"]),[data-csx-viewer-reply] :is(textarea,[contenteditable="true"],[role="textbox"]){box-sizing:border-box!important;flex:1!important;min-width:0!important;min-height:44px!important;max-height:96px!important;font:16px/1.4 system-ui!important;border:1px solid #ffffff40!important;border-radius:22px!important;padding:10px 14px!important;background:#292929ed!important;color:#fff!important;resize:none!important}
       [data-csx-viewer-close]{position:absolute!important;inset:max(14px,env(safe-area-inset-top)) 12px auto auto!important;z-index:6!important;min-width:44px!important;min-height:44px!important;width:auto!important;height:auto!important;padding:10px!important;margin:0!important;border:1px solid #ffffff40!important;border-radius:22px!important;background:#252525cc!important;color:#fff!important;font:14px system-ui!important}
-      [data-csx-overlay="viewer"]:has([data-csx-viewer-reply]) video[data-csx-media]{height:calc(var(--csx-height,100dvh) - 88px)!important;max-height:calc(var(--csx-height,100dvh) - 88px)!important}
+      [data-csx-overlay="viewer"]{--csx-media-top:0px;--csx-media-bottom:0px;overflow:hidden!important}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-header]){--csx-media-top:64px}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-reply]){--csx-media-bottom:88px}
+      [data-csx-overlay="viewer"]:has([data-csx-viewer-reactions]){--csx-media-bottom:144px}
+      html [data-csx-overlay="viewer"] [data-csx-media]{position:absolute!important;inset:var(--csx-media-top) 0 auto!important;display:block!important;width:100%!important;height:calc(var(--csx-height,100dvh) - var(--csx-media-top) - var(--csx-media-bottom))!important;max-height:none!important;margin:0!important;object-fit:contain!important;object-position:center!important;z-index:1!important}
+      [data-csx-viewer-media-frame]{position:static!important;transform:none!important;contain:none!important;overflow:visible!important;clip:auto!important;clip-path:none!important}
+      [data-csx-viewer-header]{position:absolute!important;inset:0 0 auto!important;min-height:60px!important;max-height:64px!important;box-sizing:border-box!important;z-index:4!important}
+      [data-csx-viewer-reactions]{position:absolute!important;inset:auto 12px 88px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;height:44px!important;width:calc(100% - 24px)!important;max-width:none!important;margin:0!important;z-index:5!important;overflow-x:auto!important}
+      [data-csx-viewer-reactions] button{flex:0 0 auto!important;min-width:36px!important;min-height:36px!important;border:0!important;border-radius:50%!important;background:#ffffff12!important;color:white!important;font-size:22px!important}
       [data-csx-call-remote]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:var(--csx-fit,contain)!important}
       [data-csx-call-local]{position:absolute!important;inset:16px 16px auto auto!important;width:clamp(88px,16vw,180px)!important;height:auto!important;aspect-ratio:var(--csx-ratio,4/3)!important;max-height:25%!important;object-fit:contain!important;background:#171717!important;border-radius:12px!important;z-index:3!important}
       [data-csx-call-controls]{position:absolute!important;inset:auto 12px max(16px,env(safe-area-inset-bottom))!important;display:flex!important;justify-content:center!important;gap:12px!important;width:auto!important;height:auto!important;z-index:4!important}
@@ -215,15 +227,16 @@
     // Controls are an adapter contract, not a private Snapchat API.
     let viewer=null,call=null;
     const owned=node=>!!node?.closest?.('[data-control-snap-owned],#control-snap-session');
-    const button=(root,selector)=>[...root.querySelectorAll(selector)].find(node=>shown(node)&&!node.disabled);
+    const button=(root,selector)=>[...root.querySelectorAll(selector)].find(node=>shown(node)&&!node.disabled)||(selector===selectors.close?[...root.querySelectorAll('button,[role="button"]')].find(node=>shown(node)&&!node.disabled&&/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(node)||node.textContent).trim())):null);
     function stopViewer(){
       if(!viewer)return;
       const old=viewer;viewer=null;old.abort.abort();old.mediaAbort?.abort();old.observer.disconnect();
       clearTimeout(old.timer);clearTimeout(old.deadline);cancelAnimationFrame(old.frame);old.progressAnimation?.cancel();
       old.root.style.removeProperty('--csx-height');
       old.root.removeAttribute('data-csx-overlay');old.root.removeAttribute('data-csx-viewer-state');old.root.removeAttribute('data-control-snap-viewer');
+      old.root.removeAttribute('data-csx-detected-viewer');
       old.root.querySelectorAll('[data-csx-media]').forEach(node=>{node.removeAttribute('data-csx-media');node.removeAttribute('data-csx-ready');});
-      old.root.querySelectorAll('[data-csx-viewer-reply],[data-csx-viewer-close]').forEach(node=>{node.removeAttribute('data-csx-viewer-reply');node.removeAttribute('data-csx-viewer-close');});
+      for(const attr of ['data-csx-viewer-reply','data-csx-viewer-close','data-csx-viewer-header','data-csx-viewer-reactions','data-csx-viewer-media-frame'])old.root.querySelectorAll('['+attr+']').forEach(node=>node.removeAttribute(attr));
       old.chrome.remove(); // Never pause, replace or stop Snapchat-owned media.
     }
     function attachViewer(root){
@@ -284,9 +297,14 @@
         state.frame=0;if(!current())return;
         const reply=root.querySelector(selectors.composer);
         if(reply){let bar=reply;for(let parent=reply.parentElement;parent&&parent!==root&&!parent.querySelector('video,img,canvas');parent=parent.parentElement)bar=parent;mark(bar,'data-csx-viewer-reply');}
-        const close=root.querySelector(selectors.close);if(close)mark(close,'data-csx-viewer-close');
-        const media=[...root.querySelectorAll(selectors.currentMedia)].find(node=>!node.closest('[hidden],[aria-hidden="true"]')&&shown(node));
+        const close=button(root,selectors.close);if(close)mark(close,'data-csx-viewer-close');
+        const header=root.querySelector('header,[data-testid="viewer-header"],[data-testid="snap-header"]');if(header)mark(header,'data-csx-viewer-header');
+        const reactions=root.querySelector('[data-testid*="reaction" i],[class*="reactions" i]');if(reactions&&!reactions.querySelector('video,img,textarea'))mark(reactions,'data-csx-viewer-reactions');
+        const candidates=[...root.querySelectorAll(selectors.currentMedia)].filter(node=>!node.closest('[hidden],[aria-hidden="true"],header,nav,[role="toolbar"],[data-testid*="avatar" i],[class*="avatar" i],[data-testid*="reaction" i],[class*="reaction" i],[data-control-snap-owned]')&&shown(node));
+        // Sender portraits and reaction icons are UI, not the attachment being viewed.
+        const media=candidates.find(node=>node.tagName==='VIDEO')||candidates.sort((a,b)=>{const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return y.width*y.height-x.width*x.height;})[0];
         if(!media){phase('LOADING');return;}
+        for(let parent=media.parentElement;parent&&parent!==root&&!parent.querySelector('button,textarea,[contenteditable="true"]');parent=parent.parentElement)mark(parent,'data-csx-viewer-media-frame');
         const source=mediaKey(media);
         if(media===state.media&&source===state.source){rebuildQueue();return;}
         if(state.media){state.media.removeAttribute('data-csx-ready');state.media.removeAttribute('data-csx-media');}
@@ -388,6 +406,14 @@
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
+      // Some native dialogs expose only a text/title close action, not a media test id.
+      for(const root of document.querySelectorAll('[role="dialog"],[aria-modal="true"]')){
+        if(root.matches(selectors.camera)||root.closest(selectors.call+', [data-csx-settings],[hidden],[aria-hidden="true"],[inert]'))continue;
+        const video=[...root.querySelectorAll('video')].find(node=>!node.srcObject&&!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]'));
+        const photo=[...root.querySelectorAll('img')].find(node=>!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]')&&(node.naturalWidth>120||node.getBoundingClientRect().width>120));
+        const hasClose=root.querySelector(selectors.close)||[...root.querySelectorAll('button,[role="button"]')].some(node=>/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(node)||node.textContent).trim()));
+        if(hasClose&&(video||(photo&&root.querySelector(selectors.composer))))mark(root,'data-csx-detected-viewer');
+      }
       essentialUI?.refresh();
       document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
       for(const root of document.querySelectorAll(selectors.viewer)){
@@ -396,7 +422,7 @@
         // A received-media portal may live under the pane hidden in messages-only mode.
         // Release only our own layout hiding, never a native hidden/inert state.
         for(let parent=root.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
-          if(parent.matches('[data-control-snap-pane],[data-control-snap-contacts],[data-csx-messages-hidden]'))mark(parent,'data-csx-viewer-host');
+          mark(parent,'data-csx-viewer-host');
         }
       }
       const height=(window.visualViewport?.height||innerHeight)+'px';
@@ -413,6 +439,7 @@
       for(const attr of ['data-csx-chat','data-csx-chat-frame','data-csx-chat-header','data-csx-chat-log','data-csx-composer','data-csx-composer-controls'])document.querySelectorAll('['+attr+']').forEach(node=>{node.removeAttribute(attr);node.style.removeProperty('--csx-composer-offset');});
       style.remove();identities.clear();disposed=true;
       document.querySelectorAll('[data-csx-viewer-host]').forEach(node=>node.removeAttribute('data-csx-viewer-host'));
+      document.querySelectorAll('[data-csx-detected-viewer]').forEach(node=>node.removeAttribute('data-csx-detected-viewer'));
     }
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }
