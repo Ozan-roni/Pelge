@@ -33,15 +33,16 @@ const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{
   });
   await page.waitForFunction(()=>document.querySelectorAll('[data-control-snap-row-reply]').length===2);await frames(page);
   for(const row of [page.locator('.row').nth(0),page.locator('.row').nth(1)]){
-   const b=await row.locator('.native-reply').boundingBox(),name=await row.locator('[data-control-snap-name-line]').boundingBox(),status=await row.locator('.status').boundingBox();
-   assert(b.x>=name.x+name.width&&b.x>=status.x+status.width&&b.x+b.width<=width,JSON.stringify({b,name,status}));
-   assert.equal(await row.locator('.native-reply svg').isVisible(),false);
+   const action=row.locator('[data-csm-action]'),b=await action.boundingBox(),name=await row.locator('[data-control-snap-name-line]').boundingBox();
+   assert(b&&name&&b.x>=name.x+name.width&&b.x+b.width<=width,JSON.stringify({b,name}));
+   assert.equal(await action.locator(':scope > svg').isVisible(),false);
+   assert.equal(await action.locator('[data-control-snap-owned="row-icon"] svg').isVisible(),true);
    assert.equal(await row.locator('.native-reply [data-control-snap-text-flow]').count(),0);
   }
   const members=await page.locator('.row').nth(1).locator('[data-control-snap-member]').evaluateAll(nodes=>nodes.map(el=>{const b=el.getBoundingClientRect();return{tag:el.tagName,w:b.width,h:b.height,x:b.x,y:b.y};}));
   assert.deepEqual(members.map(m=>m.tag.toLowerCase()),['svg','svg','img']);assert(members.every(m=>m.w>30&&m.h>30));assert.equal(new Set(members.map(m=>m.x+','+m.y)).size,3);
   await page.screenshot({path:path.join(out,`snap-reply-groups-${width}.png`),animations:'disabled'});
-  for(const selector of ['#open-snap','.native-reply']){
+  for(const selector of ['#open-snap','.native-reply[data-csm-action]']){
    await page.locator(selector).first().click();await page.locator('#received-player[data-csx-overlay="viewer"]').waitFor();await frames(page);
    assert.equal(await page.locator('#received-player video').isVisible(),true);assert.equal(await page.locator('#received-player textarea').isVisible(),true);
    const video=await page.locator('#received-player video').boundingBox();assert(video.width>=width-1&&video.height>300,JSON.stringify(video));

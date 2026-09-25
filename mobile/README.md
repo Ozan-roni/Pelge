@@ -1,14 +1,24 @@
-# Control iPhone — Safari 1.6.5
+# Control iPhone — Safari 1.6.6
 
-Cette édition complète remplace les versions précédentes. Aucun menu Control ni page de remplacement : les sites natifs restent affichés. Snapchat iPhone est désormais en mode messages uniquement, sans section caméra, onglets inférieurs ni bouton flottant de nouveau chat. Aucun serveur Control ni PC allumé n'est nécessaire.
+Cette édition complète remplace les versions précédentes. Les sites et les actions restent natifs. Snapchat iPhone conserve le mode messages, sans section caméra ni bouton flottant de nouveau chat. Une navigation compacte affiche Chat et l'ajout d'amis uniquement lorsque cette action native est disponible. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.5**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.6**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.5** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.6** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+
+## 1.6.6 — lecteur natif et liste compacte (validation iPhone requise)
+
+- Cause reproduite dans la 1.6.5 : un portail média sans rôle dialog ni identifiant connu était classé comme panneau secondaire, puis masqué par Control. Seuls les panneaux reconnus sont désormais concernés. Le champ « Répondre » d'un lecteur n'est plus pris pour la saisie d'une conversation.
+- Détection ciblée des lecteurs plein écran sans rôle dialog, avec média, fermeture et réponse natifs ; un chat parent ne devient pas lui-même un lecteur. Les lecteurs insérés dans un historique transformé sont également couverts.
+- En-tête compact avec Chat centré géométriquement, recherche repliée, boutons reliés aux seules actions réellement disponibles. Lignes en grille, avatars 58 px, actions natives compactes sans chevauchement, nettoyage lors du recyclage des lignes.
+- Reconnaissance des bulles décoratives SVG claires bordées ; silhouettes et portraits natifs conservés. Une décoration fusionnée dans un bitmap ne peut pas être supprimée sans modifier l'image source.
+- Nouveau test `check-snap-mobile-native.cjs` : vidéo générée localement et réellement décodée/animée, image suivante, portail sans attributs, historique transformé, fermeture et retour, aux tailles 390×844, 393×852 et 430×932. Le mode `CONTROL_BASELINE=1` reproduit le masquage sur le commit 020abd9.
+- Validation automatisée sur Edge et DOM de test, **pas encore sur Safari iPhone connecté**. Aucun média privé consulté ; aucun envoi/capture automatique. La confirmation de l'utilisateur reste nécessaire.
+- Diagnostic local facultatif : `ControlSnapMobileUI.inspect()` expose uniquement géométrie, styles, état de décodage et présence d'une source ; aucun nom, message, URL de média ou cookie, aucune transmission.
 
 ## 1.6.5 — lecteur, portraits et réglages
 

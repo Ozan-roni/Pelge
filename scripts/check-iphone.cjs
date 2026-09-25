@@ -80,7 +80,7 @@ async function run(){
    await page.goto('https://web.snapchat.com/');await page.locator('#control-snap-tabs').waitFor();
    await page.locator('#control-native-loading').waitFor({state:'detached'});
    assert.equal(await page.locator('#control-snap-tabs button').count(),2);
-   assert.equal(await page.locator('.camera').isVisible(),false);
+   assert.equal(await page.locator('.camera').isVisible(),false,JSON.stringify(await page.locator('.camera').evaluate(n=>({view:document.documentElement.dataset.controlSnapView,attrs:n.getAttributeNames(),html:n.outerHTML.slice(0,1200)}))));
    assert.equal(await page.locator('.public').isVisible(),false);
    assert.equal(await page.locator('.rail').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
    assert.equal(await page.locator('.details').first().isVisible(),true);
@@ -101,7 +101,7 @@ async function run(){
    await page.getByRole('button',{name:'Messages',exact:true}).click();await page.locator('.person').first().click();
    await page.getByRole('textbox',{name:'Native message'}).fill('Not sent');assert.equal(await page.locator('.rail').isVisible(),false);
    assert.equal(await page.locator('#control-snap-tabs').isVisible(),false);await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('.rail').waitFor({state:'visible'});
-   assert.equal(await page.locator('.camera').isVisible(),false);
+   assert.equal(await page.locator('.camera').isVisible(),false,JSON.stringify(await page.locator('.camera').evaluate(n=>({view:document.documentElement.dataset.controlSnapView,attrs:n.getAttributeNames(),html:n.outerHTML.slice(0,1200)}))));
    await page.evaluate(()=>document.querySelector('.person .details span').textContent='Camille updated');
    await page.getByText('Camille updated',{exact:true}).waitFor();
    await page.locator('.person').last().evaluate(e=>e.setAttribute('aria-label','Max updated'));

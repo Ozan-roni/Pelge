@@ -13,7 +13,7 @@
     "package:extension": "node scripts/package-extension.cjs",
     "test:ui": "node scripts/check-workspace.cjs",
     "test:instagram": "node scripts/check-instagram.cjs",
-    "test:iphone": "node scripts/check-snap-surfaces.cjs && node scripts/check-snap-reply.cjs && node scripts/check-snap-messages.cjs && node scripts/check-iphone.cjs && node scripts/check-snap-layout.cjs && node scripts/check-snap-polish.cjs"
+    "test:iphone": "node scripts/check-snap-mobile-native.cjs && node scripts/check-snap-surfaces.cjs && node scripts/check-snap-reply.cjs && node scripts/check-snap-messages.cjs && node scripts/check-iphone.cjs && node scripts/check-snap-layout.cjs && node scripts/check-snap-polish.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

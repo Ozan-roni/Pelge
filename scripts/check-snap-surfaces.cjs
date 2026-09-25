@@ -16,15 +16,17 @@ const out=path.join(root,'build/iphone-verification');fs.mkdirSync(out,{recursiv
   await page.evaluate(()=>{
    const bubble='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><path d="M10 10h40v35H20L10 55Z" fill="none" stroke="black"/></svg>';
    const rows=document.querySelectorAll('.row');rows[0].querySelector('.avatar').insertAdjacentHTML('afterbegin',bubble.replace('<svg ','<svg class="bubble" '));rows[1].querySelector('.avatar').insertAdjacentHTML('afterbegin',bubble);
+   // Unlabelled light-grey SVG cloud, as well as labelled/white decorations.
+   const cloud=rows[0].querySelector('.bubble');cloud.removeAttribute('class');cloud.querySelectorAll('path,circle,ellipse').forEach(n=>{n.setAttribute('fill','#f1f3f4');n.setAttribute('stroke','#444');});cloud.classList.add('neutral-shape');
   });await frames(page);
   await check('avatar decorations and front member '+width,async()=>{
-   assert.equal(await page.locator('.row').first().locator('.bubble').isVisible(),false);
+   assert.equal(await page.locator('.row').first().locator('.neutral-shape').isVisible(),false);
    assert.equal(await page.locator('.row').first().locator('[data-control-snap-group]').count(),0);
    const single=page.locator('.row').first().locator('.portrait');
    assert.equal(await single.evaluate(n=>getComputedStyle(n).clipPath),'none');
    assert((await single.locator('img').boundingBox()).width>40);
    const group=page.locator('.row').nth(1);assert.equal(await group.locator('[data-control-snap-group="3"]').count(),1);assert.equal(await group.locator('.avatar > svg').isVisible(),false);
-   const front=await group.locator('[data-control-snap-member="0"]').boundingBox(),rear=await group.locator('[data-control-snap-member="1"]').boundingBox();assert(front.width>rear.width&&front.y>rear.y,JSON.stringify({front,rear}));assert.equal(await page.locator('#control-snap-brand').count(),1);
+   const front=await group.locator('[data-control-snap-member="0"]').boundingBox(),rear=await group.locator('[data-control-snap-member="1"]').boundingBox();assert(front.width>rear.width&&front.y>rear.y,JSON.stringify({front,rear}));assert.equal(await page.locator('#control-snap-brand').count(),baseline?1:0);
   });
   await page.screenshot({path:path.join(out,`snap-surfaces-list-${width}${baseline?'-baseline':''}.png`)});
   await page.evaluate(()=>{

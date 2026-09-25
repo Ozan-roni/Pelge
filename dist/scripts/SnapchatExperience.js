@@ -406,8 +406,19 @@
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
-      // Some native dialogs expose only a text/title close action, not a media test id.
-      for(const root of document.querySelectorAll('[role="dialog"],[aria-modal="true"]')){
+      // Native portals are not always ARIA dialogs. A fixed media ancestor with
+      // native close/reply controls can also be a viewer (never the live camera).
+      const candidates=new Set(document.querySelectorAll('[role="dialog"],[aria-modal="true"]'));
+      for(const media of document.querySelectorAll('video,img,canvas')){
+        if(media.srcObject||media.closest('header,[class*="avatar" i],[data-control-snap-contacts],'+selectors.call))continue;
+        for(let parent=media.parentElement,depth=0;parent&&parent!==document.body&&depth<8;parent=parent.parentElement,depth++){
+          if(parent.matches(selectors.conversation+','+selectors.log+',main,[data-control-snap-shell]'))break;
+          const reply=[...parent.querySelectorAll(selectors.composer)].some(n=>/répondre|reply/i.test(label(n)+' '+(n.getAttribute('placeholder')||'')));
+          const close=[...parent.querySelectorAll('button,[role="button"]')].some(n=>/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(n)||n.textContent).trim()));
+          if(getComputedStyle(parent).position==='fixed'&&!parent.matches(selectors.camera)&&reply&&close){candidates.add(parent);break;}
+        }
+      }
+      for(const root of candidates){
         if(root.matches(selectors.camera)||root.closest(selectors.call+', [data-csx-settings],[hidden],[aria-hidden="true"],[inert]'))continue;
         const video=[...root.querySelectorAll('video')].find(node=>!node.srcObject&&!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]'));
         const photo=[...root.querySelectorAll('img')].find(node=>!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]')&&(node.naturalWidth>120||node.getBoundingClientRect().width>120));

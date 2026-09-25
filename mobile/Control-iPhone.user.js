@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.6.5
+// @version      1.6.6
 // @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
@@ -636,8 +636,19 @@ globalThis.ControlSnapEssentialUI={create};
     }
     function refreshOverlays(){
       if(disposed)return;counters.structuralPasses++;
-      // Some native dialogs expose only a text/title close action, not a media test id.
-      for(const root of document.querySelectorAll('[role="dialog"],[aria-modal="true"]')){
+      // Native portals are not always ARIA dialogs. A fixed media ancestor with
+      // native close/reply controls can also be a viewer (never the live camera).
+      const candidates=new Set(document.querySelectorAll('[role="dialog"],[aria-modal="true"]'));
+      for(const media of document.querySelectorAll('video,img,canvas')){
+        if(media.srcObject||media.closest('header,[class*="avatar" i],[data-control-snap-contacts],'+selectors.call))continue;
+        for(let parent=media.parentElement,depth=0;parent&&parent!==document.body&&depth<8;parent=parent.parentElement,depth++){
+          if(parent.matches(selectors.conversation+','+selectors.log+',main,[data-control-snap-shell]'))break;
+          const reply=[...parent.querySelectorAll(selectors.composer)].some(n=>/répondre|reply/i.test(label(n)+' '+(n.getAttribute('placeholder')||'')));
+          const close=[...parent.querySelectorAll('button,[role="button"]')].some(n=>/^(fermer|close)( (le )?(snap|media|média|viewer|lecteur))?$/i.test((label(n)||n.textContent).trim()));
+          if(getComputedStyle(parent).position==='fixed'&&!parent.matches(selectors.camera)&&reply&&close){candidates.add(parent);break;}
+        }
+      }
+      for(const root of candidates){
         if(root.matches(selectors.camera)||root.closest(selectors.call+', [data-csx-settings],[hidden],[aria-hidden="true"],[inert]'))continue;
         const video=[...root.querySelectorAll('video')].find(node=>!node.srcObject&&!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]'));
         const photo=[...root.querySelectorAll('img')].find(node=>!node.closest('header,[class*="avatar" i],[hidden],[aria-hidden="true"]')&&(node.naturalWidth>120||node.getBoundingClientRect().width>120));
@@ -674,6 +685,108 @@ globalThis.ControlSnapEssentialUI={create};
     return {selectors,keyOf,validName,resolveIdentity,selectConversation,attachConversation,stopConversation,readySurface,suspend,refreshOverlays,dispose,counters,get active(){return active;},get viewer(){return viewer;},get call(){return call;}};
   }
   globalThis.ControlSnapExperience={create,selectors,validName};
+})();
+
+/* Mobile presentation only. Native nodes, handlers, identities and media remain Snapchat-owned. */
+(() => {
+ 'use strict';
+ if(globalThis.ControlSnapMobileUI||!/(^|\.)snapchat\.com$/.test(location.hostname))return;
+ const paths={search:'M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',bell:'M5 17h14l-2-3V9a5 5 0 0 0-10 0v5l-2 3m5 3h4',add:'M17 3v6m-3-3h6M3 21v-2a6 6 0 0 1 12 0v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',more:'M5 12h.1M12 12h.1M19 12h.1',user:'M4 22v-2a8 8 0 0 1 16 0v2M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10',camera:'M3 6h4l2-3h6l2 3h4v15H3ZM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8',view:'m8 4 12 8-12 8V4Z',chat:'M20 11a8 8 0 0 1-8 8H4v-7a8 8 0 1 1 16-1ZM8 9h8M8 13h5',friends:'M2 21v-2a6 6 0 0 1 12 0v2M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 8m0 3a5 5 0 0 1 5 5v1'};
+ const icon=kind=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+paths[kind]+'"/></svg>';
+ const label=n=>(n.getAttribute('aria-label')||n.getAttribute('title')||n.textContent||'').trim();
+ const own=(tag,kind)=>{const n=document.createElement(tag);n.dataset.controlSnapOwned=kind;return n;};
+ const tag=(n,key,value='')=>{if(n.getAttribute(key)!==value)n.setAttribute(key,value);};
+ function create(){
+  const style=own('style','mobile-ui'),headers=new Map(),labels=new Map(),abort=new AbortController();let nav,currentList;
+  style.textContent=`
+  @media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){
+   html[data-control-snap] [data-csm-header]{display:block!important;position:sticky!important;top:0!important;z-index:8!important;box-sizing:border-box!important;min-height:0!important;height:auto!important;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px!important;margin:0!important;background:#fff!important}
+   [data-csm-header] > :not([data-control-snap-owned="mobile-toolbar"]):not([data-control-snap-owned="search"]){display:none!important}
+   [data-csm-header-source]{display:none!important}
+   [data-control-snap-owned="mobile-toolbar"]{display:flex!important;position:relative;align-items:center;justify-content:space-between;height:48px;gap:8px;font-family:system-ui}
+   .csm-left,.csm-right{display:flex;gap:5px;align-items:center}
+   .csm-left [data-kind="profile"]{order:0}.csm-left [data-kind="search"]{order:1}
+   .csm-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:650 21px/1.2 system-ui;color:#16181b;pointer-events:none;margin:0}
+   [data-control-snap-owned="mobile-toolbar"] button{appearance:none;position:relative;display:grid;place-items:center;flex:0 0 40px;width:40px;height:44px;padding:8px;border:0;border-radius:50%;background:#f1f3f4;color:#333b42;cursor:pointer}
+   [data-control-snap-owned="mobile-toolbar"] button[data-kind="add"]{background:#fffc00;color:#111}
+   [data-control-snap-owned="mobile-toolbar"] svg{width:25px;height:25px}
+   [data-control-snap-owned="mobile-toolbar"] img{width:32px;height:36px;object-fit:contain;border-radius:50%}
+   html [data-csm-header] [data-control-snap-owned="search"]{display:none!important;padding:8px 0 0!important;order:0!important}
+   html [data-csm-header][data-csm-search-open] [data-control-snap-owned="search"]{display:flex!important;align-items:center!important;gap:8px!important;animation:csm-in .15s ease-out}
+   html [data-csm-header] [data-control-snap-owned="search"] input{width:100%!important;flex:1!important;min-width:0!important;height:40px!important;margin:0!important;padding:0 14px!important;font:16px system-ui!important}
+   .csm-cancel{border:0;background:transparent;color:#424b54;padding:10px 0;font:500 13px system-ui;min-height:44px}
+   html[data-control-snap] [data-csm-row]{box-sizing:border-box!important;display:grid!important;grid-template-columns:58px minmax(0,1fr) 44px!important;grid-template-rows:1fr!important;align-items:center!important;gap:12px!important;padding:8px 16px!important;min-height:var(--control-row-height,84px)!important;height:var(--control-row-height,84px)!important;overflow:hidden!important}
+   html[data-control-snap] [data-csm-row] [data-csm-flat]{display:contents!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-avatar-slot]{grid-column:1!important;grid-row:1!important;width:58px!important;min-width:58px!important;max-width:58px!important;height:58px!important;min-height:58px!important;max-height:58px!important;isolation:isolate;overflow:hidden!important;background:#f1f3f4!important;border-radius:50%!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-text-slot]{grid-column:2!important;grid-row:1!important;min-width:0!important;align-self:center!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-name-line]{font:500 clamp(19px,5vw,21px)/26px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important;min-height:26px!important;max-height:26px!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-status-line]{display:flex!important;flex-wrap:nowrap!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font:400 13px/20px system-ui!important;color:#6e7783!important;max-height:20px!important;min-height:20px!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-status-line] :is(span,div){min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font:inherit!important;color:inherit!important}
+   html[data-control-snap] [data-csm-row] [data-control-snap-status-line] svg{width:20px!important;height:20px!important;flex:0 0 20px!important}
+   html[data-control-snap] [data-csm-row] [data-csm-action]{display:grid!important;grid-column:3!important;grid-row:1!important;position:static!important;inset:auto!important;transform:none!important;place-items:center!important;width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;max-height:44px!important;padding:7px!important;margin:0!important;background:transparent!important;border:0!important;border-radius:12px!important;font-size:0!important;color:#303840!important;cursor:pointer!important}
+   html[data-control-snap] [data-csm-action]>:not([data-control-snap-owned="row-icon"]){display:none!important}
+   html[data-control-snap] [data-csm-action] [data-control-snap-owned="row-icon"],html[data-control-snap] [data-csm-action] [data-control-snap-owned="row-icon"] svg{display:block!important;width:28px!important;height:28px!important}
+   html[data-control-snap] [data-csm-action-secondary]{display:none!important}
+   [data-control-snap-owned="mobile-nav"]{box-sizing:border-box;position:fixed;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding:6px 18px calc(6px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-evenly;align-items:center;background:#fffffff2;border-top:1px solid #eceef1;backdrop-filter:blur(16px);z-index:9}
+   [data-control-snap-owned="mobile-nav"] button{border:0;background:transparent;color:#41474d;width:52px;height:44px;padding:9px;cursor:pointer}
+   [data-control-snap-owned="mobile-nav"] svg{width:27px;height:27px}
+   [data-control-snap-owned="mobile-nav"] button[aria-current]{color:#111}
+   html[data-control-snap-view="messages"] [data-control-snap-contacts]{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))!important}
+   html:not([data-control-snap-view="messages"]) [data-control-snap-owned="mobile-nav"],html:has([data-control-snap-viewer]) [data-control-snap-owned="mobile-nav"]{display:none!important}
+   @keyframes csm-in{from{opacity:0}to{opacity:1}}
+   @media(prefers-reduced-motion:reduce){[data-csm-header] *{animation:none!important}}
+  }
+  @media(min-width:701px){[data-control-snap-owned="mobile-toolbar"],[data-control-snap-owned="mobile-nav"]{display:none}}
+  `;document.documentElement.append(style);
+  function header(list){
+   currentList=list;
+   const h=list.querySelector('[data-control-snap-toolbar]');if(!h)return;tag(h,'data-csm-header');
+   let entry=headers.get(h);
+   if(!entry){const bar=own('div','mobile-toolbar');bar.innerHTML='<div class="csm-left"></div><h1 class="csm-title">Chat</h1><div class="csm-right"></div>';h.prepend(bar);entry={bar,buttons:new Map()};headers.set(h,entry);}
+   document.getElementById('control-snap-brand')?.remove();
+   const candidates=[...list.querySelectorAll('button,[role="button"],a')].filter(n=>!n.closest('[data-control-snap-owned],[data-control-snap-row],[role="menu"],[role="dialog"]'));
+   const specs=[['profile',/profil|account|compte|settings|paramètre/i,'Mon compte','user'],['search',null,'Rechercher','search'],['bell',/notification|alert/i,'Notifications','bell'],['add',/add friend|ajout.*ami/i,'Ajouter un ami','add'],['more',/more|options|menu|plus/i,'Options','more']];
+   for(const [kind,pattern,title,graphic] of specs){
+    const target=pattern?candidates.find(n=>pattern.test(label(n))):null;
+    if(kind!=='search'&&!target){entry.buttons.get(kind)?.button.remove();entry.buttons.delete(kind);continue;}
+    let record=entry.buttons.get(kind);
+    if(!record){const button=own('button','header-action');button.type='button';button.dataset.kind=kind;button.setAttribute('aria-label',title);button.innerHTML=icon(graphic);record={button,target};entry.buttons.set(kind,record);entry.bar.querySelector(kind==='profile'||kind==='search'?'.csm-left':'.csm-right').append(button);
+     button.addEventListener('click',()=>{if(kind==='search'){h.toggleAttribute('data-csm-search-open');const input=h.querySelector('[data-control-snap-owned="search"] input');if(h.hasAttribute('data-csm-search-open'))input?.focus();button.setAttribute('aria-expanded',String(h.hasAttribute('data-csm-search-open')));}else if(record.target?.isConnected)record.target.click();},{signal:abort.signal});
+    }record.target=target;
+    if(target){tag(target,'data-csm-header-source');for(let p=target.parentElement;p&&p!==h&&p!==list&&!p.querySelector('[data-control-snap-row],input');p=p.parentElement)tag(p,'data-csm-header-source');}
+    if(kind==='profile'&&target?.querySelector('img')){const src=target.querySelector('img').getAttribute('src');if(src&&record.src!==src){record.src=src;record.button.replaceChildren(target.querySelector('img').cloneNode());}}
+   }
+   const box=h.querySelector('[data-control-snap-owned="search"]'),input=box?.querySelector('input');
+   if(input){input.placeholder='Rechercher';input.setAttribute('aria-label','Rechercher dans les conversations');}
+   if(box&&!box.querySelector('.csm-cancel')){const cancel=own('button','cancel-search');cancel.className='csm-cancel';cancel.textContent='Annuler';cancel.onclick=()=>{h.removeAttribute('data-csm-search-open');input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));entry.buttons.get('search')?.button.focus();};box.append(cancel);}
+   if(!nav){nav=own('nav','mobile-nav');nav.setAttribute('aria-label','Navigation Snapchat');const chat=own('button','nav-chat');chat.innerHTML=icon('chat');chat.setAttribute('aria-label','Chat');chat.setAttribute('aria-current','page');chat.onclick=()=>currentList?.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});nav.append(chat);document.documentElement.append(nav);}
+   const add=entry.buttons.get('add');let friends=nav.querySelector('[data-control-snap-owned="nav-friends"]');
+   if(add&&!friends){friends=own('button','nav-friends');friends.innerHTML=icon('friends');friends.setAttribute('aria-label','Ajouter des amis');friends.onclick=()=>entry.buttons.get('add')?.target?.click();nav.append(friends);}else if(!add)friends?.remove();
+  }
+  function rows(list){
+   for(const row of list.querySelectorAll('[data-control-snap-row]')){
+    if(row.closest('[role="menu"],[role="dialog"],[data-csx-settings]'))continue;
+    tag(row,'data-csm-row');const name=row.querySelector('[data-control-snap-name-line]');if(!name)continue;
+    for(const n of row.querySelectorAll('[data-csm-action]'))if(labels.has(n)){const text=n.textContent.trim();if(text&&text!==n.getAttribute('aria-label'))n.setAttribute('aria-label',text);}
+    row.querySelectorAll('[data-csm-action],[data-csm-action-secondary],[data-csm-flat]').forEach(n=>{n.removeAttribute('data-csm-action');n.removeAttribute('data-csm-action-secondary');n.removeAttribute('data-csm-flat');});
+    const actions=[...row.querySelectorAll('button,[role="button"],a,[tabindex],div,span')].filter(n=>!n.contains(name)&&!n.closest('[data-control-snap-avatar-slot],[data-control-snap-text-slot],[data-control-snap-owned]')&&/^(voir|view|ouvrir|open|répondre|repondre|reply|appareil photo|camera)(\s+(le|au|to|the|pour)\b.*)?$/i.test(label(n))).filter(n=>!n.parentElement?.closest('[data-csm-action]'));
+    const unique=actions.filter(n=>!actions.some(parent=>parent!==n&&parent.contains(n)));
+    const action=unique.find(n=>/voir|view|open|ouvrir/i.test(label(n)))||unique.find(n=>/répondre|repondre|reply/i.test(label(n)))||unique[0]||row.querySelector('[data-control-snap-row-camera]');
+    for(const n of unique)if(n!==action)tag(n,'data-csm-action-secondary');
+    if(action){tag(action,'data-csm-action');if(!action.getAttribute('aria-label')){labels.set(action,action.getAttribute('aria-label'));action.setAttribute('aria-label',label(action)||'Répondre');}let picture=action.querySelector('[data-control-snap-owned="row-icon"]');if(!picture){picture=own('span','row-icon');action.append(picture);}const graphic=/voir|view|open|ouvrir/i.test(label(action))?'view':'camera';if(picture.dataset.graphic!==graphic){picture.dataset.graphic=graphic;picture.innerHTML=icon(graphic);}}
+    const leaves=[row.querySelector('[data-control-snap-avatar-slot]'),...row.querySelectorAll('[data-control-snap-text-slot]'),action].filter(Boolean);
+    for(const leaf of leaves)for(let p=leaf.parentElement;p&&p!==row;p=p.parentElement)if(!leaves.includes(p))tag(p,'data-csm-flat');
+   }
+  }
+  function refresh(){if(!matchMedia('(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse)').matches)return;for(const list of document.querySelectorAll('[data-control-snap-contacts]')){header(list);rows(list);}}
+  function dispose(){abort.abort();style.remove();nav?.remove();for(const {bar}of headers.values())bar.remove();for(const [n,value]of labels)if(value===null)n.removeAttribute('aria-label');else n.setAttribute('aria-label',value);for(const n of document.querySelectorAll('[data-control-snap-owned="row-icon"],[data-control-snap-owned="cancel-search"]'))n.remove();for(const n of document.querySelectorAll('*'))for(const a of n.getAttributeNames())if(a.startsWith('data-csm-'))n.removeAttribute(a);}
+  return{refresh,dispose};
+ }
+ function inspect(){
+  const shape=n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return{tag:n.tagName,rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},display:c.display,visibility:c.visibility,opacity:c.opacity,overflow:c.overflow,position:c.position,zIndex:c.zIndex,transform:c.transform,controlPane:n.hasAttribute('data-control-snap-pane'),viewer:n.hasAttribute('data-control-snap-viewer')};};
+  return{viewport:{width:innerWidth,height:innerHeight,visualHeight:visualViewport?.height},view:document.documentElement.getAttribute('data-control-snap-view'),media:[...document.querySelectorAll('video,canvas,[data-csx-media]')].slice(0,12).map(n=>{const parents=[];for(let p=n.parentElement;p&&parents.length<8;p=p.parentElement)parents.push(shape(p));const r=n.getBoundingClientRect();return{...shape(n),hasSource:!!(n.currentSrc||n.getAttribute('src')||n.srcObject),readyState:n.readyState,paused:n.paused,errorCode:n.error?.code,videoWidth:n.videoWidth,videoHeight:n.videoHeight,centerStack:document.elementsFromPoint(Math.max(0,r.x+r.width/2),Math.max(0,r.y+r.height/2)).slice(0,6).map(shape),parents};})};
+ }
+ globalThis.ControlSnapMobileUI={create,inspect};
 })();
 /* END SHARED SNAPCHAT EXPERIENCE */
 
@@ -966,12 +1079,10 @@ globalThis.ControlSnapEssentialUI={create};
     html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="0"]{width:76%!important;height:90%!important;inset:auto auto 0 12%!important;z-index:3!important}
     html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="1"]{width:60%!important;height:70%!important;inset:0 auto auto 0!important;z-index:1!important}
     html[data-control-snap] [data-control-snap-avatar-slot][data-control-snap-group] [data-control-snap-member="2"]{width:60%!important;height:70%!important;inset:0 0 auto auto!important;z-index:2!important}
-    #control-snap-brand{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;flex:1 0 100%!important;order:-10!important;height:40px!important;background:transparent!important;color:#17191c!important;font:600 16px/1.2 system-ui!important}
-    #control-snap-brand svg{width:28px!important;height:28px!important}
   `;
   const compactSnap=()=>matchMedia('(max-width:700px), (max-width:950px) and (max-height:600px) and (pointer:coarse)').matches;
   let snapView='messages',snapForceInbox=false,snapLastComposer=null,snapTabs=null,snapContacts=null,snapCamera=null;
-  let snapExperience=null,snapPendingCamera=null,snapActionLayer=null;
+  let snapExperience=null,snapMobile=null,snapPendingCamera=null,snapActionLayer=null;
   const snapActionButtons=new Map(),snapProcessedRows=new WeakSet(),snapDirtyRows=new WeakSet();
   let snapActionsFrame=0;
   const cameraIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3Z"/><circle cx="12" cy="13" r="4"/></svg>';
@@ -1092,7 +1203,7 @@ globalThis.ControlSnapEssentialUI={create};
         const visuals=[...avatarSlot.querySelectorAll('img,svg')].filter(img=>!img.closest('[data-control-snap-badge],[data-testid*="badge" i],[class*="badge" i]')&&!img.parentElement.closest('svg'));
         const members=visuals.filter(img=>{
           const description=[signature(img),img.getAttribute('class'),img.getAttribute('alt'),img.getAttribute('src')].filter(Boolean).join(' ');
-          const outline=img.tagName.toLowerCase()==='svg'&&[...img.querySelectorAll('path,circle,ellipse')].length>0&&[...img.querySelectorAll('path,circle,ellipse')].every(part=>{const c=getComputedStyle(part);return ['none','rgb(255, 255, 255)','rgba(0, 0, 0, 0)'].includes(c.fill);});
+          const outline=img.tagName.toLowerCase()==='svg'&&[...img.querySelectorAll('path,circle,ellipse')].length>0&&[...img.querySelectorAll('path,circle,ellipse')].every(part=>{const c=getComputedStyle(part),rgb=c.fill.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/),lightOutline=rgb&&Math.min(...rgb.slice(1).map(Number))>=230&&c.stroke!=='none';return lightOutline||['none','rgb(255, 255, 255)','rgba(0, 0, 0, 0)'].includes(c.fill);});
           const decoration=/bubble|speech|thought|typing|balloon|bulle|nuage/i.test(description)||(outline&&visuals.length>1&&!/avatar|person|member|silhouette/i.test(description));
           img.toggleAttribute('data-control-snap-avatar-decoration',decoration);return !decoration;
         });
@@ -1147,13 +1258,10 @@ globalThis.ControlSnapEssentialUI={create};
     if(!header&&snapMessagesOnly){header=document.createElement('header');header.dataset.controlSnapOwned='header';contacts.prepend(header);}
     if(header){
       header.setAttribute('data-control-snap-toolbar','');
-      if(snapMessagesOnly&&!header.querySelector('#control-snap-brand')){
-        const brand=document.createElement('div');brand.id='control-snap-brand';brand.dataset.controlSnapOwned='brand';brand.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffed00" stroke="#17191c" stroke-width="1.2" stroke-linejoin="round" d="M12 3.2c-3.2 0-4.6 2.4-4.6 5.2 0 .7.1 1.4.2 2-1 .5-1.7-.4-2.3 0-.5.4.1 1.3 1.6 1.9-.4 1.4-1.4 2.7-3 3.6-.5.3-.3 1 .2 1.2.8.3 1.5.4 2.2.6.5.1.6.7.8 1.1.4.5 1.5.1 2.5.5.8.3 1.3 1.2 2.4 1.2s1.6-.9 2.4-1.2c1-.4 2.1 0 2.5-.5.3-.4.3-1 .8-1.1.7-.2 1.4-.3 2.2-.6.5-.2.7-.9.2-1.2-1.6-.9-2.6-2.2-3-3.6 1.5-.6 2.1-1.5 1.6-1.9-.6-.4-1.3.5-2.3 0 .1-.6.2-1.3.2-2 0-2.8-1.4-5.2-4.6-5.2Z"/></svg><span>Snapchat</span>';header.prepend(brand);
-      }
-      let title=header.querySelector('h1,h2,[role="heading"],[data-control-snap-toolbar-title]');
+      let title=header.querySelector('[data-control-snap-generated-title]')||[...header.querySelectorAll('h1,h2,[role="heading"],[data-control-snap-toolbar-title]')].find(n=>!n.closest('[data-control-snap-owned="mobile-toolbar"]'));
       if(!title&&header.children.length){title=document.createElement('span');title.setAttribute('data-control-snap-generated-title','');title.textContent='Chat';header.append(title);}
       title?.setAttribute('data-control-snap-toolbar-title','');
-      const controls=[...header.querySelectorAll('button,[role="button"],a')].filter(el=>!el.closest('[role="dialog"],[role="menu"]'));
+      const controls=[...header.querySelectorAll('button,[role="button"],a')].filter(el=>!el.closest('[data-control-snap-owned],[role="dialog"],[role="menu"]'));
       for(const el of controls){
         const label=signature(el);
         const action=/search|recherch/i.test(label)?'search':/notification|alert/i.test(label)?'notifications':/add friend|ajout/i.test(label)?'add':/more|options|plus|menu|paramètre|settings/i.test(label)?'more':/profile|profil|account|compte/i.test(label)?'profile':null;
@@ -1255,12 +1363,15 @@ globalThis.ControlSnapEssentialUI={create};
       contacts.addEventListener('scroll',()=>{if(!snapActionsFrame)snapActionsFrame=requestAnimationFrame(()=>{snapActionsFrame=0;if(contacts.isConnected)snapRowActions(contacts,document.documentElement.getAttribute('data-control-snap-view'));});},{capture:true,passive:true});
       contacts.addEventListener('click',event=>{const row=event.target.closest('[data-control-snap-row]');if(row){if(event.isTrusted)snapPendingCamera=null;snapExperience?.selectConversation(row);snapForceInbox=false;snapView='messages';snapLastComposer=null;schedule();}});
     }
-    const panes=[...root.children].filter(el=>!el.matches('header,nav,button,[role="dialog"],[role="menu"],[data-control-snap-compose],[data-control-snap-viewer]')&&el!==branch&&el!==contacts&&!el.contains(contacts)&&!el.hasAttribute(hiddenAttr));
+    const viewerSelector=globalThis.ControlSnapExperience.selectors.viewer;
+    const chatInput=el=>!el.closest(viewerSelector)&&!/répondre|reply|reaction|réaction/i.test(signature(el)+' '+(el.getAttribute('placeholder')||''));
+    // Native media portals can have no dialog role/test id. Never hide an arbitrary sibling.
+    const panes=[...root.children].filter(el=>!el.matches('header,nav,button,[role="dialog"],[role="menu"],[data-control-snap-compose],[data-control-snap-viewer]')&&el!==branch&&el!==contacts&&!el.contains(contacts)&&!el.hasAttribute(hiddenAttr)&&(el.hasAttribute('data-control-snap-conversation')||el.matches('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"],[data-testid="camera-panel"],[data-testid="camera-view"]')||el.querySelector('[data-testid="conversation-panel"],[data-testid="camera-panel"],[data-testid="camera-view"]')||[...el.querySelectorAll('textarea,[contenteditable="true"],[role="textbox"]')].some(chatInput)||(!snapMessagesOnly&&(el===snapCamera||el.hasAttribute('data-control-snap-camera'))&&el.querySelector('video,canvas'))||/send (?:a )?snaps|envoyer des snaps/i.test(el.textContent)));
+    for(const previous of root.querySelectorAll('[data-control-snap-pane]'))if(!panes.includes(previous))previous.removeAttribute('data-control-snap-pane');
     for(const pane of panes)pane.setAttribute('data-control-snap-pane','');
     const available=el=>!el.closest('[hidden],[aria-hidden="true"],[inert]');
-    const viewerSelector=globalThis.ControlSnapExperience.selectors.viewer;
-    const conversation=[...document.querySelectorAll('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')].find(el=>available(el)&&!el.closest(viewerSelector))||panes.find(el=>available(el)&&[...el.querySelectorAll('textarea,[contenteditable="true"],[role="textbox"]')].some(input=>!input.closest(viewerSelector)));
-    const composer=conversation?.querySelector('textarea,[contenteditable="true"],[role="textbox"]');
+    const conversation=[...document.querySelectorAll('[data-testid="conversation-panel"],[data-testid="chat-panel"],[aria-label="Conversation"]')].find(el=>available(el)&&!el.closest(viewerSelector))||panes.find(el=>available(el)&&[...el.querySelectorAll('textarea,[contenteditable="true"],[role="textbox"]')].some(chatInput));
+    const composer=[...conversation?.querySelectorAll('textarea,[contenteditable="true"],[role="textbox"]')||[]].find(chatInput);
     const paneFor=el=>panes.find(p=>p===el||p.contains(el));
     for(const pane of panes){pane.removeAttribute('data-control-snap-conversation');pane.removeAttribute('data-control-snap-camera');}
     if(conversation){
@@ -1302,6 +1413,8 @@ globalThis.ControlSnapEssentialUI={create};
       if(!viewer.closest('[hidden],[aria-hidden="true"]')&&viewer.querySelector('video,img,canvas'))viewer.setAttribute('data-control-snap-viewer','');
     }
     snapExperience?.refreshOverlays();
+    if(snapMessagesOnly&&!snapMobile)snapMobile=globalThis.ControlSnapMobileUI?.create();
+    snapMobile?.refresh();
     finishLoading();
   }
   function singleMedia(){
@@ -1330,7 +1443,7 @@ globalThis.ControlSnapEssentialUI={create};
     fitViewport(mode);
     loading(mode);
     if(mode==='account'){
-      snapExperience?.dispose();snapExperience=null;
+      snapMobile?.dispose();snapMobile=null;snapExperience?.dispose();snapExperience=null;
       if(document.documentElement.hasAttribute('data-control-snap-view')){
         document.querySelectorAll('[data-control-snap-name],[data-control-snap-generated-title]').forEach(el=>el.remove());
         for(const el of document.querySelectorAll('*'))for(const name of el.getAttributeNames())if(name.startsWith('data-control-snap'))el.removeAttribute(name);
@@ -1401,7 +1514,7 @@ globalThis.ControlSnapEssentialUI={create};
         // Messages, media and call internals have dedicated session observers.
         if(target?.closest('[data-csx-scroll],[data-csx-overlay]')){
           const overlaySelector=globalThis.ControlSnapExperience.selectors.viewer+','+globalThis.ControlSnapExperience.selectors.call+',[role="dialog"],[aria-modal="true"]';
-          const overlayChange=record.type==='childList'&&[...record.addedNodes,...record.removedNodes].some(node=>node instanceof Element&&(node.matches(overlaySelector)||node.querySelector(overlaySelector)));
+          const overlayChange=record.type==='childList'&&[...record.addedNodes,...record.removedNodes].some(node=>node instanceof Element&&(node.matches(overlaySelector)||node.querySelector(overlaySelector)||node.querySelector('video,canvas')||node.querySelector('img')&&node.querySelector('textarea,[contenteditable="true"]')));
           if(!overlayChange)continue;
         }
         if(record.type!=='childList'&&target?.closest('[data-csx-composer]'))continue;
