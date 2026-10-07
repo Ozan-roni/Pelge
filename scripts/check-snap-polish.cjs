@@ -34,7 +34,7 @@ async function run(){
    await page.locator('#more').click();await page.locator('#settings').waitFor();await page.locator('#close-settings').click();assert.equal(await page.evaluate(()=>events.more),1);
    const compose=await page.locator('.native-compose').boundingBox();assert(compose.x>width/2&&compose.x+compose.width<=width&&compose.y>600,JSON.stringify(compose));await page.locator('.native-compose').click();assert.equal(await page.evaluate(()=>events.compose),1);
    await page.locator('.row-camera').first().click();assert.equal(await page.evaluate(()=>events.camera),1);assert.equal(await page.locator('html').getAttribute('data-control-snap-view'),'messages');
-   assert.equal(await page.locator('#control-snap-tabs').innerText(),'');assert.equal(await page.locator('#control-snap-tabs button[aria-pressed="true"] path').first().evaluate(e=>getComputedStyle(e).fill),'rgb(17, 17, 17)');
+   assert.equal(await page.locator('#control-snap-tabs').innerText(),'');await page.waitForFunction(()=>getComputedStyle(document.querySelector('#control-snap-tabs button[aria-pressed="true"] path')).fill==='rgb(17, 17, 17)');
    await page.screenshot({path:path.join(out,`snap-polished-${width}.png`),animations:'disabled'});
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    await page.locator('.hit').first().click();await page.waitForFunction(()=>{const e=document.querySelector('.history');return e&&e.scrollTop>0&&e.scrollHeight-e.clientHeight-e.scrollTop<2;});

@@ -32,7 +32,7 @@
     const layouts=new WeakMap();
     const style = document.createElement('style'); style.dataset.controlSnapOwned = 'style';
     style.textContent = `
-      [data-csx-ready="LOADING"]{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+      [data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       video[data-csx-media][data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       [data-csx-ready="READY"]{opacity:1;transition:opacity 180ms cubic-bezier(.2,0,0,1)}
       [data-control-snap-owned="loading"]{position:fixed;z-index:2147483201;pointer-events:none;display:grid;place-items:center}

@@ -1,4 +1,28 @@
-# Mise à jour Control 0.34.4
+# Mise à jour Control 0.35.8 — chat Snapchat mobile
+
+Correspondance avec le script Safari **1.6.8**. Mise en page corrigée d'après les captures fournies : liste seule, paramètres en haut à droite, statuts et zones d'appui alignés, avatars et groupes proportionnés. Les conversations, snaps, menus et retours conservent les actions natives.
+
+Caméra naturelle et blocage du défilement Instagram conservés. Sur iPhone, remplacer le script existant et garder un seul Control actif ; sur PC, recharger l'extension et les onglets.
+
+# Mise à jour Control 0.35.7 — caméra naturelle et vidéo Instagram unique
+
+Snapchat conserve le cadrage complet de la caméra et des aperçus de pièces jointes sur téléphone, en portrait et paysage. Control ne force plus une résolution 1080×1920 ni un ratio de capture 9:16. Les paramètres de caméra et le flux natifs restent inchangés ; le miroir avant ne se cumule pas avec celui de Snapchat.
+
+Instagram bloque le défilement vertical après l'ouverture volontaire d'une vidéo, notamment depuis un profil. Les gestes tactiles, la molette, les touches de défilement et les conteneurs imbriqués ou ajoutés tardivement sont couverts. Le lecteur choisi, ses contrôles et la saisie restent utilisables. Les vidéos préchargées hors écran ne remplacent pas la vidéo choisie. Le retour aux messages ou la désactivation restaure le défilement.
+
+Validation : `npm run test:media-focus`, tests généraux de l'extension, messagerie Instagram, expérience et régressions Snapchat, messagerie mobile, lecteur média natif et parcours iPhone simulés dans Chrome/Edge. Les tests interceptent toutes les requêtes et génèrent leurs médias localement ; la validation sur Safari iPhone physique reste à faire.
+
+Édition Safari correspondante : **1.6.7**. Sur PC, recharger l'extension puis les onglets. Sur iPhone, remplacer le script Control existant dans Userscripts et recharger Safari.
+
+## Historique 0.35.6 — Facebook sur PC
+
+Quand Facebook est activé et que « Photos and messages only » ou l'ancien réglage `DMsOnly` est actif, les profils ouvrent leur onglet Photos. La recherche de personnes, les galeries, le lecteur photo natif, les messages, la connexion et les réglages restent accessibles. Les fils d'accueil alternatifs, publications de profils, groupes, Watch, Reels, Stories et découverte sont bloqués. Les galeries et les conversations peuvent défiler ; les fils bloqués ne le peuvent pas.
+
+La désactivation de Facebook dans Control restaure la page. Aucun changement forcé des applications choisies ni des limites de temps. Le filtrage ne peut plus être repoussé indéfiniment par les mutations d'un fil actif.
+
+Validation : `npm test` et `npm run test:facebook` (Edge desktop, pages de test isolées). Le test couvre routes directes, navigation SPA/retour, lecteur photo, molette/clavier, désactivation et contenu ajouté en continu. La validation sur un compte Facebook réel reste à faire. Paquet local uniquement : le navigateur installé et GitHub ne sont pas mis à jour automatiquement.
+
+## Historique 0.34.4
 
 Les fenêtres natives Instagram (nouveau message, partage, etc.) conservent leur seul fond natif, sans cadre, ombre ou flou ajoutés sur les conteneurs parents. Leur ouverture reste en fondu.
 

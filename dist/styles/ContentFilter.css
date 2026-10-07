@@ -420,3 +420,15 @@ html.ControlInstagramPolished.ControlInstagramLight :is(#ControlRouteBlocker,#Co
   :is(#ControlRouteBlocker,#ControlExtendedBlocker) * { animation:none !important; transition:none !important; }
 }
 [data-control-filter-hidden="true"] { display:none !important; }
+/* A deliberately opened video has one player, including native nested scrollers. */
+html[data-control-ig-single-media],html[data-control-ig-single-media] body {
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+html[data-control-ig-single-media] :is(main,[role="main"],[role="dialog"],[data-control-ig-media-scroll]) {
+  overflow-y:hidden!important;
+  overscroll-behavior:none!important;
+  scroll-snap-type:none!important;
+  touch-action:pinch-zoom!important;
+}
+html[data-control-ig-single-media] [data-control-ig-media-extra] {display:none!important}

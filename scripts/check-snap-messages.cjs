@@ -30,7 +30,7 @@ if(require.main===module)(async()=>{
   await page.locator('html[data-control-snap-messages-only]').waitFor();await page.locator('#control-native-loading').waitFor({state:'detached'});await frames(page);
   assert.equal(await page.locator('#control-snap-tabs,#control-snap-row-actions,#control-snap-new-chat').count(),0);
   assert.equal(await page.locator('.native-compose').isVisible(),false);assert.equal(await page.locator('.stage').isVisible(),false);
-  for(const row of await page.locator('.row-camera').all())assert.equal(await row.isVisible(),false);
+  for(const row of await page.locator('.row-camera').all())assert.equal(await row.isVisible(),false,'Messages-only list has no camera shortcuts');
   const contacts=await page.locator('.contacts').boundingBox();assert(contacts.width>=width-1&&contacts.height>=843,JSON.stringify(contacts));
   assert.deepEqual(await page.locator('[data-control-snap-name-line]').allTextContents(),names);
   for(const name of await page.locator('[data-control-snap-name-line]').all()){const b=await name.boundingBox();assert(b&&b.width>150&&b.height>10,JSON.stringify(b));}

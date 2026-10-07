@@ -35,9 +35,9 @@ const out=path.join(root,'build/iphone-verification');fs.mkdirSync(out,{recursiv
    for(const label of labels){const row=document.createElement('div');row.setAttribute('role','listitem');const b=document.createElement('button');b.setAttribute('role','menuitem');b.style.cssText='height:110px;width:100%;font-size:24px';const img=document.createElement('img');img.src=document.querySelector('.avatar img').src;img.dataset.icon='native';b.append(img);const text=document.createElement('span');text.textContent=label;b.append(text);row.append(b);menu.append(row);}
    menu.querySelector('button').onclick=()=>window.settingClicks=(window.settingClicks||0)+1;document.querySelector('.contacts').append(menu);
   });await frames(page);
-  await check('settings isolated and compact glass '+width,async()=>{
+  await check('settings isolated and compact native menu '+width,async()=>{
    const menu=page.locator('#real-settings');assert.equal(await menu.locator('[data-control-snap-row]').count(),0);assert.equal(await menu.locator('[data-csx-setting-row]').count(),8);
-   const b=await menu.boundingBox();assert(b.x>=0&&b.x+b.width<=width+1&&b.height<750,JSON.stringify(b));assert.notEqual(await menu.evaluate(n=>getComputedStyle(n).backdropFilter),'none');
+   const b=await menu.boundingBox();assert(b.x>=0&&b.x+b.width<=width+1&&b.height<750,JSON.stringify(b));assert.equal(await menu.evaluate(n=>getComputedStyle(n).backdropFilter),'none');
    assert.equal(await menu.locator('[data-csx-setting-row] [data-control-snap-owned] svg').count(),8);
    await menu.locator('button').first().click();assert.equal(await page.evaluate(()=>settingClicks),1);
   });

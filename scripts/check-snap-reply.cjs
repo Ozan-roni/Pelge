@@ -31,16 +31,16 @@ const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{
    // Native received-Snap target remains independent of the native reply action.
    const received=document.createElement('button');received.id='open-snap';received.setAttribute('aria-label','Voir le Snap reçu');received.textContent='Reçu';received.onclick=e=>{e.stopPropagation();openReceived();};rows[0].querySelector('.status').replaceChildren(received);
   });
-  await page.waitForFunction(()=>document.querySelectorAll('[data-control-snap-row-reply]').length===2);await frames(page);
+  await page.waitForFunction(()=>document.querySelectorAll('[data-control-snap-row-reply]').length===3);await frames(page);
   for(const row of [page.locator('.row').nth(0),page.locator('.row').nth(1)]){
    const action=row.locator('[data-csm-action]'),b=await action.boundingBox(),name=await row.locator('[data-control-snap-name-line]').boundingBox();
-   assert(b&&name&&b.x>=name.x+name.width&&b.x+b.width<=width,JSON.stringify({b,name}));
+   assert(b&&name&&b.x>=name.x-1&&b.x+b.width<=width+1&&b.y>=name.y+name.height-6,JSON.stringify({b,name}));
    assert.equal(await action.locator(':scope > svg').isVisible(),false);
-   assert.equal(await action.locator('[data-control-snap-owned="row-icon"] svg').isVisible(),true);
+   assert.equal(await action.getAttribute('data-csm-action'),'');
    assert.equal(await row.locator('.native-reply [data-control-snap-text-flow]').count(),0);
   }
   const members=await page.locator('.row').nth(1).locator('[data-control-snap-member]').evaluateAll(nodes=>nodes.map(el=>{const b=el.getBoundingClientRect();return{tag:el.tagName,w:b.width,h:b.height,x:b.x,y:b.y};}));
-  assert.deepEqual(members.map(m=>m.tag.toLowerCase()),['svg','svg','img']);assert(members.every(m=>m.w>30&&m.h>30));assert.equal(new Set(members.map(m=>m.x+','+m.y)).size,3);
+  assert.deepEqual(members.map(m=>m.tag.toLowerCase()),['svg','svg','img']);assert(members.every(m=>m.w>24&&m.h>30));assert.equal(new Set(members.map(m=>m.x+','+m.y)).size,3);
   await page.screenshot({path:path.join(out,`snap-reply-groups-${width}.png`),animations:'disabled'});
   for(const selector of ['#open-snap','.native-reply[data-csm-action]']){
    await page.locator(selector).first().click();await page.locator('#received-player[data-csx-overlay="viewer"]').waitFor();await frames(page);

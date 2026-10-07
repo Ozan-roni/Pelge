@@ -721,10 +721,34 @@ function IsInstagramIntentionalPostPath(Path) {
   return Path.startsWith("/p/") && sessionStorage.getItem("ControlInstagramIntentionalPost") === Path;
 }
 
+function IsInstagramSingleMediaPath(Path) {
+  return /^\/(?:p|reel|reels)\/[^/]+\/?$/.test(Path) &&
+    (ActiveRules.Instagram?.SearchScrollLock === true || ActiveRules.Instagram?.Reels === true);
+}
+
 function RemoveInstagramContinuationControls() {
-  if (!ActiveRules.Instagram?.SearchScrollLock) return;
   const Path = NormalizePath();
-  if (!IsInstagramIntentionalPostPath(Path)) return;
+  if (!IsInstagramSingleMediaPath(Path)) return;
+  // Native nested reel containers can scroll even when the document cannot.
+  for (const Node of document.querySelectorAll('main,[role="main"],[role="dialog"],main div,main section,[role="main"] div,[role="dialog"] div')) {
+    if (Node.scrollHeight > Node.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(Node).overflowY)) {
+      Node.setAttribute('data-control-ig-media-scroll', '');
+    }
+  }
+  const Videos = [...document.querySelectorAll('main video,[role="main"] video,[role="dialog"] video')];
+  const First = Videos.filter(Video => !Video.closest('[hidden],[aria-hidden="true"],[data-control-filter-hidden],[data-control-ig-media-extra]'))
+    .map(Video => {
+      const Box = Video.getBoundingClientRect();
+      const Area = Math.max(0, Math.min(innerWidth, Box.right) - Math.max(0, Box.left)) *
+        Math.max(0, Math.min(innerHeight, Box.bottom) - Math.max(0, Box.top));
+      return { Video, Area };
+    }).filter(Item => Item.Area > 0).sort((A, B) => B.Area - A.Area)[0]?.Video;
+  if (First) {
+    for (const Video of Videos) if (Video !== First && !(First.closest('article') ?? First).contains(Video)) {
+      Video.pause();
+      (Video.closest('article') ?? Video).setAttribute('data-control-ig-media-extra', '');
+    }
+  }
   for (const LabeledControl of document.querySelectorAll('[aria-label*="next" i], [aria-label*="previous" i], [aria-label*="suivant" i], [aria-label*="pr\u00e9c\u00e9dent" i]')) {
     const Control = LabeledControl.closest('button, [role="button"], a[href]') ?? LabeledControl;
     RemoveElement(Control);
@@ -732,8 +756,12 @@ function RemoveInstagramContinuationControls() {
 }
 
 function BlockInstagramContinuation(Event) {
-  if (!IsInstagram() || !ActiveRules.Instagram?.Enabled || !ActiveRules.Instagram?.SearchScrollLock || !IsInstagramIntentionalPostPath(NormalizePath())) return;
-  if (Event.type === "keydown" && !["ArrowLeft", "ArrowRight", "PageUp", "PageDown"].includes(Event.key)) return;
+  if (!IsInstagram() || !ActiveRules.Instagram?.Enabled || !IsInstagramSingleMediaPath(NormalizePath())) return;
+  if (Event.type === "keydown") {
+    if (Event.target instanceof Element && Event.target.closest('input,textarea,[contenteditable="true"],video')) return;
+    if (Event.key === " " && Event.target instanceof Element && Event.target.closest('button,[role="button"]')) return;
+    if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End", " "].includes(Event.key)) return;
+  }
   if (Event.type === "wheel" || Event.type === "touchmove") {
     Event.preventDefault();
     Event.stopImmediatePropagation();
@@ -1995,6 +2023,13 @@ function FilterInstagram() {
 
   const Path = NormalizePath();
   const IsReelsRoute = Path.startsWith("/reels") || Path.startsWith("/reel/");
+  document.documentElement.toggleAttribute('data-control-ig-single-media', IsInstagramSingleMediaPath(Path));
+  if (!IsInstagramSingleMediaPath(Path)) {
+    document.querySelectorAll('[data-control-ig-media-scroll],[data-control-ig-media-extra]').forEach(Node => {
+      Node.removeAttribute('data-control-ig-media-scroll');
+      Node.removeAttribute('data-control-ig-media-extra');
+    });
+  }
   const IsExploreRoute = Path.startsWith("/explore");
   const IsSearchSurface = IsInstagramSearchSurface();
   const IsSearchEnabled = Rules.Search !== false;
@@ -2233,10 +2268,10 @@ document.addEventListener("click", BlockInstagramExploreMediaNavigation, true);
 document.addEventListener("auxclick", BlockInstagramExploreMediaNavigation, true);
 document.addEventListener("click", BlockInstagramCoreNavigation, true);
 document.addEventListener("auxclick", BlockInstagramCoreNavigation, true);
-document.addEventListener("click", BlockInstagramContinuation, true);
-document.addEventListener("keydown", BlockInstagramContinuation, true);
-document.addEventListener("wheel", BlockInstagramContinuation, { capture: true, passive: false });
-document.addEventListener("touchmove", BlockInstagramContinuation, { capture: true, passive: false });
+window.addEventListener("click", BlockInstagramContinuation, true);
+window.addEventListener("keydown", BlockInstagramContinuation, true);
+window.addEventListener("wheel", BlockInstagramContinuation, { capture: true, passive: false });
+window.addEventListener("touchmove", BlockInstagramContinuation, { capture: true, passive: false });
 document.addEventListener("input", (Event) => { if (Event.target === GetInstagramSearchInput()) ScheduleFilters(); }, true);
 document.addEventListener("click", BlockSnapchatNavigation, true);
 document.addEventListener("auxclick", BlockSnapchatNavigation, true);

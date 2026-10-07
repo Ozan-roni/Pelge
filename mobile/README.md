@@ -1,14 +1,36 @@
-# Control iPhone — Safari 1.6.6
+# Control iPhone — Safari 1.6.8
+
+## 1.6.8 — chat Snapchat aligné sur la référence
+
+Liste sans navigation basse, sans popup Control ni bouton caméra. En-tête Chat avec recherche à gauche et paramètres natifs à droite. Lignes de 66 px, avatars de 48 px, noms de 19 px, statuts de 13 px avec icônes vectorielles. Le bouton natif d'ouverture du Snap couvre la ligne du statut. Groupes limités à trois portraits, ami emoji au-dessus de l'avatar. Réglages sans effet de verre.
+
+Prévisualisation et parcours testés en navigateur sur DOM de test ; ils ne constituent pas une session Snapchat réelle sur iPhone. Voir docs/SNAPCHAT-REFERENCE.md.
+
+### Corrections conservées : caméra naturelle et arrêt du défilement Instagram
+
+La caméra Snapchat conserve son cadrage complet en portrait/paysage et ses paramètres natifs, sans format 1080×1920 imposé ni recadrage par Control. Les aperçus caméra de pièces jointes sont aussi concernés ; commandes natives et miroir avant/arrière préservés.
+
+Instagram bloque aussi ses conteneurs de défilement imbriqués, même ajoutés après l'ouverture d'une vidéo reçue. Les gestes ne peuvent plus atteindre les gestionnaires de continuation enregistrés sur le document, y compris lorsqu'ils commencent sur un champ de commentaire. Saisie, contrôles du lecteur et retour aux messages conservés.
+
+Remplacer le script existant par **Control-iPhone.user.js 1.6.8**, garder un seul script Control actif, puis recharger Safari. Tests sur DOM isolés et médias générés localement dans Chrome/Edge ; validation sur un iPhone physique encore nécessaire.
+
+### Travail local non publié après la 1.6.6
+
+- Suppression complète de la navigation inférieure ; seul un espace de sécurité reste sous la liste.
+- Détection de l'avatar de compte précédant les conversations même sans libellé, et des commandes dont le libellé appartient à un enfant. Header unique, recherche repliée, titre centré. Une commande native absente est indiquée comme indisponible, jamais reliée à une action inventée.
+- Actions natives de ligne présentées par une caméra outline sans texte, y compris lorsqu'un bouton et sa légende sont séparés ou imbriqués dans le texte. Le bouton natif et son gestionnaire restent en place.
+- Régression enrichie : liste longue, avatar isolé sans libellé, actions imbriquées, légende sœur d'un bouton, paramètres montés sous l'ancien avatar, absence de navigation en bas et vrais médias de test décodés aux trois tailles iPhone.
+- **En attente :** comparaison de la liste web avec Control désactivé pour identifier les bulles des Bitmoji. Aucun nouvel effacement d'asset ni validation des vrais portraits sur Safari revendiqués. Les tests utilisent un DOM simulé, pas un compte connecté.
 
 Cette édition complète remplace les versions précédentes. Les sites et les actions restent natifs. Snapchat iPhone conserve le mode messages, sans section caméra ni bouton flottant de nouveau chat. Une navigation compacte affiche Chat et l'ajout d'amis uniquement lorsque cette action native est disponible. Aucun serveur Control ni PC allumé n'est nécessaire.
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.6**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.8**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.6** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Après publication sur GitHub, ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Pour une mise à jour locale, transférer le fichier corrigé. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.8** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
 
 ## 1.6.6 — lecteur natif et liste compacte (validation iPhone requise)
 
