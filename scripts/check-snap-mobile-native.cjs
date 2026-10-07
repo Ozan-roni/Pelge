@@ -20,9 +20,9 @@ const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{
   if(!baseline){const title=await page.locator('.csm-title').boundingBox();assert(Math.abs(title.x+title.width/2-width/2)<1,JSON.stringify(title));assert.equal(await page.locator('#control-snap-brand').count(),0);
   assert.equal(await page.locator('[data-control-snap-owned="search"] input').isVisible(),false);
   await page.getByRole('button',{name:'Rechercher',exact:true}).click();await page.getByRole('searchbox').fill('Camille');await page.locator('.csx-search-results button').first().waitFor();await page.getByRole('button',{name:'Annuler',exact:true}).click();
-  await page.getByRole('button',{name:'Paramètres',exact:true}).click();assert.deepEqual(await page.evaluate(()=>headerActions),['Mon compte']);
+  await page.locator('[data-csm-settings-trigger]').click();assert.deepEqual(await page.evaluate(()=>headerActions),['Mon compte']);
   assert.equal(await page.locator('[data-control-snap-owned="mobile-nav"],#control-snap-tabs,#control-snap-new-chat').count(),0);
-  assert.equal(await page.locator('#native-account').isVisible(),false);
+  assert.equal(await page.locator('#native-account').evaluate(n=>n.getBoundingClientRect().height),0);
   const bar=await page.locator('[data-control-snap-owned="mobile-toolbar"]').boundingBox(),first=await page.locator('.row').first().boundingBox();assert(first.y>=bar.y+bar.height&&first.y-(bar.y+bar.height)<=20,JSON.stringify({bar,first}));
   const buttons=await page.locator('[data-control-snap-owned="mobile-toolbar"] button').all();assert.equal(buttons.length,2);for(const b of buttons){const r=await b.boundingBox();assert(r.y>=bar.y&&r.y+r.height<=bar.y+bar.height+1);assert(!await b.isDisabled());}
   const right=await page.locator('.csm-right').boundingBox();assert(title.x+title.width<right.x,'Centered title must not overlap right controls');
@@ -36,7 +36,7 @@ const out=path.join(__dirname,'../build/iphone-verification');fs.mkdirSync(out,{
   await page.screenshot({path:path.join(out,`snap-native-chat-${width}.png`)});
   await page.locator('.row').nth(4).locator('[data-csm-action]').click();assert.equal(await page.evaluate(()=>captionReplyClicked),true);assert.equal(await page.locator('[data-csm-action-caption]').isVisible(),false);
   await page.evaluate(()=>{document.querySelector('#native-account > div').onclick=()=>{const menu=document.createElement('div');menu.setAttribute('role','menu');menu.id='account-settings';menu.innerHTML='<button role="menuitem">Fermer les réglages</button>';menu.querySelector('button').onclick=()=>menu.remove();document.querySelector('#native-account').append(menu);};});
-  await page.getByRole('button',{name:'Paramètres',exact:true}).click();await frames(page);assert.equal(await page.locator('#account-settings').isVisible(),true);await page.getByRole('menuitem',{name:'Fermer les réglages'}).click();await frames(page);assert.equal(await page.locator('#native-account').isVisible(),false);
+  await page.locator('[data-csm-settings-trigger]').click();await frames(page);assert.equal(await page.locator('#account-settings').isVisible(),true);await page.getByRole('menuitem',{name:'Fermer les réglages'}).click();await frames(page);assert.equal(await page.locator('#native-account').evaluate(n=>n.getBoundingClientRect().height),0);
   }
   await page.locator('.hit').nth(2).click();await page.waitForFunction(()=>document.documentElement.dataset.controlSnapView==='conversation');
   // Produce a real moving video entirely locally. No readyState/play mocks.

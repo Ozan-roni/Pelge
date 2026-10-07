@@ -18,3 +18,7 @@ Référence utilisateur : capture de l'application Snapchat native, 1170×2532 p
 Source des états d'icônes : [Snapchat Support](https://help.snapchat.com/hc/fr-fr/articles/7012315702548-Que-signifient-les-ic%C3%B4nes-affich%C3%A9es-sur-l-%C3%A9cran-du-Chat). Bleu : chat ; rouge : Snap sans son ; violet : Snap avec son. Remplissage/contour suivent le statut natif. Aucun état n'est inventé lorsqu'il manque des informations.
 
 La prévisualisation doit être produite en exécutant le script réellement livré, avec la largeur 390 px, des portraits provenant de la référence pour la fixture locale, et un DOM reproduisant les défauts de la première capture. Vérifier aussi 320/430 px, le recyclage des lignes, la liste longue, les menus natifs, l'appui sur un Snap, un lecteur imbriqué et le retour. Les captures sont des simulations de la page web et ne valident pas un compte Snapchat ou Safari sur iPhone physique.
+
+## Retour des captures du 8 octobre — 1.6.9
+
+Les captures réelles ont montré les limites de la fixture initiale : avatar de compte en SVG hors de la liste, bouton d’ouverture avec symbole et libellé séparé, et bouton raccrocher étiré par son padding natif. La caméra est confirmée correcte par l’utilisateur. Les tests ajoutés vérifient les appuis de confiance sur le vrai contrôle de compte et le ratio 1:1 du vrai bouton raccrocher, avec leur gestionnaire conservé. Le DOM réel de Safari n’a pas été fourni ni inspecté ; ces formes sont des cas reconstruits à partir des captures, pas des données de production.

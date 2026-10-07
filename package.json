@@ -1,6 +1,6 @@
 {
   "name": "control-focus",
-  "version": "0.35.8",
+  "version": "0.35.9",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -13,7 +13,7 @@
     "package:extension": "node scripts/package-extension.cjs",
     "test:ui": "node scripts/check-workspace.cjs",
     "test:instagram": "node scripts/check-instagram.cjs",
-    "test:iphone": "node scripts/check-snap-reference.cjs && node scripts/check-snap-reference.cjs && node scripts/check-snap-mobile-native.cjs && node scripts/check-snap-surfaces.cjs && node scripts/check-snap-reply.cjs && node scripts/check-snap-messages.cjs && node scripts/check-iphone.cjs && node scripts/check-snap-layout.cjs && node scripts/check-snap-polish.cjs",
+    "test:iphone": "node scripts/check-snap-native-controls.cjs && node scripts/check-snap-reference.cjs && node scripts/check-snap-reference.cjs && node scripts/check-snap-mobile-native.cjs && node scripts/check-snap-surfaces.cjs && node scripts/check-snap-reply.cjs && node scripts/check-snap-messages.cjs && node scripts/check-iphone.cjs && node scripts/check-snap-layout.cjs && node scripts/check-snap-polish.cjs",
     "test:media-focus": "node scripts/check-media-focus.cjs"
   },
   "devDependencies": {

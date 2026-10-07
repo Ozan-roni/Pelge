@@ -1,6 +1,10 @@
-# Control iPhone — Safari 1.6.8
+# Control iPhone — Safari 1.6.9
 
-## 1.6.8 — chat Snapchat aligné sur la référence
+## 1.6.9 — vrais contrôles natifs
+
+Le compte en SVG placé hors de la liste ne laisse plus une ligne noire à gauche. Le vrai contrôle est positionné sous l’icône paramètres de droite : il reçoit directement les gestes utilisateur. Les libellés Voir externes et symboliques sont reconnus, sans laisser une action caméra prendre leur priorité. Bouton raccrocher carré 44×44 px, icône centrée. Le cadrage caméra de 1.6.8 est conservé. Les tests supplémentaires reproduisent les cas des captures ; ils ne constituent pas une inspection du DOM de l’iPhone.
+
+### Chat Snapchat aligné sur la référence
 
 Liste sans navigation basse, sans popup Control ni bouton caméra. En-tête Chat avec recherche à gauche et paramètres natifs à droite. Lignes de 66 px, avatars de 48 px, noms de 19 px, statuts de 13 px avec icônes vectorielles. Le bouton natif d'ouverture du Snap couvre la ligne du statut. Groupes limités à trois portraits, ami emoji au-dessus de l'avatar. Réglages sans effet de verre.
 
@@ -12,7 +16,7 @@ La caméra Snapchat conserve son cadrage complet en portrait/paysage et ses para
 
 Instagram bloque aussi ses conteneurs de défilement imbriqués, même ajoutés après l'ouverture d'une vidéo reçue. Les gestes ne peuvent plus atteindre les gestionnaires de continuation enregistrés sur le document, y compris lorsqu'ils commencent sur un champ de commentaire. Saisie, contrôles du lecteur et retour aux messages conservés.
 
-Remplacer le script existant par **Control-iPhone.user.js 1.6.8**, garder un seul script Control actif, puis recharger Safari. Tests sur DOM isolés et médias générés localement dans Chrome/Edge ; validation sur un iPhone physique encore nécessaire.
+Remplacer le script existant par **Control-iPhone.user.js 1.6.9**, garder un seul script Control actif, puis recharger Safari. Tests sur DOM isolés et médias générés localement dans Chrome/Edge ; validation sur un iPhone physique encore nécessaire.
 
 ### Travail local non publié après la 1.6.6
 
@@ -26,11 +30,11 @@ Cette édition complète remplace les versions précédentes. Les sites et les a
 
 ## Installation / mise à jour
 
-Cette édition contient la version **1.6.8**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
+Cette édition contient la version **1.6.9**. Vérifier le champ `@version` avant l'installation, notamment si Safari affiche une copie en cache.
 
 Fichier source en ligne : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-Après publication sur GitHub, ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Pour une mise à jour locale, transférer le fichier corrigé. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.8** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
+Après publication sur GitHub, ouvrir ce lien dans Safari et utiliser l'installation proposée par Userscripts. Pour une mise à jour locale, transférer le fichier corrigé. Remplacer la version existante, puis recharger les onglets. Vérifier que la version installée est **1.6.9** et garder un seul script Control actif. Une mise à jour sur GitHub ne remplace pas automatiquement un script déjà installé sur l'iPhone.
 
 ## 1.6.6 — lecteur natif et liste compacte (validation iPhone requise)
 

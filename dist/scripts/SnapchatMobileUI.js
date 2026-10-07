@@ -9,7 +9,7 @@
  const own=(tag,kind)=>{const n=document.createElement(tag);n.dataset.controlSnapOwned=kind;return n;};
  const tag=(n,key,value='')=>{if(n.getAttribute(key)!==value)n.setAttribute(key,value);};
  function create(){
-  const style=own('style','mobile-ui'),headers=new Map(),labels=new Map(),abort=new AbortController();
+  const style=own('style','mobile-ui'),headers=new Map(),labels=new Map(),semantics=new Map(),abort=new AbortController();
   style.textContent=`
   @media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){
    html[data-control-snap] [data-csm-header]{display:block!important;position:sticky!important;top:0!important;z-index:8!important;box-sizing:border-box!important;min-height:0!important;height:auto!important;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px!important;margin:0!important;background:#fff!important}
@@ -76,23 +76,30 @@
    html[data-control-snap] [data-csm-row] [data-control-snap-group] [data-control-snap-member="2"]{position:absolute!important;inset:4% -2% auto auto!important;width:58%!important;height:82%!important;z-index:1!important;opacity:.4!important;object-fit:contain!important}
    html[data-control-snap] [data-csm-row] [data-control-snap-badge]{position:absolute!important;inset:auto auto -2px -2px!important;display:grid!important;place-items:center!important;width:17px!important;height:17px!important;min-width:17px!important;max-width:17px!important;font:14px/17px system-ui!important;z-index:5!important;background:#fff!important;border-radius:50%!important;overflow:visible!important}
   }
+  @media(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse){
+   html[data-control-snap] [data-csm-header-shell],html[data-control-snap] [data-csm-header] [data-csm-header-shell]{display:contents!important;position:static!important;inset:auto!important;transform:none!important;clip-path:none!important;overflow:visible!important;margin:0!important;padding:0!important}
+   html[data-control-snap] [data-csm-settings-trigger],html[data-control-snap] [data-csm-header] [data-csm-settings-trigger]{display:block!important;position:fixed!important;inset:auto!important;left:var(--csm-settings-left)!important;top:var(--csm-settings-top)!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;margin:0!important;padding:0!important;transform:none!important;clip-path:none!important;opacity:0!important;pointer-events:all!important;z-index:30!important;cursor:pointer!important}
+   [data-csm-settings-face]{pointer-events:none!important}
+   html[data-control-snap-view="conversation"] [data-csm-settings-trigger]{display:none!important}
+   html[data-control-snap] [data-csm-name] :is(span,strong,b),html[data-control-snap] [data-csm-status] :is(span,strong,b,time){font:inherit!important;color:inherit!important}
+  }
 `;document.documentElement.append(style);
   function header(list){
-   list.querySelectorAll('[data-csm-header-source]').forEach(n=>n.removeAttribute('data-csm-header-source'));
+   document.querySelectorAll('[data-csm-header-source],[data-csm-header-shell],[data-csm-settings-trigger]').forEach(n=>{for(const a of ['data-csm-header-source','data-csm-header-shell','data-csm-settings-trigger'])n.removeAttribute(a);});
    const h=list.querySelector('[data-control-snap-toolbar]');if(!h)return;tag(h,'data-csm-header');
    let entry=headers.get(h);
    if(!entry){const bar=own('div','mobile-toolbar');bar.innerHTML='<div class="csm-left"></div><h1 class="csm-title">Chat</h1><div class="csm-right"></div>';h.prepend(bar);entry={bar,buttons:new Map()};headers.set(h,entry);}
    for(const id of ['control-snap-brand','control-iphone','control-snap-tabs','control-snap-new-chat'])document.getElementById(id)?.remove();
    for(const n of document.querySelectorAll('[data-testid="bottom-navigation"],[data-testid="bottom-nav"],[data-testid="chat-tabs"],[role="tablist"]'))if(!n.closest('[role="dialog"],[role="menu"],[data-control-snap-conversation],[data-csx-chat]'))tag(n,'data-csm-distraction');
    const excluded='[data-control-snap-owned],[data-control-snap-row],[role="menu"],[role="dialog"],[data-csx-settings]';
-   const candidates=[...list.querySelectorAll('button,[role="button"],a,[tabindex]')].filter(n=>!n.closest(excluded));
-   const description=n=>[label(n),n.getAttribute('data-testid'),...([...n.querySelectorAll('[aria-label],[title],img')].map(x=>x.getAttribute('aria-label')||x.getAttribute('title')||x.getAttribute('alt')||''))].join(' ');
+   const scope=document.querySelector('[data-control-snap-shell]')||list.parentElement||list;
+   const candidates=[...scope.querySelectorAll('button,[role="button"],a,[tabindex]')].filter(n=>!n.closest(excluded+' ,[data-csx-chat],[data-control-snap-conversation]'));
+   const description=n=>[label(n),n.getAttribute('data-testid'),n.getAttribute('class'),...([...n.querySelectorAll('[aria-label],[title],img,svg')].map(x=>x.getAttribute('aria-label')||x.getAttribute('title')||x.getAttribute('alt')||x.getAttribute('data-testid')||''))].join(' ');
    // Snapchat sometimes renders the account entry as an unlabelled image/div,
    // separate from its native header. Use the real pre-list avatar, not a fake identity.
    const firstRow=list.querySelector('[data-control-snap-row]');
-   const accountImage=[...list.querySelectorAll('img')].find(n=>!n.closest(excluded)&&firstRow&&(n.compareDocumentPosition(firstRow)&Node.DOCUMENT_POSITION_FOLLOWING)&&!n.closest('a[href*="/chat/"]'));
+   const accountImage=[...scope.querySelectorAll('img,svg,[role="img"]')].find(n=>!n.closest(excluded)&&!n.parentElement?.closest('svg')&&!h.contains(n)&&firstRow&&(n.compareDocumentPosition(firstRow)&Node.DOCUMENT_POSITION_FOLLOWING)&&!n.closest('a[href*="/chat/"]'));
    const accountTarget=accountImage&&(accountImage.closest('button,[role="button"],a,[tabindex]')||accountImage);
-   if(accountTarget){tag(accountTarget,'data-csm-header-source');for(let parent=accountTarget.parentElement;parent&&parent!==h&&parent!==list&&!parent.querySelector('[data-control-snap-row],input,[role="menu"],[role="dialog"]');parent=parent.parentElement)tag(parent,'data-csm-header-source');}
    const specs=[['search',null,'Rechercher','search'],['settings',/settings|paramètre|options|more|menu|plus|profil|account|compte/i,'Paramètres','settings']];
    for(const [kind,pattern,title,graphic] of specs){
     const target=pattern?(candidates.find(n=>/settings|paramètre/i.test(description(n)))||candidates.find(n=>pattern.test(description(n)))||accountTarget):null;
@@ -101,17 +108,30 @@
      button.addEventListener('click',()=>{if(kind==='search'){h.toggleAttribute('data-csm-search-open');const input=h.querySelector('[data-control-snap-owned="search"] input');if(h.hasAttribute('data-csm-search-open'))input?.focus();button.setAttribute('aria-expanded',String(h.hasAttribute('data-csm-search-open')));}else if(record.target?.isConnected)record.target.click();},{signal:abort.signal});
     }record.target=target;record.button.disabled=kind!=='search'&&!target;
     record.button.title=record.button.disabled?'Action indisponible dans cette page Snapchat Web':'';
-    if(target){if(!target.querySelector('[role="menu"],[role="dialog"]'))tag(target,'data-csm-header-source');for(let p=target.parentElement;p&&p!==h&&p!==list&&!p.querySelector('[data-control-snap-row],input,[role="menu"],[role="dialog"]');p=p.parentElement)tag(p,'data-csm-header-source');}
+    if(kind==='settings'&&target){
+     // The native control receives the trusted touch itself. Preserve its handlers
+     // and ancestors, including menus opened from an unlabelled SVG account entry.
+     const hit=target.querySelector('[role="menu"],[role="dialog"]')?(target.querySelector('svg,img')||target):target;
+     tag(hit,'data-csm-settings-trigger');tag(record.button,'data-csm-settings-face');record.button.setAttribute('aria-hidden','true');record.button.tabIndex=-1;
+     for(let p=hit.parentElement;p&&p!==h&&p!==list&&p!==scope&&!p.querySelector('[data-control-snap-row],input,textarea');p=p.parentElement)tag(p,'data-csm-header-shell');
+     if(!labels.has(hit))labels.set(hit,hit.getAttribute('aria-label'));tag(hit,'aria-label','Paramètres');
+     if(!hit.matches('button,a')){if(!semantics.has(hit))semantics.set(hit,{role:hit.getAttribute('role'),tabindex:hit.getAttribute('tabindex')});tag(hit,'role','button');tag(hit,'tabindex','0');}
+    }else if(kind==='settings'){record.button.removeAttribute('data-csm-settings-face');record.button.removeAttribute('aria-hidden');record.button.tabIndex=0;}
+    if(kind==='settings'&&accountTarget&&accountTarget!==target&&!accountTarget.contains(target)&&!target?.contains(accountTarget)){
+     tag(accountTarget,'data-csm-header-source');for(let p=accountTarget.parentElement;p&&p!==h&&p!==list&&p!==scope&&!p.querySelector('[data-control-snap-row],input,[role="menu"],[role="dialog"],[data-csm-settings-trigger]');p=p.parentElement)tag(p,'data-csm-header-source');
+    }
     const portrait=target?.matches('img')?target:target?.querySelector('img');
     if(kind==='profile'&&portrait){const src=portrait.getAttribute('src');if(src&&record.src!==src){record.src=src;record.button.replaceChildren(portrait.cloneNode());}}
    }
    for(const target of candidates.filter(n=>/notification|alert|add friend|ajout.*ami|more|options|menu|profil|account|compte|settings|paramètre/i.test(description(n)))){
-    if(!target.querySelector('[role="menu"],[role="dialog"]'))tag(target,'data-csm-header-source');
-    for(let parent=target.parentElement;parent&&parent!==h&&parent!==list&&!parent.querySelector('[data-control-snap-row],input,[role="menu"],[role="dialog"]');parent=parent.parentElement)tag(parent,'data-csm-header-source');
+    if(target.hasAttribute('data-csm-settings-trigger')||target.querySelector('[data-csm-settings-trigger],[role="menu"],[role="dialog"]'))continue;
+    tag(target,'data-csm-header-source');
+    for(let parent=target.parentElement;parent&&parent!==h&&parent!==list&&parent!==scope&&!parent.querySelector('[data-control-snap-row],input,[role="menu"],[role="dialog"],[data-csm-settings-trigger]');parent=parent.parentElement)tag(parent,'data-csm-header-source');
    }
    const box=h.querySelector('[data-control-snap-owned="search"]'),input=box?.querySelector('input');
    if(input){input.placeholder='Rechercher';input.setAttribute('aria-label','Rechercher dans les conversations');}
    if(box&&!box.querySelector('.csm-cancel')){const cancel=own('button','cancel-search');cancel.className='csm-cancel';cancel.textContent='Annuler';cancel.onclick=()=>{h.removeAttribute('data-csm-search-open');input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));entry.buttons.get('search')?.button.focus();};box.append(cancel);}
+   const face=entry.buttons.get('settings')?.button;if(face?.hasAttribute('data-csm-settings-face')){const r=face.getBoundingClientRect();document.documentElement.style.setProperty('--csm-settings-left',r.x+'px');document.documentElement.style.setProperty('--csm-settings-top',r.y+'px');}
   }
   function statusGraphic(text,source){
    if(!/reçu|received|ouvert|opened|remis|delivered|envoyé|sent|nouveau|new |non lu|unread|réagi|reacted|enregistr|saved|appel|call|en attente|pending|capture|screenshot|rejou|replay/i.test(text)){
@@ -136,18 +156,20 @@
     if(row.closest('[role="menu"],[role="dialog"],[data-csx-settings]'))continue;
     tag(row,'data-csm-row');row.toggleAttribute('data-csm-virtual',!!row.style.getPropertyValue('--control-row-height'));const name=row.querySelector('[data-control-snap-name-line]');if(!name)continue;
     row.querySelectorAll('[data-csm-action],[data-csm-action-secondary],[data-csm-flat],[data-csm-name],[data-csm-status]').forEach(n=>{for(const a of ['data-csm-action','data-csm-action-secondary','data-csm-flat','data-csm-name','data-csm-status'])n.removeAttribute(a);});
-    const actionLabel=/^(voir|view|ouvrir|open|répondre|repondre|reply|appareil photo|caméra|camera)(\s+.*)?$/i;
-    const actions=[...row.querySelectorAll('button,[role="button"],a,[tabindex],div[aria-label],span[aria-label]')].filter(n=>n!==row&&!n.contains(name)&&!n.closest('[data-control-snap-avatar-slot],[data-control-snap-owned]')&&actionLabel.test(label(n)));
+    const actionLabel=/^(voir|visualiser|afficher|view|ouvrir|open|répondre|repondre|reply|appareil photo|caméra|camera)(\s+.*)?$/i;
+    const actionText=n=>{const c=n.cloneNode(true);c.querySelectorAll('svg,img,[data-control-snap-owned]').forEach(x=>x.remove());return c.textContent.replace(/^[\s\p{S}\p{P}]+/u,'').trim();};
+    const actionName=n=>actionLabel.test(label(n))?label(n):actionText(n);
+    const actions=[...row.querySelectorAll('button,[role="button"],a,[tabindex],div[aria-label],span[aria-label]')].filter(n=>n!==row&&!n.contains(name)&&!n.closest('[data-control-snap-avatar-slot],[data-control-snap-owned]')&&actionLabel.test(actionName(n)));
     for(const wrapper of row.querySelectorAll('div,span')){
-     if(wrapper.contains(name)||wrapper.closest('[data-control-snap-avatar-slot],[data-control-snap-owned]')||!actionLabel.test(wrapper.textContent.trim()))continue;
+     if(wrapper.contains(name)||wrapper.closest('[data-control-snap-avatar-slot],[data-control-snap-owned]')||!actionLabel.test(actionText(wrapper)))continue;
      const buttons=wrapper.querySelectorAll('button,[role="button"],a,[tabindex]');
-     if(buttons.length===1&&!actions.includes(buttons[0])){actions.push(buttons[0]);for(const caption of wrapper.querySelectorAll('span'))if(!buttons[0].contains(caption)&&actionLabel.test(caption.textContent.trim()))tag(caption,'data-csm-action-caption');}
+     if(buttons.length===1&&!actions.includes(buttons[0])){actions.push(buttons[0]);for(const caption of wrapper.querySelectorAll('span,b,strong,div'))if(!caption.contains(buttons[0])&&!buttons[0].contains(caption)&&actionLabel.test(actionText(caption)))tag(caption,'data-csm-action-caption');}
      else if(!buttons.length&&!wrapper.hasAttribute('data-csm-action-caption')&&!actions.some(n=>n.contains(wrapper)||wrapper.contains(n))&&!wrapper.closest('button,[role="button"],a,[tabindex]'))actions.push(wrapper);
     }
-    const action=actions.find(n=>/voir|view|open|ouvrir/i.test(label(n)))||actions.find(n=>/répondre|repondre|reply/i.test(label(n)))||actions.find(n=>n.parentElement.querySelector('[data-csm-action-caption]'));
+    const action=actions.find(n=>/voir|visualiser|afficher|view|open|ouvrir/i.test(actionName(n)))||actions.find(n=>/répondre|repondre|reply/i.test(actionName(n)))||actions.find(n=>n.parentElement!==row&&!n.parentElement.contains(name)&&n.parentElement.querySelector('[data-csm-action-caption]'));
     for(const n of actions)tag(n,n===action?'data-csm-action':'data-csm-action-secondary');
     row.querySelectorAll('[data-control-snap-owned="row-icon"]').forEach(n=>n.remove());
-    if(action&&!action.getAttribute('aria-label')){if(!labels.has(action))labels.set(action,null);action.setAttribute('aria-label',label(action));}
+    if(action&&!action.getAttribute('aria-label')){if(!labels.has(action))labels.set(action,null);action.setAttribute('aria-label',actionName(action)||action.parentElement.querySelector('[data-csm-action-caption]')?.textContent.trim()||'Voir');}
     const sources=[...row.querySelectorAll('[data-control-snap-status-line]')].filter(n=>!n.closest('[data-control-snap-owned]'));
     const read=n=>{const copy=n.cloneNode(true);copy.querySelectorAll('[data-control-snap-owned],svg,img').forEach(n=>n.remove());copy.querySelectorAll('button,[role="button"],a').forEach(n=>{if(!/^(reçu|received|nouveau|new |remis|delivered|envoyé|sent|ouvert|opened|enregistr|saved)/i.test(n.textContent.trim()))n.remove();});return copy.textContent.replace(/\s+/g,' ').trim();};
     let text=sources.map(read).filter(Boolean).join(' ').replace(/(?:\s*[·•]\s*)+/g,' · ').trim();
@@ -167,7 +189,7 @@
    }
   }
   function refresh(){if(!matchMedia('(max-width:700px),(max-width:950px) and (max-height:600px) and (pointer:coarse)').matches)return;for(const list of document.querySelectorAll('[data-control-snap-contacts]')){header(list);rows(list);}}
-  function dispose(){abort.abort();style.remove();for(const {bar}of headers.values())bar.remove();for(const [n,value]of labels)if(value===null)n.removeAttribute('aria-label');else n.setAttribute('aria-label',value);for(const n of document.querySelectorAll('[data-control-snap-owned="row-icon"],[data-control-snap-owned="cancel-search"],[data-control-snap-owned="status"]'))n.remove();for(const n of document.querySelectorAll('*'))for(const a of n.getAttributeNames())if(a.startsWith('data-csm-'))n.removeAttribute(a);}
+  function dispose(){abort.abort();style.remove();for(const {bar}of headers.values())bar.remove();for(const [n,value]of labels)if(value===null)n.removeAttribute('aria-label');else n.setAttribute('aria-label',value);for(const [n,attrs]of semantics)for(const [a,value]of Object.entries(attrs))if(value===null)n.removeAttribute(a);else n.setAttribute(a,value);for(const n of document.querySelectorAll('[data-control-snap-owned="row-icon"],[data-control-snap-owned="cancel-search"],[data-control-snap-owned="status"]'))n.remove();for(const n of document.querySelectorAll('*'))for(const a of n.getAttributeNames())if(a.startsWith('data-csm-'))n.removeAttribute(a);for(const name of ['--csm-settings-left','--csm-settings-top'])document.documentElement.style.removeProperty(name);}
   return{refresh,dispose};
  }
  function inspect(){

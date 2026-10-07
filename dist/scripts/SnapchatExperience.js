@@ -77,7 +77,7 @@
       [data-csx-call-remote]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:var(--csx-fit,contain)!important}
       [data-csx-call-local]{position:absolute!important;inset:16px 16px auto auto!important;width:clamp(88px,16vw,180px)!important;height:auto!important;aspect-ratio:var(--csx-ratio,4/3)!important;max-height:25%!important;object-fit:contain!important;background:#171717!important;border-radius:12px!important;z-index:3!important}
       [data-csx-call-controls]{position:absolute!important;inset:auto 12px max(16px,env(safe-area-inset-bottom))!important;display:flex!important;justify-content:center!important;gap:12px!important;width:auto!important;height:auto!important;z-index:4!important}
-      [data-csx-call-state]{position:absolute;top:16px;left:16px;max-width:70%;padding:8px 12px;border-radius:12px;background:#222d;color:white;font:14px system-ui;z-index:5}
+      [data-csx-call-state]{position:absolute;top:16px;left:16px;max-width:70%;padding:8px 12px;border-radius:12px;background:#222d;color:white;font:14px system-ui;z-index:5;pointer-events:none}
       #control-snap-session{position:fixed;inset:0;z-index:2147483200;pointer-events:none;color:white}
       #control-snap-session .csx-progress{position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;display:flex;gap:4px}
       #control-snap-session .csx-track{height:3px;flex:1;background:#ffffff55;overflow:hidden;border-radius:3px}

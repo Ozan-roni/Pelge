@@ -1,3 +1,7 @@
+# Mise à jour Control 0.35.9 — contrôles natifs Snapchat
+
+Script Safari **1.6.9** : compte SVG extérieur à la liste, appui direct sur les paramètres natifs, boutons Voir avec libellé externe, raccrocher carré et centré. Le statut d’appel ne bloque plus les contrôles. Cadrage caméra inchangé.
+
 # Mise à jour Control 0.35.8 — chat Snapchat mobile
 
 Correspondance avec le script Safari **1.6.8**. Mise en page corrigée d'après les captures fournies : liste seule, paramètres en haut à droite, statuts et zones d'appui alignés, avatars et groupes proportionnés. Les conversations, snaps, menus et retours conservent les actions natives.
