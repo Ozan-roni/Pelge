@@ -1,0 +1,312 @@
+[
+  {
+    "Name": "Instagram",
+    "Id": "instagram",
+    "Domains": [
+      "instagram.com"
+    ],
+    "Rules": [
+      {
+        "Key": "Reels",
+        "Label": "Masquer les Reels",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "ForYou",
+        "Label": "Masquer Pour vous",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Explore",
+        "Label": "Masquer Explorer",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Search",
+        "Label": "Autoriser la recherche",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "GridContent",
+        "Label": "Masquer la grille média",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "SearchGridGuard",
+        "Label": "Grille de recherche au repos",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "SearchScrollLock",
+        "Label": "Un résultat à la fois",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "AdsAndSuggested",
+        "Label": "Publicités et suggestions",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "SuggestedPosts",
+        "Label": "Publications suggérées",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Stories",
+        "Label": "Masquer les Stories",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "StoryAds",
+        "Label": "Publicités dans les Stories",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Live",
+        "Label": "Masquer les directs",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Shopping",
+        "Label": "Masquer Shopping",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "SavedPosts",
+        "Label": "Masquer les enregistrements",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "HomeFeed",
+        "Label": "Masquer le fil d’accueil",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "HideFollowingPosts",
+        "Label": "Masquer les publications suivies",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "DMsOnly",
+        "Label": "Messages uniquement",
+        "OriginalDefault": true
+      }
+    ]
+  },
+  {
+    "Name": "X",
+    "Id": "x",
+    "Domains": [
+      "x.com",
+      "twitter.com"
+    ],
+    "Rules": [
+      {
+        "Key": "DMsOnly",
+        "Label": "Messages uniquement",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "ForYou",
+        "Label": "Masquer Pour vous",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "SearchProfilesOnly",
+        "Label": "Recherche de profils uniquement",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Videos",
+        "Label": "Masquer les vidéos",
+        "OriginalDefault": true
+      }
+    ]
+  },
+  {
+    "Name": "Snapchat",
+    "Id": "snapchat",
+    "Domains": [
+      "snapchat.com"
+    ],
+    "Rules": [
+      {
+        "Key": "Spotlight",
+        "Label": "Masquer Spotlight",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Stories",
+        "Label": "Masquer les Stories",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Discover",
+        "Label": "Masquer Discover",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Map",
+        "Label": "Masquer Snap Map",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Ads",
+        "Label": "Masquer les publicités",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "DMsOnly",
+        "Label": "Messages uniquement",
+        "OriginalDefault": true
+      }
+    ]
+  },
+  {
+    "Name": "TikTok",
+    "Id": "tiktok",
+    "Domains": [
+      "tiktok.com"
+    ],
+    "Rules": [
+      {
+        "Key": "ForYou",
+        "Label": "Masquer Pour vous",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "FollowingFeed",
+        "Label": "Masquer le fil Abonnements",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Live",
+        "Label": "Masquer les directs",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Suggested",
+        "Label": "Masquer les suggestions",
+        "OriginalDefault": true
+      }
+    ]
+  },
+  {
+    "Name": "Reddit",
+    "Id": "reddit",
+    "Domains": [
+      "reddit.com"
+    ],
+    "Rules": [
+      {
+        "Key": "DMsOnly",
+        "Label": "Messages uniquement",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "HomeFeed",
+        "Label": "Masquer le fil d’accueil",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Popular",
+        "Label": "Masquer Populaire",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Comments",
+        "Label": "Masquer les commentaires",
+        "OriginalDefault": false
+      }
+    ]
+  },
+  {
+    "Name": "Threads",
+    "Id": "threads",
+    "Domains": [
+      "threads.com",
+      "threads.net"
+    ],
+    "Rules": [
+      {
+        "Key": "ForYou",
+        "Label": "Masquer Pour vous",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Activity",
+        "Label": "Masquer l’activité",
+        "OriginalDefault": false
+      }
+    ]
+  },
+  {
+    "Name": "Facebook",
+    "Id": "facebook",
+    "Domains": [
+      "facebook.com"
+    ],
+    "Rules": [
+      {
+        "Key": "HomeFeed",
+        "Label": "Masquer le fil d’accueil",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Reels",
+        "Label": "Masquer les Reels",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "Stories",
+        "Label": "Masquer les Stories",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "DMsOnly",
+        "Label": "Messages uniquement",
+        "OriginalDefault": false
+      }
+    ]
+  },
+  {
+    "Name": "YouTube",
+    "Id": "youtube",
+    "Domains": [
+      "youtube.com",
+      "youtu.be"
+    ],
+    "Rules": [
+      {
+        "Key": "VideoOnly",
+        "Label": "Recherche et vidéo uniquement",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "Shorts",
+        "Label": "Masquer les Shorts",
+        "OriginalDefault": true
+      },
+      {
+        "Key": "HomeFeed",
+        "Label": "Masquer le fil d’accueil",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "Recommendations",
+        "Label": "Masquer les recommandations",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "Comments",
+        "Label": "Masquer les commentaires",
+        "OriginalDefault": false
+      },
+      {
+        "Key": "Ads",
+        "Label": "Masquer les publicités",
+        "OriginalDefault": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+work/
+outputs/
+distribution/tools/
+__pycache__/
+*.error.txt

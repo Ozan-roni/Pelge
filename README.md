@@ -1,3 +1,15 @@
+# Télécharger Control / Seraphim
+
+**[Télécharger le pack Windows + extensions + guide iPhone](https://github.com/Ozan-roni/Pelge/releases/latest/download/Seraphim-Partage.zip)**
+
+[Installateur Windows](https://github.com/Ozan-roni/Pelge/releases/latest/download/Seraphim-Setup.exe) · [Installer Control sur iPhone](https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js) · [Installation et mises à jour](seraphim/README.md) · [Toutes les versions](https://github.com/Ozan-roni/Pelge/releases)
+
+Seraphim 0.16.2 et les versions suivantes vérifient GitHub à l’ouverture et proposent leur mise à jour. L’installation demande confirmation et conserve les données. Pour les extensions manuelles, recharger dans Chrome/Edge ; sur iPhone, utiliser Userscripts ou réinstaller depuis le même lien.
+
+Pour publier une nouvelle version : **Actions → Publier Seraphim → Run workflow** avec un numéro neuf. [Guide mainteneur](seraphim/README.md#publier-la-prochaine-version).
+
+---
+
 # Control
 
 Site et extension de protection de l'attention. Les sources du site sont dans `dist/` (pas de compilation nécessaire). Le manifeste et les tests de l'extension sont dans `extension/`.

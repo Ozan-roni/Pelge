@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+  "name": "Control · Seraphim Companion",
+  "version": "0.16.0",
+  "description": "Passages, filtrage, calme et suivi du temps de votre session Seraphim.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApC4i9hjyySa3lxifmn1XJZmWA6OYf8XBI613X/DtmRasC+9zl5dmAKQX/95VJWUyL3YfnP2DQCMnI8pCqb95QjMnTmdmOqy0T2MnFwt0BTcZSpsfvKhikvSG5t05UpNMO8sN6O1G6zNFWTwQ2DlaX7xYxWlDr7FMycDohWJFN72yMGWl6tOWwptNfbsxA7YJ5mN/3CTLrH1RcjlSOZmBstIsOJDsP/Gx5CwBcM5ND/uORmry/JimyvZ9OlXT5Fwce0aTLxtCDYete0VS3voqg+JMRZ8KXeAQQJRIJ02KmE21R5yoH/lKEz1gfXPhIn/GaN2pc1flyG5HWYKsHBGiywIDAQAB",
+  "permissions": [
+    "nativeMessaging",
+    "storage",
+    "tabs",
+    "alarms",
+    "webNavigation",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Control · Seraphim",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.instagram.com/*",
+        "*://*.x.com/*",
+        "*://*.twitter.com/*",
+        "*://*.snapchat.com/*",
+        "*://*.tiktok.com/*",
+        "*://*.reddit.com/*",
+        "*://*.threads.com/*",
+        "*://*.threads.net/*",
+        "*://*.facebook.com/*",
+        "*://*.youtube.com/*",
+        "*://*.youtu.be/*"
+      ],
+      "css": [
+        "control/ContentFilter.css",
+        "control/ContentFilterExtended.css",
+        "control/ControlFeedback.css"
+      ],
+      "js": [
+        "control-runtime.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "gate.html",
+        "gate.css",
+        "gate.js",
+        "policy.js",
+        "assets/control-logo-black.png",
+        "assets/control-logo-white.png",
+        "blocked.html",
+        "blocked.css",
+        "blocked.js",
+        "assets/ControlSelectedWhiteIcon128.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-ancestors 'none'"
+  }
+}

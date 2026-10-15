@@ -1,0 +1,46 @@
+name: Publier Seraphim
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Nouvelle version Windows, par exemple 0.16.3'
+        required: true
+        default: '0.16.2'
+permissions:
+  contents: write
+concurrency:
+  group: seraphim-publication
+  cancel-in-progress: false
+jobs:
+  publier:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    env:
+      SERAPHIM_VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les outils de fabrication
+        run: python -m pip install -r seraphim/distribution/requirements.txt
+      - name: Fabriquer et vérifier le paquet
+        run: |
+          python -X utf8 seraphim/distribution/build.py
+          python -X utf8 seraphim/distribution/prepare_release.py
+      - name: Publier les fichiers de la nouvelle version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='v'+$env:SERAPHIM_VERSION
+          gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
+          if($LASTEXITCODE -eq 0){throw 'Cette version existe déjà : choisir un nouveau numéro.'}
+          $notes='Seraphim '+$env:SERAPHIM_VERSION+' pour Windows, Control et le compagnon navigateur, guide iPhone. Détection des mises à jour GitHub ; installation après confirmation. Les extensions manuelles nécessitent un rechargement et les mises à jour iPhone dépendent de Userscripts.'
+          gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title ('Control / Seraphim '+$env:SERAPHIM_VERSION) --notes $notes --draft
+          if($LASTEXITCODE -ne 0){throw 'Création de release impossible'}
+          $files=Get-ChildItem -LiteralPath seraphim/outputs/release-assets -File | Select-Object -ExpandProperty FullName
+          gh release upload $tag @files --repo $env:GITHUB_REPOSITORY
+          if($LASTEXITCODE -ne 0){throw 'Téléversement incomplet : la release reste en brouillon'}
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if($LASTEXITCODE -ne 0){throw 'Publication impossible'}

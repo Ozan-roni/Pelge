@@ -1,0 +1,5 @@
+Drapeaux : Flagpedia.net / Flagcdn.com, issus de fichiers vectoriels Wikimedia Commons.
+https://flagpedia.net/download/api
+https://flagcdn.com
+Images conservées localement sans modification. Affichage circulaire par le composant de l’application.
+Récupération : 8 octobre 2026.

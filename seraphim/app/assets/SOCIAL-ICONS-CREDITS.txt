@@ -1,0 +1,21 @@
+Simple Icons · CC0 collection, brands retain their marks. Personal identification of applications, no endorsement.
+https://github.com/simple-icons/simple-icons
+
+instagram
+{"title": "Instagram", "source": "https://about.meta.com/brand/resources/instagram", "license": null, "guidelines": "https://about.meta.com/brand/resources/instagram"}
+snapchat
+{"title": "Snapchat", "source": "https://www.snapchat.com/brand-guidelines", "license": null, "guidelines": "https://www.snapchat.com/brand-guidelines"}
+youtube
+{"title": "YouTube", "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors", "license": null, "guidelines": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors"}
+tiktok
+{"title": "TikTok", "source": "https://tiktok.com", "license": null, "guidelines": null}
+facebook
+{"title": "Facebook", "source": "https://about.meta.com/brand/resources/facebook/logo", "license": null, "guidelines": "https://about.meta.com/brand/resources/facebook/logo"}
+x
+{"title": "X", "source": "https://x.com", "license": null, "guidelines": "https://about.x.com/en/who-we-are/brand-toolkit"}
+reddit
+{"title": "Reddit", "source": "https://www.redditinc.com/brand", "license": null, "guidelines": "https://www.redditinc.com/brand"}
+discord
+{"title": "Discord", "source": "https://discord.com/branding", "license": null, "guidelines": "https://discord.com/branding"}
+pinterest
+{"title": "Pinterest", "source": "https://business.pinterest.com/en/brand-guidelines", "license": null, "guidelines": "https://business.pinterest.com/en/brand-guidelines"}

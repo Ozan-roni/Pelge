@@ -1,0 +1,65 @@
+SERAPHIM — Visuels et direction artistique
+
+seraphim-sanctuary.png
+Illustration originale créée avec l'outil intégré ImageGen pour Seraphim.
+Prompt utilisé :
+Use case: stylized-concept. Asset type: wide decorative hero painting for a
+luxury Windows desktop application named Seraphim, not a screenshot or UI
+mockup. Create an original sacred seraph with six intricate layered wings
+curling and wrapping around a single calm luminous eye, in the visual
+tradition of antique etched heavenly illustrations. Subject placed in the
+right half of a wide cinematic 3:2 composition, left 42 percent almost empty
+dark charcoal smoke for later UI typography. Black graphite feather detail,
+ivory engraving highlights, subtle antique pale gold rim light, restrained
+gold halo behind the figure, soft wisps of shadow clouds. Very sophisticated
+luxury editorial aesthetic, rich feather texture, no garish colors. All four
+edges dissolve naturally into near-black #0C0D10, especially the entire left
+edge. The image must feel atmospheric, graceful, majestic, not threatening.
+No text, no letters, no watermark, no UI, no frame. Entire original
+illustration. Output landscape high resolution.
+
+dore-celestial-rose.jpg
+Gustave Doré (1832–1883), Paradiso, Canto XXXI, gravure du XIXe siècle.
+Reproduction d'une œuvre du domaine public (PD-Art / PD-old-100-expired).
+Source et notice :
+https://commons.wikimedia.org/wiki/File:Paradiso_Canto_31_(no_caption).jpg
+Fichier original :
+https://upload.wikimedia.org/wikipedia/commons/2/20/Paradiso_Canto_31_%28no_caption%29.jpg
+
+Les images sont conservées localement. L'application n'effectue aucun
+téléchargement d'images à l'ouverture.
+
+ÉDITION 0.3 — DESIGN CONTROL / SERAPHIM PREMIUM
+
+La référence Control a été retrouvée dans la discussion « Reproduire le
+design de Zip Control », puis dans son projet local control-site-hosted.
+control-logo-black.png, control-logo-white.png, control-background.png,
+control-phone.png, control-studio.png et control-shield.png sont des copies
+des assets de cette application existante, pour une utilisation personnelle.
+Le projet Control original n'a pas été modifié.
+
+seraphim-chrome.png — ImageGen intégré, illustration originale.
+Prompt final utilisé :
+Use case: stylized-concept. Asset type: decorative wide hero art for a
+futuristic luxury software desktop app Seraphim Premium, not an interface
+mockup. Brand reference concept: an eye surrounded by six wings of a seraph.
+Reimagine as a sophisticated floating chrome and frosted-glass sculptural
+seraph emblem, wings are six elegant layered precision-engineered metallic
+fins, with subtle translucent violet edges and an eye-like polished obsidian
+center. Clear refined geometry, microscopically precise thin machining lines
+and delicate orbital halo rings. The wings curve gracefully around the
+center, recognizable celestial six-wing structure, not mechanical bird or
+robot. Premium titanium, brushed silver, satin chrome, smoke glass. Sparse
+atmospheric deep ink-black and violet haze background #0C0D15, soft studio
+reflections, pale lilac light, tasteful dark luxury tech product photography.
+Wide landscape 3:2 composition, subject entirely on right 50 percent, left
+45 percent clean dark negative space for later real UI typography. All edges
+fade subtly into background. Sharp exquisite material details with restrained
+luminous highlights. No text, no letters, no logos besides the sculptural
+seraph, no watermark, no buttons, no user interface.
+
+Édition 0.4 : œil de Control et icône Windows dessinés par code vectoriel.
+Aucune image externe supplémentaire n'a été ajoutée pour cette mise à jour.
+
+Correction 0.4.1 : retour au logo original Control, sans redessin de sa forme.
+Le fichier ICO contient ce logo aux tailles 16, 32, 48, 64, 128 et 256 pixels.
