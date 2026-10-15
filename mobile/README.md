@@ -1,10 +1,14 @@
-# Control iPhone — Safari 1.7.1
+# Control iPhone — Safari 1.7.2
 
 ## Installation
 
-Ouvrir dans Safari le fichier Control-iPhone.user.js de ce dossier, puis l’installer dans Userscripts. Remplacer l’ancienne version, garder une seule copie active et recharger les onglets Safari. Vérifier le champ @version : 1.7.1.
+Ouvrir dans Safari le fichier Control-iPhone.user.js de ce dossier, puis l’installer dans Userscripts. Remplacer l’ancienne version, garder une seule copie active et recharger les onglets Safari. Vérifier le champ @version : 1.7.2.
 
 Lien direct : https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
+
+## Mises à jour
+
+Cette édition contient `@updateURL` vers `Control-iPhone.meta.js` et `@downloadURL` vers le script de ce dépôt. Utiliser la commande de mise à jour de Userscripts lorsqu’elle est disponible ; sinon remplacer le script depuis le même lien. Une ancienne copie sans ces métadonnées doit être remplacée une première fois. Les mises à jour silencieuses sur tous les iPhone ne sont pas garanties.
 
 ## Comportement
 
