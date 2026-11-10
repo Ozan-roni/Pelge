@@ -46,11 +46,27 @@ function outline() {
 }
 
 (async () => {
+  // --desktop: a normal computer window. Snapchat Web only lets a computer in; sign in there,
+  // then the window can be narrowed to a phone size through the command channel below.
+  const desktop = args.includes('--desktop');
   const context = await chromium.launchPersistentContext(path.join(root, 'build', 'sim-profile'), {
-    headless: false, channel: 'chrome', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true,
+    headless: false, channel: 'chrome', viewport: desktop ? { width: 1180, height: 844 } : { width: 390, height: 844 },
+    deviceScaleFactor: desktop ? 1 : 2, hasTouch: !desktop,
     ...(args.includes('--safari') ? { userAgent: desktopSafari } : {}), locale: 'fr-FR', permissions: ['camera', 'microphone'],
-    args: ['--window-size=406,940', '--use-fake-ui-for-media-stream'],
+    args: [desktop ? '--window-size=1200,940' : '--window-size=406,940', '--use-fake-ui-for-media-stream'],
   });
+  // Command channel for development: drop JavaScript in build/sim/cmd.js, it runs with (page, context)
+  // and its return value lands in build/sim/result.json.
+  const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+  setInterval(async () => {
+    const file = path.join(out, 'cmd.js');
+    if (!fs.existsSync(file)) return;
+    const code = fs.readFileSync(file, 'utf8'); fs.unlinkSync(file);
+    let result;
+    try { const current = context.pages().find(p => !p.isClosed()); result = { ok: true, value: await new AsyncFunction('page', 'context', 'root', code)(current, context, root) }; }
+    catch (error) { result = { ok: false, error: String(error && error.stack || error).slice(0, 1500) }; }
+    fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify(result === undefined ? null : result));
+  }, 500);
   if (!raw) await context.addInitScript({ path: path.join(root, 'mobile', 'Control-iPhone.user.js') });
   const page = context.pages()[0] || await context.newPage();
   await page.goto(start).catch(() => {});

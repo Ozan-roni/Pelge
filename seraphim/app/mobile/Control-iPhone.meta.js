@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      2.0.0
+// @version      2.1.0
 // @updateURL    https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.meta.js
 // @downloadURL  https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 // @description  Messageries uniquement : fils bloqués, défilement verrouillé ou plafonné, un seul média reçu à la fois.

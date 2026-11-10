@@ -1,11 +1,11 @@
-# Control iPhone — Safari 2.0.0
+# Control iPhone — Safari 2.1.0
 
 Userscript pour l'extension **Userscripts** de Safari (iPhone / iPad). Il garde les réseaux sur leurs messages et ferme tout ce qui se fait défiler.
 
 Lien d'installation et de mise à jour :
 https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
 
-## Ce que fait la 2.0.0
+## Blocage du défilement (depuis la 2.0.0)
 
 Un noyau commun (`CONTROL GUARD`, en tête du script) décide pour chaque adresse, sur tous les réseaux :
 
@@ -39,7 +39,21 @@ Vérifier que le script tourne : ouvrir `https://x.com/home`. La page doit bascu
 
 - Le script agit dans Safari uniquement. Il ne modifie pas les applications iOS natives et n'agit pas dans Chrome ou un autre navigateur.
 - Désactiver Userscripts retire le filtrage.
-- Snapchat Web n'accepte pas les téléphones : il faut « Demander le site pour ordinateur », ce qui donne une interface d'ordinateur. Sa refonte mobile (conversations, glissements, appels) est en cours et n'est pas dans cette version.
+- Snapchat Web n'accepte pas les téléphones : il faut « Demander le site pour ordinateur » dans Safari. Control le remet ensuite au format téléphone (voir ci-dessous).
+
+## Snapchat (2.1.0)
+
+Nouveau bloc `CONTROL SNAPCHAT MOBILE` (source : `mobile/runtime/SnapchatLite.js`, intégré par `node scripts/build-snap-lite.cjs`). Il remplace les anciens adaptateurs Snapchat, qui restent dans le fichier mais ne s'exécutent plus.
+
+- Deux écrans qui glissent : la liste des conversations, puis la conversation. Toucher un contact fait entrer la conversation par la droite ; le bouton retour de Snapchat ou un glissement vers la droite ramène à la liste.
+- La liste affiche les noms et statuts (Snapchat les masque sur écran étroit) avec un titre « Chat ».
+- La photo de montgolfières est retirée ; le bouton Spotlight et les entrées Stories sont masqués.
+- La caméra reste disponible par le bouton jaune en bas à droite de la liste.
+- Le script ne s'appuie que sur des repères stables de la page (`#root nav`, `span[id^="title-"]`, l'adresse `/web/<id>`), jamais sur les noms de classes, qui changent à chaque version de Snapchat. Aucun contenu n'est copié ni réécrit, et il n'y a plus d'observateur global de la page.
+
+Vérifié sur le vrai Snapchat Web connecté, dans Chrome sur PC à 500 px de large : liste, ouverture et fermeture d'une conversation, écran caméra, absence de la photo et de Spotlight. Le glissement au doigt est vérifié par `node scripts/check-snap-lite.cjs` (13 contrôles, vrais points tactiles) sur une page de test qui reproduit cette structure.
+
+Non vérifié : Safari sur iPhone, le clavier iOS dans une conversation, l'ouverture d'un Snap reçu et les appels (aucun appel n'a été passé pendant les essais). Les appels et les Snaps gardent l'interface de Snapchat, maintenant dans un écran vertical.
 
 ## Vérification
 
