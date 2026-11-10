@@ -11,6 +11,7 @@
     "dev": "node scripts/serve.cjs",
     "test": "node extension/check.cjs && node extension/check-settings.cjs && node extension/check-social-focus.cjs",
     "package:extension": "node scripts/package-extension.cjs",
+    "test:guard": "node scripts/check-guard.cjs",
     "test:ui": "node scripts/check-workspace.cjs",
     "test:instagram": "node scripts/check-instagram.cjs",
     "test:iphone": "node scripts/check-snap-mobile-native.cjs && node scripts/check-snap-surfaces.cjs && node scripts/check-snap-reply.cjs && node scripts/check-snap-messages.cjs && node scripts/check-iphone.cjs && node scripts/check-snap-layout.cjs && node scripts/check-snap-polish.cjs"

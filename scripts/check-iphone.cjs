@@ -42,9 +42,9 @@ async function run(){
     assert.equal(await page.evaluate(()=>{const e=new Event('touchmove',{bubbles:true,cancelable:true});return document.body.dispatchEvent(e);}),false);
     await page.reload();await page.waitForFunction(()=>document.documentElement.hasAttribute('data-control-single-media'));
     await page.screenshot({path:path.join(out,'instagram-single.png')});
-    await page.evaluate(()=>history.pushState({},'','/reel/Other123/'));await page.waitForURL(`https://${app.host}${app.dm}`);
-    assert.equal(await page.locator('html').getAttribute('data-control-single-media'),null);
-    await page.locator('#received').click();await page.waitForURL('**/reel/AbC123/');
+    await page.evaluate(()=>history.pushState({},'','/reel/Other123/'));
+    assert.equal(new URL(page.url()).pathname,'/reel/AbC123/','The media guard rejects navigation to the next Reel in place');
+    assert.notEqual(await page.locator('html').getAttribute('data-control-single-media'),null);
     await page.getByRole('link',{name:'Back to messages'}).click();await page.waitForURL(`https://${app.host}${app.dm}`);
     assert.equal(await page.evaluate(()=>{const a=document.querySelector('#received');a.href='/reel/NotClicked/';return a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));}),false,'Synthetic clicks cannot authorize another video');
    }

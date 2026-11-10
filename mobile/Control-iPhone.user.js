@@ -1,22 +1,252 @@
 // ==UserScript==
 // @name         Control — iPhone
 // @namespace    https://github.com/Ozan-roni/Pelge
-// @version      1.7.2
+// @version      2.0.0
 // @updateURL    https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.meta.js
 // @downloadURL  https://raw.githubusercontent.com/Ozan-roni/Pelge/main/mobile/Control-iPhone.user.js
-// @description  Messageries natives sans menu Control. Vidéos reçues Instagram sans enchaînement. Snapchat chat et galerie.
+// @description  Messageries uniquement : fils bloqués, défilement verrouillé ou plafonné, un seul média reçu à la fois.
 // @match        https://*.instagram.com/*
 // @match        https://*.snapchat.com/*
 // @match        https://*.facebook.com/*
 // @match        https://*.messenger.com/*
 // @match        https://*.reddit.com/*
+// @match        https://*.tiktok.com/*
 // @match        https://*.x.com/*
 // @match        https://*.twitter.com/*
+// @match        https://*.threads.net/*
+// @match        https://*.threads.com/*
 // @run-at       document-start
 // @inject-into  content
 // @grant        none
 // @noframes
 // ==/UserScript==
+
+/* BEGIN CONTROL GUARD */
+/* Route policy, blocking wall and scroll limits for every network.
+   Runs from the isolated content world: it never depends on page-world history
+   hooks, on a site-specific DOM, or on a redirect succeeding. */
+(() => {
+'use strict';
+if(window.top!==window.self||globalThis.ControlGuard)return;
+const NETWORKS=[
+ {id:'Instagram',label:'Instagram',domains:['instagram.com'],home:'/direct/inbox/'},
+ {id:'Snapchat',label:'Snapchat',domains:['snapchat.com'],home:'https://web.snapchat.com/'},
+ {id:'Facebook',label:'Facebook',domains:['facebook.com','messenger.com'],home:'/messages/',alt:['Messenger','https://www.messenger.com/']},
+ {id:'Reddit',label:'Reddit',domains:['reddit.com'],home:'https://www.reddit.com/message/inbox/',alt:['Chat','https://chat.reddit.com/']},
+ {id:'Threads',label:'Threads',domains:['threads.com','threads.net'],home:'/messages'},
+ {id:'TikTok',label:'TikTok',domains:['tiktok.com'],home:'/messages'},
+ {id:'X',label:'X',domains:['x.com','twitter.com'],home:'/messages'}
+];
+const networkFor=host=>NETWORKS.find(n=>n.domains.some(d=>host===d||host.endsWith('.'+d)));
+const net=networkFor(location.hostname);
+if(!net)return;
+const seg=u=>u.pathname.replace(/\/+$/,'')||'/';
+/* Identifier of one deliberately opened item; empty when the URL is not a single item. */
+function mediaKey(id,u){
+ const p=seg(u);let m;
+ if(id==='Instagram')return (m=p.match(/^\/(?:p|reels?)\/([\w-]+)$/))?m[1]:'';
+ if(id==='Facebook'){
+  if(m=p.match(/^\/reels?\/([\w.-]+)$/))return m[1];
+  if(m=p.match(/^\/(?:[\w.]+\/)?videos\/(\d+)$/))return m[1];
+  if(p==='/watch'&&/^\d+$/.test(u.searchParams.get('v')||''))return u.searchParams.get('v');
+  if(/^\/photo(?:\.php)?$/.test(p)&&/^\d+$/.test(u.searchParams.get('fbid')||''))return u.searchParams.get('fbid');
+  return '';
+ }
+ if(id==='Reddit')return (m=p.match(/^\/(?:r\/[\w-]+\/)?comments\/([a-z0-9]+)(?:\/[^/]+){0,2}$/i)||p.match(/^\/gallery\/([a-z0-9]+)$/i))?m[1]:'';
+ if(id==='X')return (m=p.match(/^\/\w+\/status\/(\d+)(?:\/(?:photo|video)\/\d+)?$/))?m[1]:'';
+ if(id==='TikTok')return (m=p.match(/^\/@[\w.-]+\/(?:video|photo)\/(\d+)$/))?m[1]:'';
+ return '';
+}
+function profile(id,u){
+ const p=seg(u);
+ if(id==='Instagram')return /^\/[a-z\d._]+(?:\/tagged)?$/i.test(p)&&!/^\/(?:explore|reels?|direct|stories|accounts|about|legal|directory|developer|challenge|oauth|web|p|notifications|search|privacy)(?:\/|$)/i.test(p);
+ if(id==='Facebook')return p==='/profile.php'&&/^\d+$/.test(u.searchParams.get('id')||'')||/^\/people\/[^/]+\/\d+(?:\/(?:photos|videos))?$/.test(p)||/^\/[\w.]+(?:\/(?:photos|videos))?$/.test(p)&&!/^\/(?:home(?:\.php)?|feeds?|watch|videos?|reels?|stories|groups|marketplace|gaming|search|friends|notifications|events|pages|photos?|media|saved|bookmarks|memories|fundraisers|ads|business|live|share|sharer(?:\.php)?|permalink\.php|story\.php|dialog|plugins|messages(?:-feed)?|welcome|login(?:\.php)?|settings|help|profile\.php|people|ajax|policies|hashtag|latest|shorts|n|a|l\.php|menu|bookmarks)(?:\/|$)/i.test(p);
+ if(id==='Reddit')return /^\/(?:u|user)\/[\w-]+(?:\/(?:submitted|overview))?$/.test(p);
+ if(id==='X')return /^\/\w+(?:\/media)?$/.test(p)&&!/^\/(?:home|messages|i|explore|search|settings|login|logout|account|notifications|compose|communities|jobs|bookmarks|premium|tos|privacy|about|signup|hashtag|following|followers|lists|topics|trends)(?:\/|$)/i.test(p);
+ if(id==='TikTok')return /^\/@[\w.-]+$/.test(p);
+ return false;
+}
+/* Instagram: one received item, opened by a deliberate tap in a conversation, for ten minutes. */
+const grantKeys=['ControlReceivedMedia.v1','ControlInstagramReceivedMedia.v2'];
+function permits(u){
+ const key=mediaKey('Instagram',u);if(!key)return false;
+ for(const name of grantKeys)try{
+  const grant=JSON.parse(sessionStorage.getItem(name));
+  if(grant&&grant.expires>Date.now()&&String(grant.path||'').replace(/\/+$/,'').split('/').pop()===key)return true;
+ }catch{}
+ return false;
+}
+const parisHour=()=>Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).format(new Date()));
+function storiesOpen(){let allowed=true;try{allowed=localStorage.getItem('ControlInstagramStoriesAllowed.v1')!=='false';}catch{}return allowed&&parisHour()>=22;}
+/* mode: messages | account | stories | media | gallery | blocked.  scroll: free | lock | number of screens. */
+function policy(u,id=net.id){
+ const p=u.pathname.toLowerCase(),host=u.hostname,key=mediaKey(id,u);
+ const free=mode=>({mode,scroll:'free'});
+ if(id==='Instagram'){
+  if(/^\/direct(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:accounts|challenge|oauth|legal|privacy)(?:\/|$)/.test(p))return free('account');
+  if(key)return permits(u)?{mode:'media',scroll:'lock'}:{mode:'blocked'};
+  if(/^\/stories\//.test(p))return storiesOpen()?free('stories'):{mode:'blocked'};
+  if(profile(id,u))return {mode:'gallery',scroll:3};
+ }
+ if(id==='Snapchat'){
+  if(host==='accounts.snapchat.com'||/^\/(?:accounts|login|logout|oauth|consent|challenge|settings)(?:\/|$)/.test(p))return free('account');
+  if(/^\/(?:spotlight|discover|stories|story|map|lens|lenses|plus|add|@)/.test(p))return {mode:'blocked'};
+  if(host==='web.snapchat.com'&&(p==='/'||/^\/(?:chat|chats|conversation|conversations|camera|memories|gallery|snap)(?:\/|$)/.test(p))||/^\/web(?:\/|$)/.test(p))return free('messages');
+ }
+ if(id==='Facebook'){
+  if(host==='messenger.com'||host.endsWith('.messenger.com')||/^\/messages(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:settings|login|logout|recover|checkpoint|two_step_verification|two_factor|confirmemail|privacy|help|reg|r\.php|cookie|device-based|auth|oauth|dialog\/oauth)(?:\.php)?(?:\/|$)/.test(p))return free('account');
+  if(key)return {mode:'media',scroll:'lock'};
+  if(profile(id,u))return {mode:'gallery',scroll:2.5};
+ }
+ if(id==='Reddit'){
+  if(host==='chat.reddit.com'||/^\/(?:message|chat)(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:settings|prefs|account|login|logout|register|password|verify|verification|auth|svc)(?:\/|$)/.test(p))return free('account');
+  if(key)return {mode:'media',scroll:5};
+  if(profile(id,u))return {mode:'gallery',scroll:2.5};
+ }
+ if(id==='Threads'){
+  if(/^\/(?:messages|inbox|direct)(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:login|logout|accounts|settings|privacy|oauth|challenge)(?:\/|$)/.test(p))return free('account');
+ }
+ if(id==='TikTok'){
+  if(/^\/(?:messages|inbox)(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:login|signup|setting)(?:\/|$)/.test(p))return free('account');
+  if(key)return {mode:'media',scroll:'lock'};
+  if(profile(id,u))return {mode:'gallery',scroll:2.5};
+ }
+ if(id==='X'){
+  if(/^\/(?:messages|i\/chat|compose)(?:\/|$)/.test(p))return free('messages');
+  if(/^\/(?:settings|login|logout|account|signup|tos|privacy|i\/(?:flow|jf|oauth2?|sso|keyboard_shortcuts))(?:\/|$)/.test(p))return free('account');
+  if(key)return {mode:'media',scroll:2.5};
+  if(profile(id,u))return {mode:'gallery',scroll:2.5};
+ }
+ return {mode:'blocked'};
+}
+/* String form used by the per-network code: a capped item behaves like a gallery there. */
+function classify(u,id=net.id){const result=policy(u,id);return result.mode==='media'&&result.scroll!=='lock'?'gallery':result.mode;}
+function homeUrl(){return new URL(net.home,location.origin).href;}
+
+const style=document.createElement('style');style.id='control-guard-style';
+style.textContent=`
+html[data-control-guard="wall"] body{display:none!important}
+html[data-control-guard="wall"],html[data-control-guard="lock"],html[data-control-guard="lock"] body{overflow:hidden!important;overscroll-behavior:none!important}
+html[data-control-guard="lock"] body *{overscroll-behavior:none!important;scroll-snap-type:none!important}
+html[data-control-guard="cap"],html[data-control-guard="cap"] body{overscroll-behavior-y:none!important}
+#control-wall{position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:14px!important;box-sizing:border-box!important;padding:32px 28px calc(32px + env(safe-area-inset-bottom,0px))!important;background:#f7f7f8!important;color:#16181c!important;font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif!important;text-align:center!important;opacity:0;animation:control-wall-in .25s ease-out .45s forwards}
+#control-wall[data-now]{animation-delay:0s}
+#control-wall h1{all:unset;display:block;font:600 21px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;color:inherit}
+#control-wall p{all:unset;display:block;max-width:300px;color:#6b7280;font-size:15px;line-height:1.45}
+#control-wall a,#control-wall button{all:unset;box-sizing:border-box;display:block;width:min(100%,300px);min-height:48px;padding:13px 18px;border-radius:14px;font:600 16px/22px -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#control-wall a[data-primary]{background:#16181c;color:#fff;margin-top:8px}
+#control-wall a:not([data-primary]),#control-wall button{background:transparent;color:#16181c;box-shadow:inset 0 0 0 1px #16181c2e}
+#control-cap{position:fixed!important;left:50%!important;bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;transform:translateX(-50%)!important;z-index:2147483646!important;max-width:calc(100vw - 32px)!important;box-sizing:border-box!important;padding:10px 16px!important;border-radius:999px!important;background:#16181ceb!important;color:#fff!important;font:600 13px/18px -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif!important;white-space:nowrap!important;pointer-events:none!important;opacity:0;transition:opacity .2s ease-out}
+#control-cap[data-on]{opacity:1}
+@keyframes control-wall-in{to{opacity:1}}
+@media(prefers-color-scheme:dark){#control-wall{background:#0f1012!important;color:#f3f4f6!important}#control-wall p{color:#9ca3af}#control-wall a[data-primary]{background:#f3f4f6;color:#0f1012}#control-wall a:not([data-primary]),#control-wall button{color:#f3f4f6;box-shadow:inset 0 0 0 1px #f3f4f63d}}
+@media(prefers-reduced-motion:reduce){#control-wall{animation:none;opacity:1}#control-cap{transition:none}}
+`;
+let current={mode:'messages',scroll:'free'},lastHref='',pinned=null,wall=null,capNote=null,capTimer=0,started=Date.now();
+const positions=new Map();
+const redirectKey='ControlGuardRedirects.v1';
+function recentRedirects(){try{return (JSON.parse(sessionStorage.getItem(redirectKey))||[]).filter(t=>Date.now()-t<15000);}catch{return [];}}
+function redirect(target){
+ const recent=recentRedirects();
+ if(recent.length>=2||target===location.href)return false;
+ try{sessionStorage.setItem(redirectKey,JSON.stringify([...recent,Date.now()]));}catch{return false;}
+ location.replace(target);return true;
+}
+function el(tag,text,attrs){const node=document.createElement(tag);if(text)node.textContent=text;for(const name in attrs||{})node.setAttribute(name,attrs[name]);return node;}
+function showWall(immediate){
+ const root=document.documentElement;
+ if(!wall){
+  wall=el('div','',{id:'control-wall',role:'dialog','aria-modal':'true','aria-label':'Control'});
+  wall.append(el('h1','Fil bloqué'),el('p','Control garde '+net.label+' sur les messages. Cette page reste fermée.'),el('a','Ouvrir les messages',{href:homeUrl(),'data-primary':''}));
+  if(net.alt)wall.append(el('a',net.alt[0],{href:net.alt[1]}));
+  const back=el('button','Page précédente',{type:'button'});back.addEventListener('click',()=>history.back());wall.append(back);
+ }
+ if(immediate)wall.setAttribute('data-now','');
+ if(wall.parentNode!==root)root.append(wall);
+}
+function hideWall(){wall?.remove();}
+function noteCap(){
+ const root=document.documentElement;
+ if(!capNote)capNote=el('div','Limite Control : la suite reste fermée',{id:'control-cap',role:'status'});
+ if(capNote.parentNode!==root)root.append(capNote);
+ capNote.setAttribute('data-on','');clearTimeout(capTimer);capTimer=setTimeout(()=>capNote?.removeAttribute('data-on'),1800);
+}
+const capPx=()=>Math.round(current.scroll*(window.innerHeight||700));
+function apply(){
+ const root=document.documentElement;if(!root)return;
+ if(style.parentNode!==root)root.append(style);
+ const changed=lastHref!==location.href;lastHref=location.href;
+ const url=new URL(location.href);let next=policy(url);
+ const key=mediaKey(net.id,url);
+ if(next.mode==='media'){
+  /* A different item reached without a new page load is a continuation (swipe, autoplay, next). */
+  if(!pinned)pinned={key,url:location.href};
+  else if(pinned.key!==key)next=changed&&redirect(pinned.url)?{mode:'blocked',pending:true}:{mode:'blocked'};
+ }else if(next.mode!=='blocked')pinned=null;
+ current=next;
+ if(next.mode==='blocked'){
+  root.setAttribute('data-control-guard','wall');
+  for(const media of document.querySelectorAll('video,audio'))try{if(!media.paused)media.pause();}catch{}
+  if(next.pending)return;
+  if(!apply.tried){apply.tried=true;if(redirect(homeUrl()))return;showWall(Date.now()-started>1500);return;}
+  showWall(false);return;
+ }
+ apply.tried=false;hideWall();
+ if(next.scroll==='lock')root.setAttribute('data-control-guard','lock');
+ else if(typeof next.scroll==='number')root.setAttribute('data-control-guard','cap');
+ else root.removeAttribute('data-control-guard');
+ if(next.scroll!=='lock')positions.clear();
+ if(typeof next.scroll==='number')clamp(document.scrollingElement);
+}
+function clamp(node){
+ if(!node||typeof current.scroll!=='number')return;
+ const limit=capPx();
+ if(node.scrollTop>limit+1){node.scrollTop=limit;noteCap();}
+}
+const exempt=event=>event.target instanceof Element&&event.target.closest('input,textarea,select,[contenteditable="true"],[role="slider"],#control-wall');
+let touchY=null;
+window.addEventListener('touchstart',event=>{
+ touchY=event.touches[0]?.clientY??null;
+ if(current.scroll!=='lock')return;
+ positions.clear();
+ for(let node=event.target instanceof Element?event.target:null;node;node=node.parentElement)positions.set(node,{top:node.scrollTop,left:node.scrollLeft});
+},{capture:true,passive:true});
+function stopScroll(event){
+ if(current.mode==='blocked'){if(!exempt(event)&&event.cancelable)event.preventDefault();return;}
+ if(current.scroll==='lock'){
+  if(exempt(event))return;
+  if(event.type==='keydown'&&!['ArrowDown','ArrowUp','PageDown','PageUp','End','Home',' '].includes(event.key))return;
+  if(event.cancelable)event.preventDefault();event.stopImmediatePropagation();return;
+ }
+ if(typeof current.scroll==='number'){
+  const scroller=document.scrollingElement;if(!scroller||scroller.scrollTop<capPx()-1)return;
+  let down=false;
+  if(event.type==='touchmove'){const y=event.touches[0]?.clientY;down=touchY!==null&&y<touchY-2;}
+  else if(event.type==='wheel')down=event.deltaY>0;
+  else down=['ArrowDown','PageDown','End',' '].includes(event.key)&&!exempt(event);
+  if(down){if(event.cancelable)event.preventDefault();noteCap();}
+ }
+}
+for(const type of ['touchmove','wheel'])window.addEventListener(type,stopScroll,{capture:true,passive:false});
+window.addEventListener('keydown',stopScroll,true);
+window.addEventListener('scroll',event=>{
+ const node=event.target===document||event.target===window?document.scrollingElement:event.target;
+ if(!(node instanceof Element))return;
+ if(current.scroll==='lock'){const saved=positions.get(node);if(saved&&(Math.abs(node.scrollTop-saved.top)>1||Math.abs(node.scrollLeft-saved.left)>1)){node.scrollTop=saved.top;node.scrollLeft=saved.left;}}
+ else if(typeof current.scroll==='number'&&(node===document.scrollingElement||node.clientHeight>=window.innerHeight*.6))clamp(node);
+},true);
+for(const type of ['popstate','pageshow','hashchange'])window.addEventListener(type,apply);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply();});
+setInterval(()=>{if(lastHref!==location.href||current.mode==='blocked'||!document.getElementById('control-guard-style'))apply();},150);
+globalThis.ControlGuard={version:'2.0.0',network:net,policy,classify,permits,mediaKey,apply,state:()=>current};
+apply();
+})();
+/* END CONTROL GUARD */
 
 /* BEGIN SHARED INSTAGRAM MEDIA GUARD */
 /* One deliberately opened Instagram media item. No message collection or media copies. */
@@ -325,6 +555,7 @@ globalThis.ControlSnapEssentialUI={create};
       [data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       video[data-csx-media][data-csx-ready="LOADING"]{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
       [data-csx-ready="READY"]{opacity:1;transition:opacity 180ms cubic-bezier(.2,0,0,1)}
+      .csx-loading-logo svg{width:44px;height:44px;display:block;overflow:visible}
       [data-control-snap-owned="loading"]{position:fixed;z-index:2147483201;pointer-events:none;display:grid;place-items:center}
       .csx-spinner{width:22px;height:22px;border:2px solid #8885;border-top-color:#959595;border-radius:50%;animation:csx-spin .8s linear infinite}
       @keyframes csx-spin{to{transform:rotate(1turn)}}
@@ -406,7 +637,7 @@ globalThis.ControlSnapEssentialUI={create};
       if (ready) { const entry = surfaces.get(node); clearTimeout(entry?.timer); entry?.indicator.remove(); surfaces.delete(node); mark(node,'data-csx-ready','READY'); if(entry)options.onReady?.(node);return; }
       if (surfaces.has(node) || node.getAttribute('data-csx-ready') === 'ERROR') return;
       mark(node,'data-csx-ready','LOADING');
-      const indicator = document.createElement('div'); indicator.dataset.controlSnapOwned = 'loading'; indicator.setAttribute('role','status'); indicator.setAttribute('aria-label','Chargement'); indicator.innerHTML = '<span class="csx-spinner" aria-hidden="true"></span>';
+      const indicator = document.createElement('div'); indicator.dataset.controlSnapOwned = 'loading'; indicator.setAttribute('role','status'); indicator.setAttribute('aria-label','Chargement'); indicator.innerHTML = '<span class="csx-loading-logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 26 26"><path fill="#ffffff" stroke="#111111" stroke-width=".8" stroke-linejoin="round" paint-order="stroke fill" d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/></svg></span>';
       const rect = node.getBoundingClientRect(); Object.assign(indicator.style,{left:rect.x+'px',top:rect.y+'px',width:rect.width+'px',height:rect.height+'px'}); document.documentElement.append(indicator);
       const timer = setTimeout(() => { if (!disposed && surfaces.has(node)) { indicator.remove(); surfaces.delete(node); mark(node,'data-csx-ready','ERROR'); } }, 4000);
       surfaces.set(node,{indicator,timer,kind});
@@ -976,6 +1207,8 @@ globalThis.ControlSnapEssentialUI={create};
     {id:'Snapchat',domains:['snapchat.com'],url:'https://web.snapchat.com/'},
     {id:'Facebook',domains:['facebook.com','messenger.com'],url:'https://www.facebook.com/messages/'},
     {id:'Reddit',domains:['reddit.com'],url:'https://www.reddit.com/message/inbox/'},
+    {id:'Threads',domains:['threads.com','threads.net'],url:'https://www.threads.com/messages'},
+    {id:'TikTok',domains:['tiktok.com'],url:'https://www.tiktok.com/messages'},
     {id:'X',domains:['x.com','twitter.com'],url:'https://x.com/messages'}
   ];
   const networkFor=host=>networks.find(n=>n.domains.some(d=>host===d||host.endsWith('.'+d)));
@@ -986,13 +1219,85 @@ globalThis.ControlSnapEssentialUI={create};
   const tokenKey='ControlReceivedMedia.v1';
   let grant=null;
   try{grant=JSON.parse(sessionStorage.getItem(tokenKey));}catch{}
-  const storiesKey='ControlInstagramStoriesAllowed.v1';let storiesAllowed=false;try{storiesAllowed=localStorage.getItem(storiesKey)==='true';}catch{}
+  const storiesKey='ControlInstagramStoriesAllowed.v1';let storiesAllowed=true;try{storiesAllowed=localStorage.getItem(storiesKey)!=='false';}catch{}
   const permits=url=>app.id==='Instagram' && networkFor(url.hostname)?.id==='Instagram' && mediaPath(url) && ((grant?.path===mediaPath(url) && grant.expires>Date.now())||globalThis.ControlInstagramMediaGuard?.permits(url.href));
+  const storiesWindow=()=>Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'}).format(new Date()))>=22;
+  let lastStoriesWindow=storiesWindow();
+/* Shared by the desktop content filter and the Safari userscript. */
+function controlViewRoute(app,u){
+  const p=u.pathname.replace(/\/+$/,'')||'/';
+  if(app==='Instagram'){
+    if(/^\/(?:p|reels?)\/[\w-]+$/.test(p))return 'media';
+    if(/^\/[a-z\d._]+(?:\/(?:reels|tagged))?$/i.test(p)&&!/^\/(?:explore|reels?|direct|stories|accounts|about|legal|directory|developer|challenge|oauth|web|p|notifications|search)(?:\/|$)/i.test(p))return 'gallery';
+  }
+  if(app==='Facebook'){
+    if(/^\/(?:reels?|stories)\/[\w.-]+(?:\/[\w.-]+)?$/.test(p)||/^\/(?:[\w.]+\/)?videos\/\d+$/.test(p)||p==='/watch'&&/^\d+$/.test(u.searchParams.get('v')||'')||/^\/photo(?:\.php)?$/.test(p)&&/^\d+$/.test(u.searchParams.get('fbid')||''))return 'media';
+    if(p==='/profile.php'&&/^\d+$/.test(u.searchParams.get('id')||'')||/^\/people\/[^/]+\/\d+(?:\/(?:photos|videos))?$/.test(p))return 'gallery';
+    if(/^\/[\w.]+(?:\/(?:photos|videos|reels))?$/.test(p)&&!/^\/(?:home(?:\.php)?|feeds?|watch|videos?|reels?|stories|groups|marketplace|gaming|search|friends|notifications|events|pages|photos?|media|saved|bookmarks|memories|fundraisers|ads|business|live|share|sharer(?:\.php)?|permalink\.php|story\.php|dialog|plugins|messages(?:-feed)?|welcome|login|settings|help|profile\.php|people|ajax|policies)(?:\/|$)/i.test(p))return 'gallery';
+  }
+  if(app==='Reddit'){
+    if(/^\/(?:u|user)\/[\w-]+(?:\/(?:submitted|overview))?$/.test(p))return 'gallery';
+    if(/^\/(?:r\/[\w-]+\/)?comments\/[a-z0-9]+(?:\/[^/]+)?$/i.test(p)||/^\/gallery\/[a-z0-9]+$/i.test(p))return 'media';
+  }
+  if(app==='X'){
+    if(/^\/[\w]+\/status\/\d+(?:\/(?:photo|video)\/\d+)?$/.test(p))return 'media';
+    if(/^\/[\w]+(?:\/media)?$/.test(p)&&!/^\/(?:home|messages|i|explore|search|settings|login|logout|account|notifications|compose|communities|jobs|bookmarks|premium|tos|privacy|about)(?:\/|$)/i.test(p))return 'gallery';
+  }
+  if(app==='TikTok'){
+    if(/^\/@[\w.-]+\/(?:video|photo)\/\d+$/.test(p))return 'media';
+    if(/^\/@[\w.-]+$/.test(p))return 'gallery';
+  }
+  return '';
+}
+function installControlViewer(getApp){
+  let style;
+  function view(){
+    const app=getApp();if(!app)return false;
+    const guard=globalThis.ControlGuard?.state();
+    if(guard?guard.scroll==='lock':controlViewRoute(app,new URL(location.href))==='media')return true;
+    if(guard&&guard.mode!=='messages')return false;
+    return [...document.querySelectorAll('[role="dialog"],[aria-modal="true"]')].some(d=>d.getClientRects().length&&[...d.querySelectorAll('video')].some(v=>!v.srcObject&&v.getClientRects().length));
+  }
+  function update(){
+    const root=document.documentElement;if(!root)return;
+    const app=getApp();
+    root.toggleAttribute('data-control-viewer-locked',!!app&&view());
+    root.toggleAttribute('data-control-no-discovery-search',!!app);
+    if(!app||style?.isConnected)return;
+    style=document.createElement('style');
+    style.textContent='html[data-control-viewer-locked],html[data-control-viewer-locked] body{overflow:hidden!important;overscroll-behavior:none!important;scroll-snap-type:none!important}html[data-control-viewer-locked] :is(main,[role=main],[role=dialog],video){touch-action:pinch-zoom!important;overscroll-behavior:none!important}html[data-control-no-discovery-search] :is(reddit-search-large,reddit-search-small,[data-testid="SearchBox_Search_Input"]),html[data-control-no-discovery-search] :is(header,nav,[role=banner],[role=navigation]) :is([role=search],input[type=search],input[aria-label*="search" i],input[aria-label*="recherch" i],a[href^="/search"],a[href^="/explore"]){display:none!important}';
+    root.append(style);
+  }
+  const slider=e=>e.target.closest?.('input,textarea,[contenteditable=true],[role=slider]');
+  const stop=e=>{if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();};
+  for(const type of ['wheel','touchmove','keydown'])window.addEventListener(type,e=>{
+    if(slider(e)||!view())return;
+    if(type==='keydown'&&!['ArrowDown','ArrowUp','PageDown','PageUp','End','Home'].includes(e.key))return;
+    stop(e);
+  },{capture:true,passive:false});
+  for(const [start,end] of [['touchstart','touchend'],['pointerdown','pointerup']]){
+    let swipe=null;
+    window.addEventListener(start,e=>{if(slider(e)||!view())return;const pt=e.touches?.[0]||e;swipe={x:pt.clientX,y:pt.clientY};},{capture:true,passive:true});
+    window.addEventListener(end,e=>{if(!swipe)return;const pt=e.changedTouches?.[0]||e, moved=Math.max(Math.abs(pt.clientX-swipe.x),Math.abs(pt.clientY-swipe.y));if(moved>12&&view())stop(e);swipe=null;},{capture:true,passive:false});
+  }
+  const differentItem=raw=>{const app=getApp();if(!app||!raw||!view())return false;const now=new URL(location.href),next=new URL(raw,now);return next.origin===now.origin&&controlViewRoute(app,next)==='media'&&(next.pathname!==now.pathname||next.searchParams.get('v')!==now.searchParams.get('v')||next.searchParams.get('fbid')!==now.searchParams.get('fbid'));};
+  window.addEventListener('click',e=>{const a=e.target.closest?.('a[href]');if(a&&differentItem(a.href))stop(e);},true);
+  window.navigation?.addEventListener('navigate',e=>{if(e.cancelable&&e.navigationType!=='traverse'&&differentItem(e.destination.url))e.preventDefault();});
+  for(const key of ['pushState','replaceState']){const original=history[key];history[key]=function(...args){if(differentItem(args[2]))return;return original.apply(this,args);};}
+  return update;
+}
+
+  const updateViewer=installControlViewer(()=>['Instagram','Facebook','X','Reddit','TikTok'].includes(app.id)?app.id:null);
   function kind(network,url){
+    if(globalThis.ControlGuard)return globalThis.ControlGuard.classify(url,network.id);
     const p=url.pathname.toLowerCase();
+    const view=controlViewRoute(network.id,url);
+    if(view && (network.id!=='Instagram'||view==='gallery'||permits(url)))return view;
+    if(network.id==='TikTok' && /^\/(?:messages|inbox)(?:\/|$)/.test(p))return 'messages';
+    if(network.id==='TikTok' && /^\/(?:login|signup|setting)(?:\/|$)/.test(p))return 'account';
     if(network.id==='Instagram'){
       if(/^\/direct(?:\/|$)/.test(p))return 'messages';
-      if(storiesAllowed&&/^\/stories\//.test(p))return 'stories';
+      if(storiesAllowed&&storiesWindow()&&/^\/stories\//.test(p))return 'stories';
       if(/^\/(accounts|challenge|oauth)(\/|$)/.test(p))return 'account';
       if(permits(url))return 'media';
     }
@@ -1000,6 +1305,10 @@ globalThis.ControlSnapEssentialUI={create};
       if(url.hostname==='accounts.snapchat.com'||/^\/(accounts|login|logout|oauth|consent|challenge|settings)(\/|$)/.test(p))return 'account';
       if(/^\/(spotlight|discover|stories|story|map|lens|lenses|plus|add|@)/.test(p))return 'blocked';
       if((url.hostname==='web.snapchat.com' && (p==='/'||/^\/(chat|chats|conversation|conversations|camera|memories|gallery|snap)(\/|$)/.test(p)))||/^\/web(?:\/|$)/.test(p))return 'messages';
+    }
+    if(network.id==='Threads'){
+      if(/^\/(messages|inbox|direct)(\/|$)/.test(p))return 'messages';
+      if(/^\/(login|logout|accounts|settings|privacy|oauth|challenge)(\/|$)/.test(p))return 'account';
     }
     if(network.id==='X'){
       if(/^\/(messages|i\/chat)(\/|$)/.test(p))return 'messages';
@@ -1181,7 +1490,7 @@ globalThis.ControlSnapEssentialUI={create};
     loadingStarted=true;loader=document.createElement('div');loader.id='control-native-loading';loader.setAttribute('role','status');loader.setAttribute('aria-label','Chargement de '+app.id);
     loader.dataset.network=app.id;
     const instagram='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><radialGradient id="ig-logo" gradientUnits="userSpaceOnUse" cx="4" cy="24" r="28"><stop stop-color="#ffdf00"/><stop offset=".25" stop-color="#ff8500"/><stop offset=".46" stop-color="#ff3500"/><stop offset=".66" stop-color="#ff007f"/><stop offset=".84" stop-color="#ec00ff"/><stop offset="1" stop-color="#743cff"/></radialGradient></defs><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" fill="none" stroke="url(#ig-logo)" stroke-width="1.8"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="url(#ig-logo)" stroke-width="1.8"/><circle cx="17.8" cy="6.4" r="1.15" fill="url(#ig-logo)"/></svg>';
-    const snapchat='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/></svg>';
+    const snapchat='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 26 26"><path fill="#ffffff" stroke="#111111" stroke-width=".8" stroke-linejoin="round" paint-order="stroke fill" d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/></svg>';
     loader.innerHTML='<span aria-hidden="true">'+(app.id==='Instagram'?instagram:snapchat)+'<i></i></span>';
     if(app.id==='Instagram'){
       loader.firstElementChild.className='control-ig-outline';
@@ -1219,7 +1528,7 @@ globalThis.ControlSnapEssentialUI={create};
     const head=document.querySelector('main header,[role="main"] header,header')||document.querySelector('main,[role="main"]');if(!head)return;
     const button=document.createElement('button');button.id='control-instagram-options';button.type='button';button.setAttribute('aria-label','Options Control · Instagram');button.title='Stories : '+(storiesAllowed?'autorisées':'désactivées');button.style.cssText='position:relative;flex:0 0 32px;width:32px;height:32px;padding:6px;margin:0 4px 0 auto;border:0;border-radius:50%;background:transparent;color:#8c8c8c;z-index:2';
     button.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/><circle cx="12" cy="12" r="4"/></svg>';
-    button.onclick=()=>{const dialog=document.createElement('dialog');dialog.style.cssText='padding:24px;border:1px solid #8884;border-radius:20px;color:CanvasText;background:Canvas;max-width:calc(100vw - 32px);font:15px system-ui';const title=document.createElement('h2');title.textContent='Votre Instagram';title.style.fontSize='20px';const label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=storiesAllowed;label.append(check,document.createTextNode(' Autoriser les stories'));check.onchange=()=>{storiesAllowed=check.checked;try{localStorage.setItem(storiesKey,String(storiesAllowed));}catch{}button.title='Stories : '+(storiesAllowed?'autorisées':'désactivées');schedule();};const text=document.createElement('p');text.textContent='Les Reels reçus restent lisibles, sans vidéo suivante.';text.style.cssText='max-width:280px;color:#888;line-height:1.5';const close=document.createElement('button');close.textContent='Terminé';close.style.cssText='padding:10px 16px;border:1px solid #8884;border-radius:12px;background:transparent;color:inherit';close.onclick=()=>dialog.close();dialog.append(title,label,text,close);dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();};
+    button.onclick=()=>{const dialog=document.createElement('dialog');dialog.style.cssText='padding:24px;border:1px solid #8884;border-radius:20px;color:CanvasText;background:Canvas;max-width:calc(100vw - 32px);font:15px system-ui';const title=document.createElement('h2');title.textContent='Votre Instagram';title.style.fontSize='20px';const label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=storiesAllowed;label.append(check,document.createTextNode(' Autoriser les stories entre 22 h et minuit (Paris)'));check.onchange=()=>{storiesAllowed=check.checked;try{localStorage.setItem(storiesKey,String(storiesAllowed));}catch{}button.title='Stories : '+(storiesAllowed?'autorisées':'désactivées');schedule();};const text=document.createElement('p');text.textContent='Les Reels reçus restent lisibles, sans vidéo suivante.';text.style.cssText='max-width:280px;color:#888;line-height:1.5';const close=document.createElement('button');close.textContent='Terminé';close.style.cssText='padding:10px 16px;border:1px solid #8884;border-radius:12px;background:transparent;color:inherit';close.onclick=()=>dialog.close();dialog.append(title,label,text,close);dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();};
     head.prepend(button);
   }
   function instagramInbox(){
@@ -1622,10 +1931,10 @@ globalThis.ControlSnapEssentialUI={create};
     if(!style.isConnected)document.documentElement.append(style);if(app.id==='Instagram')globalThis.ControlInstagramMediaGuard?.update({enabled:true});
     document.getElementById('control-iphone')?.remove();
     document.documentElement.removeAttribute('data-control-mobile-covered');
-    const mode=kind(app,new URL(location.href));
+    const mode=kind(app,new URL(location.href));updateViewer();
     document.documentElement.toggleAttribute('data-control-single-media',mode==='media');
     if(mode!=='media')document.querySelectorAll('[data-control-single-media-scroll]').forEach(el=>el.removeAttribute('data-control-single-media-scroll'));
-    if(mode==='blocked'){document.documentElement.setAttribute('data-control-redirecting','');if(!redirecting){redirecting=true;location.replace(app.url);}return;}
+    if(mode==='blocked'){globalThis.ControlGuard?.apply();finishLoading();return;}
     redirecting=false;document.documentElement.removeAttribute('data-control-redirecting');
     if(refresh.mode!==mode){document.querySelectorAll('['+hiddenAttr+']').forEach(el=>el.removeAttribute(hiddenAttr));refresh.mode=mode;}
     if(app.id==='Snapchat'&&mode!=='account'){
@@ -1642,6 +1951,10 @@ globalThis.ControlSnapEssentialUI={create};
       }
       snapRowActions(document.body,'none');snapPendingCamera=null;document.getElementById('control-snap-new-chat')?.remove();stopSnapAnchor();snapTabs?.remove();document.documentElement.removeAttribute('data-control-snap-view');return;}
     for(const link of document.querySelectorAll('nav a[href],[role="navigation"] a[href]'))try{const url=new URL(link.href,location.href),n=networkFor(url.hostname);if(n?.id===app.id&&kind(n,url)==='blocked')hide(link);}catch{}
+    if(mode==='messages'&&['X','Reddit','Threads'].includes(app.id)){
+      const selectors=app.id==='X'?'[data-testid="sidebarColumn"],[data-testid="trend"],[aria-label="Timeline: Trending now"]':app.id==='Reddit'?'shreddit-post,[data-testid="post-container"],[aria-label="Popular communities"]':'[data-testid="feed"],[aria-label="For you"],[aria-label="Pour vous"],[aria-label="Trending"]';
+      for(const node of document.querySelectorAll(selectors))if(!node.closest('[role="log"],[data-testid="message-list"]')&&!node.querySelector('textarea,[contenteditable="true"],[role="log"]'))hide(node);
+    }
     if(mode==='media')singleMedia();if(app.id==='Snapchat')snapchat();
     if(app.id==='Instagram'&&mode==='messages'){instagramInbox();instagramOptions();}
   }
@@ -1655,7 +1968,7 @@ globalThis.ControlSnapEssentialUI={create};
     const link=event.target instanceof Element?event.target.closest('a[href]'):null;if(!link)return;
     let url;try{url=new URL(link.href,location.href);}catch{return;}
     if(networkFor(url.hostname)?.id!==app.id)return;
-    if(app.id==='Instagram'&&kind(app,new URL(location.href))==='messages'&&mediaPath(url)&&!link.closest('nav,[role="navigation"]')&&event.isTrusted){
+    if(app.id==='Instagram'&&['messages','gallery'].includes(kind(app,new URL(location.href)))&&mediaPath(url)&&!link.closest('nav,[role="navigation"]')&&event.isTrusted){
       grant={path:mediaPath(url),expires:Date.now()+10*60*1000};try{sessionStorage.setItem(tokenKey,JSON.stringify(grant));}catch{}
       link.target='_self';return;
     }
@@ -1724,6 +2037,6 @@ globalThis.ControlSnapEssentialUI={create};
   window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('resize',schedule);
   window.visualViewport?.addEventListener('resize',schedule);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();else finishLoading();});
-  setInterval(()=>{if(lastUrl!==location.href||(grant&&grant.expires<=Date.now())){if(grant?.expires<=Date.now()){grant=null;try{sessionStorage.removeItem(tokenKey);}catch{}}refresh();}},200);
+  setInterval(()=>{if(lastStoriesWindow!==storiesWindow()||lastUrl!==location.href||(grant&&grant.expires<=Date.now())){lastStoriesWindow=storiesWindow();if(grant?.expires<=Date.now()){grant=null;try{sessionStorage.removeItem(tokenKey);}catch{}}refresh();}},200);
   refresh();
 })();
